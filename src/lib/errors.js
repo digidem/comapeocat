@@ -2,10 +2,9 @@ import { summarize } from 'valibot'
 import { PRESETS_DIR } from './constants.js'
 import path from 'node:path'
 
-/**
- * @import { ValiError, BaseSchema, BaseSchemaAsync, BaseIssue } from 'valibot'
- * @import { JSONError } from 'parse-json'
- */
+/** @import { ValiError, BaseSchema, BaseSchemaAsync, BaseIssue } from 'valibot' */
+/** @import { JSONError } from 'parse-json' */
+/** @typedef { InvalidFileVersionError | UnsupportedFileVersionError | MissingDefaultsError | MissingPresetsError } InvalidFileErrors */
 
 /**
  * A typeguard to check if an error is due to issues parsing input JSON
@@ -22,6 +21,22 @@ export function isParseError(err) {
 		(err.name === 'JSONError' ||
 			err.name === 'SchemaError' ||
 			err.name === 'PresetRefError')
+	)
+}
+
+/**
+ * A typeguard to check if an error is due to the file being invalid
+ * (e.g. missing required files, unsupported version, etc).
+ * @param {unknown} err
+ * @returns {err is InvalidFileErrors} True if the error is an invalid file error
+ */
+export function isInvalidFileError(err) {
+	return (
+		err instanceof Error &&
+		(err.name === 'InvalidFileVersionError' ||
+			err.name === 'UnsupportedFileVersionError' ||
+			err.name === 'MissingDefaultsError' ||
+			err.name === 'MissingPresetsError')
 	)
 }
 
@@ -73,5 +88,72 @@ export class PresetRefError extends Error {
 		super(message)
 
 		Error.captureStackTrace?.(this, PresetRefError)
+	}
+}
+
+export class UnsupportedFileVersionError extends Error {
+	name = 'UnsupportedFileVersionError'
+
+	/**
+	 * @param {object} params
+	 * @param {string} params.version - The unsupported version
+	 * @param {number[]} params.supportedVersions - List of supported versions
+	 */
+	constructor({ version, supportedVersions }) {
+		super(
+			`Unsupported file version: "${version}". Supported versions are: ${supportedVersions
+				.map((v) => `"${v}.x"`)
+				.join(', ')}.`,
+		)
+
+		Error.captureStackTrace?.(this, UnsupportedFileVersionError)
+	}
+}
+
+export class InvalidFileVersionError extends Error {
+	name = 'InvalidFileVersionError'
+
+	/**
+	 * @param {object} params
+	 * @param {string} params.version - The invalid version string
+	 */
+	constructor({ version }) {
+		super(
+			`Invalid file version: "${version}". Was expecting a version of the format "MAJOR.MINOR"`,
+		)
+
+		Error.captureStackTrace?.(this, InvalidFileVersionError)
+	}
+}
+
+export class MissingPresetsError extends Error {
+	name = 'MissingPresetsError'
+
+	constructor() {
+		super('Missing required presets definitions in file.')
+		Error.captureStackTrace?.(this, MissingPresetsError)
+	}
+}
+
+export class MissingDefaultsError extends Error {
+	name = 'MissingDefaultsError'
+
+	constructor() {
+		super('Missing required defaults definitions in file.')
+		Error.captureStackTrace?.(this, MissingDefaultsError)
+	}
+}
+
+export class InvalidFileError extends Error {
+	name = 'InvalidFileError'
+
+	/**
+	 * @param {object} params
+	 * @param {InvalidFileErrors} params.cause - The reason why the file is invalid
+	 */
+	constructor({ cause }) {
+		super('Invalid categories file', { cause })
+
+		Error.captureStackTrace?.(this, InvalidFileError)
 	}
 }

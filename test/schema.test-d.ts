@@ -1,4 +1,3 @@
-import { expectAssignable } from 'tsd'
 import type { PresetOutput } from '../src/schema/preset.js'
 import type { FieldOutput } from '../src/schema/field.js'
 import type { PresetValue, FieldValue } from '@comapeo/schema'
