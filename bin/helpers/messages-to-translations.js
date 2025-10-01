@@ -1,11 +1,12 @@
-import { unEscapePath } from './utils.js'
-/** @import {TranslationsOutput} from '../schema/translations.js' */
+import { unEscapePath } from '../../src/lib/utils.js'
+
+/** @import {TranslationsOutput} from '../../src/schema/translations.js' */
 
 // Regex to split on dots NOT preceded by a backslash
 const UNESCAPED_DOTS_REGEX = /(?<!\\)\./g
 
 /**
- * @param {import('../schema/messages.js').MessagesOutput} messages
+ * @param {import('../../src/schema/messages.js').MessagesOutput} messages
  * @returns {TranslationsOutput}
  */
 export function messagesToTranslations(messages) {

@@ -1,6 +1,7 @@
 import { InvalidDefaultsError, PresetRefError } from './lib/errors.js'
 import { readFiles } from './lib/read-files.js'
 import { addRefToMap } from './lib/utils.js'
+
 /** @import {DefaultsStrictOutput} from './schema/defaults.js' */
 /** @import {Entries} from 'type-fest' */
 /**

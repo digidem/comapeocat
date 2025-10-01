@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 import { Command } from 'commander'
-import { lint } from '../src/lint.js'
+import { lint } from './helpers/lint.js'
 import { isParseError } from '../src/lib/errors.js'
 
 const program = new Command()

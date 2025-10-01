@@ -7,9 +7,9 @@ import { Writer } from '../src/writer.js'
 import { pipeline } from 'node:stream/promises'
 import * as v from 'valibot'
 import { MetadataSchemaStrict } from '../src/schema/metadata.js'
-import { lint } from '../src/lint.js'
+import { lint } from './helpers/lint.js'
 import { assertValidBCP47 } from '../src/lib/utils.js'
-import { messagesToTranslations } from '../src/lib/messages-to-translations.js'
+import { messagesToTranslations } from './helpers/messages-to-translations.js'
 
 const program = new Command()
 
