@@ -1,6 +1,6 @@
 import fs from 'node:fs/promises'
 import path from 'node:path'
-import { jsonFiles, parse } from './utils.js'
+import { jsonFiles, parse, isNotFoundError } from './utils.js'
 import { PresetSchemaStrict } from '../schema/preset.js'
 import { FieldSchemaStrict } from '../schema/field.js'
 import { DefaultsSchemaStrict } from '../schema/defaults.js'
@@ -48,14 +48,22 @@ export async function* readFiles(dir) {
 		yield { type: 'field', id: nameToId(name), value }
 	}
 
-	const iconFiles = await fs.readdir(path.join(dir, ICONS_DIR), {
-		recursive: true,
-	})
-	for (const name of iconFiles) {
-		if (!name.endsWith('.svg')) continue
-		const data = await fs.readFile(path.join(dir, ICONS_DIR, name), 'utf-8')
-		const value = parseSvg(data)
-		yield { type: 'icon', id: nameToId(name), value }
+	let iconFiles
+	try {
+		iconFiles = await fs.readdir(path.join(dir, ICONS_DIR), {
+			recursive: true,
+		})
+	} catch (err) {
+		// Icons are optional
+		if (!isNotFoundError(err)) throw err
+	}
+	if (iconFiles) {
+		for (const name of iconFiles) {
+			if (!name.endsWith('.svg')) continue
+			const data = await fs.readFile(path.join(dir, ICONS_DIR, name), 'utf-8')
+			const value = parseSvg(data)
+			yield { type: 'icon', id: nameToId(name), value }
+		}
 	}
 
 	for await (const { name, data } of jsonFiles(path.join(dir, MESSAGES_DIR), {
@@ -96,11 +104,6 @@ export async function* readFiles(dir) {
 		})
 		yield { type: 'defaults', id: 'defaults', value }
 	}
-}
-
-/** @param {unknown} err */
-function isNotFoundError(err) {
-	return err instanceof Error && 'code' in err && err.code === 'ENOENT'
 }
 
 /**

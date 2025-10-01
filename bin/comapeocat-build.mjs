@@ -8,6 +8,8 @@ import { pipeline } from 'node:stream/promises'
 import * as v from 'valibot'
 import { MetadataSchemaStrict } from '../src/schema/metadata.js'
 import { lint } from '../src/lint.js'
+import { assertValidBCP47 } from '../src/lib/utils.js'
+import { messagesToTranslations } from '../src/lib/messages-to-translations.js'
 
 const program = new Command()
 
@@ -45,6 +47,10 @@ program
 						break
 					case 'icon':
 						writer.addIcon(id, value)
+						break
+					case 'messages':
+						assertValidBCP47(id)
+						await writer.addTranslations(id, messagesToTranslations(value))
 						break
 					case 'metadata':
 						fileMetadata = value

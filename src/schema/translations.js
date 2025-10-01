@@ -21,7 +21,7 @@ export const TranslationsSchema = v.object({
 			v.minLength(1),
 			v.description('The ID of the preset being translated'),
 		),
-		TranslationSchema,
+		v.array(TranslationSchema),
 	),
 	field: v.record(
 		v.pipe(
@@ -29,6 +29,6 @@ export const TranslationsSchema = v.object({
 			v.minLength(1),
 			v.description('The ID of the field being translated'),
 		),
-		TranslationSchema,
+		v.array(TranslationSchema),
 	),
 })

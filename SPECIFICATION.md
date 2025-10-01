@@ -59,9 +59,13 @@ archive.comapeocat
 ├── defaults.json        (required)
 ├── metadata.json        (required)
 ├── fields.json          (optional)
-└── icons/               (optional)
-    ├── icon1.svg
-    ├── icon2.svg
+├── icons/               (optional)
+│   ├── icon1.svg
+│   ├── icon2.svg
+│   └── ...
+└── translations/        (optional)
+    ├── en.json
+    ├── es.json
     └── ...
 ```
 
@@ -71,6 +75,8 @@ archive.comapeocat
 - File names MUST NOT contain leading or trailing whitespace
 - Icon files MUST be located in the `icons/` directory
 - Icon files MUST have the `.svg` extension
+- Translation files MUST be located in the `translations/` directory
+- Translation files MUST have the `.json` extension
 
 ## 5. Version File
 
@@ -348,13 +354,148 @@ File: `icons/tree.svg`
 </svg>
 ```
 
-## 11. Archive Constraints
+## 11. Translations
 
-### 11.1. Entry Limits
+### 11.1. Location
+
+Translation files, if present, MUST be located in the `translations/` directory at the root of the archive.
+
+### 11.2. File Naming
+
+Translation file names:
+
+- MUST have the `.json` extension
+- MUST be named using a valid BCP 47 language tag (without the `.json` extension)
+- SHOULD use only language and region subtags (e.g., `en.json`, `es.json`, `en-US.json`)
+- MAY use other BCP 47 subtags (script, variant, extension) for forward compatibility
+
+### 11.3. Format
+
+Each translation file MUST be a valid JSON object with the following structure:
+
+```json
+{
+  "preset": {
+    "preset-id": [ ... ],
+    ...
+  },
+  "field": {
+    "field-id": [ ... ],
+    ...
+  }
+}
+```
+
+Where:
+
+- **preset** (required): Object mapping preset IDs to arrays of translation objects
+- **field** (required): Object mapping field IDs to arrays of translation objects
+
+### 11.4. Translation Object Schema
+
+Each translation object in the arrays MUST contain:
+
+- **propertyRef** (required): Reference to the property being translated (non-empty string)
+  - Uses dot notation for nested properties (e.g., `"options.0"`)
+- **message** (required): The translated text (string)
+
+### 11.5. Valid Property References
+
+#### 11.5.1. Preset Property References
+
+For presets, valid `propertyRef` values are:
+
+- `"name"` - Preset name
+- `"terms"` - Preset search terms
+
+#### 11.5.2. Field Property References
+
+For fields, valid `propertyRef` values are:
+
+- `"name"` - Field name
+- `"label"` - Field label
+- `"placeholder"` - Field placeholder text
+- `"helperText"` - Field helper text
+- `"options.{index}"` - Field option label, where `{index}` is a zero-based integer (e.g., `"options.0"`, `"options.1"`)
+
+### 11.6. Validation
+
+Readers:
+
+- MUST ignore translation files with invalid or unsupported BCP 47 language tags
+- SHOULD ignore translation objects with `propertyRef` values that do not correspond to existing properties
+- SHOULD ignore preset or field IDs that do not exist in `presets.json` or `fields.json`
+- MAY provide different coverage across languages (not all languages need to translate the same properties)
+
+Writers:
+
+- SHOULD only include translation files with valid BCP 47 language tags
+- SHOULD only use language and region subtags unless other subtags are needed
+
+### 11.7. Example
+
+File: `translations/es.json`
+
+```json
+{
+	"preset": {
+		"tree": [
+			{
+				"propertyRef": "name",
+				"message": "Árbol"
+			},
+			{
+				"propertyRef": "terms",
+				"message": "arbre"
+			}
+		],
+		"waterhole": [
+			{
+				"propertyRef": "name",
+				"message": "Pozo de agua"
+			}
+		]
+	},
+	"field": {
+		"species": [
+			{
+				"propertyRef": "label",
+				"message": "Especie"
+			},
+			{
+				"propertyRef": "placeholder",
+				"message": "ej. Quercus robur"
+			}
+		],
+		"condition": [
+			{
+				"propertyRef": "label",
+				"message": "Condición del árbol"
+			},
+			{
+				"propertyRef": "options.0",
+				"message": "Saludable"
+			},
+			{
+				"propertyRef": "options.1",
+				"message": "Dañado"
+			},
+			{
+				"propertyRef": "options.2",
+				"message": "Muerto"
+			}
+		]
+	}
+}
+```
+
+## 12. Archive Constraints
+
+### 12.1. Entry Limits
 
 The total number of entries (files) in the archive MUST NOT exceed 10,000.
 
-### 11.2. Compression
+### 12.2. Compression
 
 Writers:
 
@@ -366,9 +507,9 @@ Readers:
 - MUST support uncompressed (stored) entries
 - MUST support DEFLATE compression
 
-## 12. Validation Requirements
+## 13. Validation Requirements
 
-### 12.1. Required Files
+### 13.1. Required Files
 
 Readers MUST verify that the following files are present:
 
@@ -379,7 +520,7 @@ Readers MUST verify that the following files are present:
 
 If any required file is missing, readers MUST reject the file.
 
-### 12.2. Version Validation
+### 13.2. Version Validation
 
 Readers MUST:
 
@@ -388,7 +529,7 @@ Readers MUST:
 3. Verify the major version is supported
 4. Reject files with unsupported major versions
 
-### 12.3. Schema Validation
+### 13.3. Schema Validation
 
 Readers MUST validate that:
 
@@ -396,7 +537,7 @@ Readers MUST validate that:
 - All JSON files conform to their respective schemas
 - All preset references to fields and icons are valid (fields exist in `fields.json`, icons exist in `icons/` directory)
 
-### 12.4. Reference Validation
+### 13.4. Reference Validation
 
 Readers SHOULD validate that:
 
@@ -408,15 +549,15 @@ Readers MAY issue warnings for:
 - Fields defined in `fields.json` that are not referenced by any preset
 - Icons in the `icons/` directory that are not referenced by any preset
 
-## 13. Error Handling
+## 14. Error Handling
 
-Readers MUST reject files that fail validation as specified in Section 12. The specific error types, messages, and reporting mechanisms are implementation-defined.
+Readers MUST reject files that fail validation as specified in Section 13. The specific error types, messages, and reporting mechanisms are implementation-defined.
 
 Readers SHOULD provide informative error messages to aid users in diagnosing and correcting invalid files.
 
-## 14. Security Considerations
+## 15. Security Considerations
 
-### 14.1. Archive Extraction
+### 15.1. Archive Extraction
 
 Implementations MUST:
 
@@ -424,7 +565,7 @@ Implementations MUST:
 - Enforce file size limits to prevent ZIP bombs
 - Enforce entry count limits to prevent resource exhaustion
 
-### 14.2. SVG Content
+### 15.2. SVG Content
 
 Implementations that render SVG icons SHOULD:
 
@@ -432,7 +573,7 @@ Implementations that render SVG icons SHOULD:
 - Disable script execution in SVG rendering contexts
 - Apply sandboxing or isolation when rendering untrusted SVGs
 
-### 14.3. JSON Parsing
+### 15.3. JSON Parsing
 
 Implementations MUST:
 
@@ -440,16 +581,16 @@ Implementations MUST:
 - Enforce reasonable size limits on JSON files
 - Handle deeply nested structures safely
 
-## 15. Extensibility
+## 16. Extensibility
 
-### 15.1. Unknown Properties
+### 16.1. Unknown Properties
 
 Readers:
 
 - SHOULD ignore unknown properties in JSON files
 - SHOULD NOT reject files solely due to unknown properties
 
-### 15.2. Future Versions
+### 16.2. Future Versions
 
 Future major versions MAY:
 
@@ -463,7 +604,7 @@ Future minor versions MAY:
 - Add optional properties to existing schemas
 - Add new constraints that are backward-compatible
 
-## 16. Conformance
+## 17. Conformance
 
 A file conforms to this specification if:
 
@@ -478,7 +619,7 @@ An implementation conforms to this specification as a writer if it produces file
 
 An implementation conforms to this specification as a reader if it correctly processes conforming files and correctly rejects non-conforming files according to the validation requirements.
 
-## 17. References
+## 18. References
 
 - [RFC 2119](https://www.rfc-editor.org/rfc/rfc2119) - Key words for use in RFCs to Indicate Requirement Levels
 - [ZIP File Format Specification](https://pkware.cachefly.net/webdocs/casestudies/APPNOTE.TXT)

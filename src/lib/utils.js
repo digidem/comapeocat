@@ -11,7 +11,14 @@ import parseJson from 'parse-json'
  * @returns {AsyncGenerator<{name: string, data: unknown}>} Yields objects with file name and parsed JSON data
  */
 export async function* jsonFiles(dir, { recursive = true } = {}) {
-	const entries = await fs.readdir(dir, { recursive })
+	let entries
+	try {
+		entries = await fs.readdir(dir, { recursive })
+	} catch (err) {
+		// If directory doesn't exist, just return without yielding anything
+		if (isNotFoundError(err)) return
+		throw err
+	}
 	for (const entry of entries) {
 		if (path.extname(entry) !== '.json') continue
 		const json = await fs.readFile(path.join(dir, entry), 'utf-8')
@@ -19,6 +26,11 @@ export async function* jsonFiles(dir, { recursive = true } = {}) {
 		const data = parseJson(json)
 		yield { name: entry, data }
 	}
+}
+
+/** @param {unknown} err */
+export function isNotFoundError(err) {
+	return err instanceof Error && 'code' in err && err.code === 'ENOENT'
 }
 
 /**
@@ -175,11 +187,17 @@ export function assertValidBCP47(lang) {
 export function isSupportedBCP47(schema) {
 	// parseBCP47 will return an empty object if the tag is invalid
 	if (Object.keys(schema).length === 0) return false
-	const validSubtags = ['language', 'region']
-	for (const key of Object.keys(schema)) {
-		if (!validSubtags.includes(key)) {
-			return false
-		}
-	}
+	if (!schema.language) return false
 	return true
+}
+
+/**
+ * Does the opposite of escapePath from dot-prop: un-escapes `.` and `[`
+ * @param {string} path
+ */
+export function unEscapePath(path) {
+	if (typeof path !== 'string') {
+		throw new TypeError('Expected a string')
+	}
+	return path.replaceAll(/\\([\\.[])/g, '$1')
 }
