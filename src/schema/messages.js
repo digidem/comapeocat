@@ -1,4 +1,5 @@
 import * as v from 'valibot'
+
 /** @import {InferOutput} from 'valibot' */
 /** @typedef {InferOutput<typeof MessagesSchema>} MessagesOutput */
 /** @typedef {InferOutput<typeof MessagesSchemaStrict>} MessagesStrictOutput */

@@ -1,12 +1,13 @@
 #!/usr/bin/env node
+import fs from 'node:fs/promises'
+import path from 'node:path'
 
 import { Command } from '@commander-js/extra-typings'
-import fs from 'node:fs/promises'
-import { readFiles } from '../src/lib/read-files.js'
 import { escapePath } from 'dot-prop'
-import { assertValidBCP47 } from '../src/lib/utils.js'
+
 import { MESSAGES_DIR } from '../src/lib/constants.js'
-import path from 'node:path'
+import { readFiles } from '../src/lib/read-files.js'
+import { assertValidBCP47 } from '../src/lib/utils.js'
 
 const program = new Command()
 

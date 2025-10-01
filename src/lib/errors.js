@@ -1,6 +1,8 @@
-import { summarize } from 'valibot'
-import { PRESETS_DIR } from './constants.js'
 import path from 'node:path'
+
+import { summarize } from 'valibot'
+
+import { PRESETS_DIR } from './constants.js'
 
 /** @import { ValiError, BaseSchema, BaseSchemaAsync, BaseIssue } from 'valibot' */
 /** @import { JSONError } from 'parse-json' */

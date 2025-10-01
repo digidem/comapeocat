@@ -1,14 +1,16 @@
 #!/usr/bin/env node
-import { Command } from '@commander-js/extra-typings'
 import fs from 'node:fs'
+import { pipeline } from 'node:stream/promises'
+
+import { Command } from '@commander-js/extra-typings'
+import * as v from 'valibot'
+
 import { isParseError } from '../src/lib/errors.js'
 import { readFiles } from '../src/lib/read-files.js'
-import { Writer } from '../src/writer.js'
-import { pipeline } from 'node:stream/promises'
-import * as v from 'valibot'
-import { MetadataSchemaStrict } from '../src/schema/metadata.js'
-import { lint } from './helpers/lint.js'
 import { assertValidBCP47 } from '../src/lib/utils.js'
+import { MetadataSchemaStrict } from '../src/schema/metadata.js'
+import { Writer } from '../src/writer.js'
+import { lint } from './helpers/lint.js'
 import { messagesToTranslations } from './helpers/messages-to-translations.js'
 
 const program = new Command()

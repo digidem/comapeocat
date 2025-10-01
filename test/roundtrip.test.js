@@ -1,14 +1,14 @@
 // @ts-nocheck
-
-import { describe, test, before, after } from 'node:test'
 import assert from 'node:assert/strict'
-import { Writer } from '../src/writer.js'
-import { Reader } from '../src/reader.js'
-import { createWriteStream, mkdirSync, rmSync } from 'node:fs'
-import { join } from 'node:path'
-import { tmpdir } from 'node:os'
 import { randomBytes } from 'node:crypto'
+import { createWriteStream, mkdirSync, rmSync } from 'node:fs'
+import { tmpdir } from 'node:os'
+import { join } from 'node:path'
 import { pipeline } from 'node:stream/promises'
+import { describe, test, before, after } from 'node:test'
+
+import { Reader } from '../src/reader.js'
+import { Writer } from '../src/writer.js'
 import { fixtures } from './fixtures.js'
 
 const TEST_DIR = join(

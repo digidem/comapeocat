@@ -1,4 +1,5 @@
 import { optimize } from 'svgo'
+
 import { InvalidSvgError } from './errors.js'
 
 /**

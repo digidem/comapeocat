@@ -1,10 +1,11 @@
-import { describe, test, before, after } from 'node:test'
 import assert from 'node:assert/strict'
-import { Reader } from '../src/reader.js'
-import { mkdirSync, rmSync } from 'node:fs'
-import { join } from 'node:path'
-import { tmpdir } from 'node:os'
 import { randomBytes } from 'node:crypto'
+import { mkdirSync, rmSync } from 'node:fs'
+import { tmpdir } from 'node:os'
+import { join } from 'node:path'
+import { describe, test, before, after } from 'node:test'
+
+import { Reader } from '../src/reader.js'
 import { createTestZip, fixtures } from './fixtures.js'
 
 const TEST_DIR = join(

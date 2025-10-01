@@ -1,21 +1,23 @@
-import archiver from 'archiver'
 import { EventEmitter } from 'node:events'
 import { PassThrough, pipeline } from 'node:stream'
+
+import archiver from 'archiver'
+import { pEvent } from 'p-event'
 import * as v from 'valibot'
+
+import { ICONS_DIR, TRANSLATIONS_DIR, VERSION_FILE } from './lib/constants.js'
 import {
 	AddAfterFinishError,
 	MissingMetadataError,
 	MissingPresetsError,
 } from './lib/errors.js'
-import { PresetSchemaStrict } from './schema/preset.js'
-import { FieldSchemaStrict } from './schema/field.js'
-import { DefaultsSchemaStrict } from './schema/defaults.js'
-import { MetadataSchemaStrict } from './schema/metadata.js'
 import { parseSvg } from './lib/parse-svg.js'
-import { ICONS_DIR, TRANSLATIONS_DIR, VERSION_FILE } from './lib/constants.js'
 import { validatePresetReferences } from './lib/utils.js'
+import { DefaultsSchemaStrict } from './schema/defaults.js'
+import { FieldSchemaStrict } from './schema/field.js'
+import { MetadataSchemaStrict } from './schema/metadata.js'
+import { PresetSchemaStrict } from './schema/preset.js'
 import { TranslationsSchema } from './schema/translations.js'
-import { pEvent } from 'p-event'
 
 /** @import { PresetStrictInput , PresetStrictOutput } from './schema/preset.js' */
 /** @import { FieldStrictInput, FieldStrictOutput } from './schema/field.js' */

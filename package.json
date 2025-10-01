@@ -19,7 +19,8 @@
 	},
 	"scripts": {
 		"test": "node --test",
-		"prepare": "husky && husky install"
+		"prepare": "husky && husky install",
+		"format": "prettier --write ."
 	},
 	"keywords": [],
 	"author": "",
@@ -58,7 +59,15 @@
 		"semi": false,
 		"singleQuote": true,
 		"useTabs": true,
-		"importOrderSeparation": true
+		"importOrderSeparation": true,
+		"importOrder": [
+			"^node:",
+			"^@?\\w",
+			"^[./]"
+		],
+		"plugins": [
+			"@trivago/prettier-plugin-sort-imports"
+		]
 	},
 	"lint-staged": {
 		"*.js": "eslint --cache --fix",

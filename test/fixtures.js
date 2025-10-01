@@ -1,5 +1,6 @@
-import archiver from 'archiver'
 import { createWriteStream } from 'node:fs'
+
+import archiver from 'archiver'
 
 export const fixtures = /** @type {const} */ ({
 	presets: {

@@ -1,9 +1,11 @@
-import { parse as parseBCP47 } from 'bcp-47'
 import fs from 'node:fs/promises'
 import path from 'node:path'
-import * as v from 'valibot'
-import { InvalidDefaultsError, PresetRefError, SchemaError } from './errors.js'
+
+import { parse as parseBCP47 } from 'bcp-47'
 import parseJson from 'parse-json'
+import * as v from 'valibot'
+
+import { InvalidDefaultsError, PresetRefError, SchemaError } from './errors.js'
 
 /**
  * Async generator to read all JSON files in a directory

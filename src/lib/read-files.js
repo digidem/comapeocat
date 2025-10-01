@@ -1,11 +1,13 @@
 import fs from 'node:fs/promises'
 import path from 'node:path'
-import { jsonFiles, parse, isNotFoundError } from './utils.js'
-import { PresetSchemaStrict } from '../schema/preset.js'
-import { FieldSchemaStrict } from '../schema/field.js'
+
+import parseJson from 'parse-json'
+
 import { DefaultsSchemaStrict } from '../schema/defaults.js'
-import { MetadataSchemaStrict } from '../schema/metadata.js'
+import { FieldSchemaStrict } from '../schema/field.js'
 import { MessagesSchemaStrict } from '../schema/messages.js'
+import { MetadataSchemaStrict } from '../schema/metadata.js'
+import { PresetSchemaStrict } from '../schema/preset.js'
 import {
 	FIELDS_DIR,
 	ICONS_DIR,
@@ -14,7 +16,7 @@ import {
 	PRESETS_DIR,
 } from './constants.js'
 import { parseSvg } from './parse-svg.js'
-import parseJson from 'parse-json'
+import { jsonFiles, parse, isNotFoundError } from './utils.js'
 
 /**
  * @import {PresetStrictOutput} from '../schema/preset.js'

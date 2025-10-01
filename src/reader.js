@@ -1,10 +1,8 @@
-import { open } from 'yauzl-promise'
-import { PresetSchema } from './schema/preset.js'
-import { FieldSchema } from './schema/field.js'
-import { DefaultsSchema } from './schema/defaults.js'
-import { MetadataSchema } from './schema/metadata.js'
+import { parse as parseBCP47 } from 'bcp-47'
 import parseJson from 'parse-json'
 import * as v from 'valibot'
+import { open } from 'yauzl-promise'
+
 import { VERSION_FILE, ICONS_DIR, TRANSLATIONS_DIR } from './lib/constants.js'
 import {
 	InvalidFileVersionError,
@@ -18,7 +16,10 @@ import {
 	parse,
 	validatePresetReferences,
 } from './lib/utils.js'
-import { parse as parseBCP47 } from 'bcp-47'
+import { DefaultsSchema } from './schema/defaults.js'
+import { FieldSchema } from './schema/field.js'
+import { MetadataSchema } from './schema/metadata.js'
+import { PresetSchema } from './schema/preset.js'
 import { TranslationsSchema } from './schema/translations.js'
 
 const SUPPORTED_MAJOR_VERSION = 1

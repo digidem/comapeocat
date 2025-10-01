@@ -1,4 +1,5 @@
 import * as v from 'valibot'
+
 import { GEOMETRY_TYPES } from '../lib/constants.js'
 
 /** @typedef {v.InferOutput<typeof DefaultsSchema>} DefaultsOutput */
