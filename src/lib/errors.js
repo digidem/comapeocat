@@ -209,3 +209,16 @@ export const AddAfterFinishError = createSimpleError(
 	'AddAfterFinishError',
 	'Cannot add more data after finish() has been called.',
 )
+
+export class InvalidSvgError extends Error {
+	name = 'InvalidSvgError'
+
+	/**
+	 * @param {object} params
+	 * @param {Error} params.cause - The underlying SVG parsing error
+	 */
+	constructor({ cause }) {
+		super('Invalid SVG content', { cause })
+		Error.captureStackTrace?.(this, InvalidSvgError)
+	}
+}

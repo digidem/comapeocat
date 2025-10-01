@@ -7,9 +7,7 @@ import parseJson from 'parse-json'
 import * as v from 'valibot'
 import { VERSION_FILE, ICONS_DIR, TRANSLATIONS_DIR } from './lib/constants.js'
 import {
-	InvalidFileError,
 	InvalidFileVersionError,
-	isInvalidFileError,
 	MissingDefaultsError,
 	MissingMetadataError,
 	MissingPresetsError,
@@ -89,6 +87,7 @@ export class Reader {
 				icons: new Map(),
 				translations: new Map(),
 			}
+			let versionFound = false
 			if (this.#closePromise) throw new Error('Reader is closed')
 			const zip = await zipPromise
 			if (this.#closePromise) throw new Error('Reader is closed')
@@ -97,6 +96,7 @@ export class Reader {
 				if (isValidFileName(entry.filename)) {
 					entries[FILENAMES[entry.filename]] = entry
 				} else if (entry.filename === VERSION_FILE) {
+					versionFound = true
 					const version = await concatStream(await entry.openReadStream())
 					assertReadableVersion(version)
 				} else {
@@ -116,6 +116,9 @@ export class Reader {
 						}
 					}
 				}
+			}
+			if (!versionFound) {
+				throw new InvalidFileVersionError({ version: '(missing)' })
 			}
 			assertValidEntries(entries)
 			return entries
@@ -141,26 +144,19 @@ export class Reader {
 	}
 
 	async validate() {
-		try {
-			await this.#entriesPromise
+		await this.#entriesPromise
 
-			const presets = await this.presets()
-			const defaults = await this.defaults()
-			const fields = await this.fields()
-			const iconNames = await this.iconNames()
+		const presets = await this.presets()
+		const defaults = await this.defaults()
+		const fields = await this.fields()
+		const iconNames = await this.iconNames()
 
-			validatePresetReferences({
-				presets,
-				fieldIds: fields,
-				iconIds: iconNames,
-				defaults,
-			})
-		} catch (error) {
-			if (isInvalidFileError(error)) {
-				throw new InvalidFileError({ cause: error })
-			}
-			throw error
-		}
+		validatePresetReferences({
+			presets,
+			fieldIds: fields,
+			iconIds: iconNames,
+			defaults,
+		})
 	}
 
 	/**
