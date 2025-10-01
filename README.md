@@ -365,8 +365,8 @@ Tests use Node.js's built-in test runner and cover:
 
 ## License
 
-ISC
+MIT
 
 ## Contributing
 
-Issues and pull requests welcome at [github.com/digidem/comapeocat](https://github.com/digidem/comapeocat).
+Issues and pull requests welcome at [github.com/digidem/comapeo-categories](https://github.com/digidem/comapeo-categories).

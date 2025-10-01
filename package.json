@@ -23,7 +23,7 @@
 	},
 	"keywords": [],
 	"author": "",
-	"license": "ISC",
+	"license": "MIT",
 	"description": "A JavaScript library for reading and writing CoMapeo Categories files (`.comapeocat`). These files package category definitions (presets), custom fields, icons, and translations for use in [CoMapeo](https://www.comapeo.app) applications.",
 	"dependencies": {
 		"@commander-js/extra-typings": "^14.0.0",
