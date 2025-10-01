@@ -9,5 +9,6 @@ program
 	.version('1.0.0')
 	.command('lint', 'Lint preset and field JSON files')
 	.command('build', 'Build a .comapeocat file from a directory of JSON files')
+	.command('messages', 'Extract messages for translation')
 
 program.parse(process.argv)

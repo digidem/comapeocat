@@ -5,9 +5,11 @@ import { PresetSchemaStrict } from '../schema/preset.js'
 import { FieldSchemaStrict } from '../schema/field.js'
 import { DefaultsSchemaStrict } from '../schema/defaults.js'
 import { MetadataSchemaStrict } from '../schema/metadata.js'
+import { MessagesSchemaStrict } from '../schema/messages.js'
 import {
 	FIELDS_DIR,
 	ICONS_DIR,
+	MESSAGES_DIR,
 	METATADATA_FILE,
 	PRESETS_DIR,
 } from './constants.js'
@@ -19,6 +21,7 @@ import parseJson from 'parse-json'
  * @import {FieldStrictOutput} from '../schema/field.js'
  * @import {DefaultsStrictOutput} from '../schema/defaults.js'
  * @import {MetadataStrictOutput} from '../schema/metadata.js'
+ * @import {MessagesStrictOutput} from '../schema/messages.js'
  */
 
 /**
@@ -31,6 +34,7 @@ import parseJson from 'parse-json'
  *  | { type: 'defaults', id: 'defaults', value: DefaultsStrictOutput }
  *  | { type: 'icon', id: string, value: string }
  *  | { type: 'metadata', id: 'metadata', value: MetadataStrictOutput }
+ *  | { type: 'messages', id: string, value: MessagesStrictOutput 	}
  * >} Completes when all files are read and validated
  */
 export async function* readFiles(dir) {
@@ -52,6 +56,13 @@ export async function* readFiles(dir) {
 		const data = await fs.readFile(path.join(dir, ICONS_DIR, name), 'utf-8')
 		const value = parseSvg(data)
 		yield { type: 'icon', id: nameToId(name), value }
+	}
+
+	for await (const { name, data } of jsonFiles(path.join(dir, MESSAGES_DIR), {
+		recursive: false,
+	})) {
+		const value = parse(MessagesSchemaStrict, data, { fileName: name })
+		yield { type: 'messages', id: nameToId(name), value }
 	}
 
 	/** @type {string | undefined} */

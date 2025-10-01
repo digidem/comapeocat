@@ -12,8 +12,10 @@ import { FieldSchemaStrict } from './schema/field.js'
 import { DefaultsSchemaStrict } from './schema/defaults.js'
 import { MetadataSchemaStrict } from './schema/metadata.js'
 import { parseSvg } from './lib/parse-svg.js'
-import { VERSION_FILE } from './lib/constants.js'
+import { ICONS_DIR, TRANSLATIONS_DIR, VERSION_FILE } from './lib/constants.js'
 import { validatePresetReferences } from './lib/utils.js'
+import { TranslationsSchema } from './schema/translations.js'
+import { pEvent } from 'p-event'
 
 /** @import { PresetStrictInput , PresetStrictOutput } from './schema/preset.js' */
 /** @import { FieldStrictInput, FieldStrictOutput } from './schema/field.js' */
@@ -79,6 +81,7 @@ export class Writer extends EventEmitter {
 	 * @param {MetadataStrictInput} metadata
 	 */
 	setMetadata(metadata) {
+		if (this.#finished) throw new AddAfterFinishError()
 		this.#metadata = v.parse(MetadataSchemaStrict, metadata)
 	}
 
@@ -92,14 +95,43 @@ export class Writer extends EventEmitter {
 	}
 
 	/**
+	 * @param {string} lang BCP47 language tag (e.g. "en", "de", "fr", "en-US")
+	 * @param {v.InferInput<typeof TranslationsSchema>} translations
+	 */
+	async addTranslations(lang, translations) {
+		if (this.#finished) throw new AddAfterFinishError()
+		const parsedTranslations = v.parse(TranslationsSchema, translations)
+		await this.#append(JSON.stringify(parsedTranslations, null, 2), {
+			name: `${TRANSLATIONS_DIR}/${lang}.json`,
+		})
+	}
+
+	/**
 	 * @param {string} id icon ID (normally the filename without .svg)
 	 * @param {string} svg SVG content
 	 */
-	addIcon(id, svg) {
+	async addIcon(id, svg) {
 		if (this.#finished) throw new AddAfterFinishError()
 		const parsedSvg = parseSvg(svg) // Validate SVG
-		this.#archive.append(parsedSvg, { name: `icons/${id}.svg` })
+		await this.#append(parsedSvg, { name: `${ICONS_DIR}/${id}.svg` })
 		this.#iconIds.add(id)
+	}
+
+	/**
+	 * Append data to the archive and return a promise that resolves when the data is fully added.
+	 *
+	 * @param {Parameters<archiver.Archiver['append']>[0]} data Data to append
+	 * @param {NonNullable<Parameters<archiver.Archiver['append']>[1]>} opts Append options
+	 */
+	#append(data, opts) {
+		const onAdded = pEvent(
+			this.#archive,
+			'entry',
+			/** @param {import('archiver').EntryData} entry */
+			(entry) => entry.name === opts.name,
+		)
+		this.#archive.append(data, opts)
+		return onAdded
 	}
 
 	/**

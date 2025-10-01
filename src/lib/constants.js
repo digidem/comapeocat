@@ -1,6 +1,8 @@
 export const PRESETS_DIR = 'presets'
 export const FIELDS_DIR = 'fields'
 export const ICONS_DIR = 'icons'
+export const MESSAGES_DIR = 'messages'
+export const TRANSLATIONS_DIR = 'translations'
 export const DEFAULTS_FILE = 'defaults.json'
 export const METATADATA_FILE = 'metadata.json'
 export const VERSION_FILE = 'VERSION'

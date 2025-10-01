@@ -9,9 +9,10 @@ program
 	.description('Lint preset and field JSON files')
 	.argument(
 		'[inputDir]',
-		'directory containing presets, fields, defaults and icons (defaults to current working directory)',
+		'directory containing presets, fields, defaults and icons',
+		process.cwd(),
 	)
-	.action(async (dir = process.cwd()) => {
+	.action(async (dir) => {
 		try {
 			await lint(dir)
 		} catch (err) {

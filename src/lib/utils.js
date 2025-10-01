@@ -1,3 +1,4 @@
+import { parse as parseBCP47 } from 'bcp-47'
 import fs from 'node:fs/promises'
 import path from 'node:path'
 import * as v from 'valibot'
@@ -9,10 +10,8 @@ import parseJson from 'parse-json'
  * @param {string} dir - Directory path
  * @returns {AsyncGenerator<{name: string, data: unknown}>} Yields objects with file name and parsed JSON data
  */
-export async function* jsonFiles(dir) {
-	const entries = await fs.readdir(dir, {
-		recursive: true,
-	})
+export async function* jsonFiles(dir, { recursive = true } = {}) {
+	const entries = await fs.readdir(dir, { recursive })
 	for (const entry of entries) {
 		if (path.extname(entry) !== '.json') continue
 		const json = await fs.readFile(path.join(dir, entry), 'utf-8')
@@ -152,4 +151,35 @@ export function validatePresetReferences({
 			throw new InvalidDefaultsError({ invalidRefs: invalidGeometryRefs })
 		}
 	}
+}
+
+/** @param {string} lang */
+export function assertValidBCP47(lang) {
+	const parsed = parseBCP47(lang)
+	// parseBCP47 will return an empty object if the tag is invalid
+	if (Object.keys(parsed).length === 0) {
+		throw new Error(`Invalid BCP 47 language tag: '${lang}'`)
+	}
+	if (!isSupportedBCP47(parsed)) {
+		throw new Error(
+			`Unsupported BCP 47 language tag: '${lang}'. Only language and region subtags are supported.`,
+		)
+	}
+	return lang
+}
+
+/**
+ * @param {import('bcp-47').Schema} schema
+ * @returns {boolean} True if the schema represents a valid and supported BCP 47 tag
+ */
+export function isSupportedBCP47(schema) {
+	// parseBCP47 will return an empty object if the tag is invalid
+	if (Object.keys(schema).length === 0) return false
+	const validSubtags = ['language', 'region']
+	for (const key of Object.keys(schema)) {
+		if (!validSubtags.includes(key)) {
+			return false
+		}
+	}
+	return true
 }

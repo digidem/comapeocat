@@ -27,6 +27,7 @@ export async function lint(dir) {
 		preset: 0,
 		field: 0,
 		icon: 0,
+		messages: 0,
 		defaults: 0,
 		metadata: 0,
 	}

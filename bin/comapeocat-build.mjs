@@ -18,9 +18,10 @@ program
 	.option('--version <version>', 'version of the category set')
 	.argument(
 		'[inputDir]',
-		'directory containing presets, fields, defaults and icons, (defaults to current working directory)',
+		'directory containing presets, fields, defaults and icons',
+		process.cwd(),
 	)
-	.action(async (dir = process.cwd(), { output, ...metadata }) => {
+	.action(async (dir, { output, ...metadata }) => {
 		lint(dir).catch(handleError)
 		const writeStream = output ? fs.createWriteStream(output) : process.stdout
 		const writer = new Writer()

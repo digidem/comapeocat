@@ -5,7 +5,7 @@ import { DefaultsSchema } from './schema/defaults.js'
 import { MetadataSchema } from './schema/metadata.js'
 import parseJson from 'parse-json'
 import * as v from 'valibot'
-import { VERSION_FILE } from './lib/constants.js'
+import { VERSION_FILE, ICONS_DIR, TRANSLATIONS_DIR } from './lib/constants.js'
 import {
 	InvalidFileError,
 	InvalidFileVersionError,
@@ -15,7 +15,13 @@ import {
 	MissingPresetsError,
 	UnsupportedFileVersionError,
 } from './lib/errors.js'
-import { parse, validatePresetReferences } from './lib/utils.js'
+import {
+	isSupportedBCP47,
+	parse,
+	validatePresetReferences,
+} from './lib/utils.js'
+import { parse as parseBCP47 } from 'bcp-47'
+import { TranslationsSchema } from './schema/translations.js'
 
 const SUPPORTED_MAJOR_VERSION = 1
 /** @import { ZipFile, Entry } from 'yauzl-promise' */
@@ -33,6 +39,7 @@ const SUPPORTED_MAJOR_VERSION = 1
  *   metadata: Entry,
  *   fields?: Entry,
  *   icons: Map<string, Entry>,
+ *   translations: Map<string, Entry>,
  * }} ZipEntries
  */
 const FILENAMES = /** @type {const} */ ({
@@ -41,7 +48,10 @@ const FILENAMES = /** @type {const} */ ({
 	'defaults.json': 'defaults',
 	'metadata.json': 'metadata',
 })
-const ICON_REGEX = /^icons\/(.+)\.svg$/
+const ICON_REGEX = new RegExp(`^${ICONS_DIR}/(.+)\\.svg$`)
+const TRANSLATIONS_REGEX = new RegExp(
+	`^${TRANSLATIONS_DIR}/([a-zA-Z0-9-_]+)\\.json$`,
+)
 const VERSION_REGEX = /^(\d+)\.(\d+)$/
 
 const PresetMapSchema = v.record(v.string(), PresetSchema)
@@ -77,6 +87,7 @@ export class Reader {
 			/** @type {SetOptional<ZipEntries, 'presets' | 'defaults' | 'metadata'>} */
 			const entries = {
 				icons: new Map(),
+				translations: new Map(),
 			}
 			if (this.#closePromise) throw new Error('Reader is closed')
 			const zip = await zipPromise
@@ -89,10 +100,20 @@ export class Reader {
 					const version = await concatStream(await entry.openReadStream())
 					assertReadableVersion(version)
 				} else {
-					const match = entry.filename.match(ICON_REGEX)
-					if (match) {
-						const [, iconName] = match
+					const iconMatch = entry.filename.match(ICON_REGEX)
+					if (iconMatch) {
+						const [, iconName] = iconMatch
 						entries.icons.set(iconName, entry)
+						continue
+					}
+					const translationMatch = entry.filename.match(TRANSLATIONS_REGEX)
+					if (translationMatch) {
+						const [, lang] = translationMatch
+						// Ignore invalid or unsupported BCP 47 language tags
+						if (isSupportedBCP47(parseBCP47(lang))) {
+							entries.translations.set(lang, entry)
+							continue
+						}
 					}
 				}
 			}
@@ -191,6 +212,21 @@ export class Reader {
 		for (const [name, entry] of entries) {
 			const iconXml = await concatStream(await entry.openReadStream())
 			yield { name, iconXml }
+		}
+	}
+
+	/**
+	 * Async generator to yield language tag and translations data
+	 * @returns {AsyncGenerator<{lang: string, translations: v.InferOutput<typeof TranslationsSchema>}>}
+	 */
+	async *translations() {
+		const { translations: entries } = await this.#entriesPromise
+		for (const [lang, entry] of entries) {
+			const data = await this.#readJsonEntry(entry)
+			const translations = parse(TranslationsSchema, data, {
+				fileName: entry.filename,
+			})
+			yield { lang, translations }
 		}
 	}
 

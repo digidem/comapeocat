@@ -6,6 +6,17 @@
 	"bin": {
 		"comapeocat": "bin/comapeocat.mjs"
 	},
+	"exports": {
+		".": {
+			"import": "./src/index.js"
+		},
+		"./reader.js": {
+			"import": "./src/reader.js"
+		},
+		"./writer.js": {
+			"import": "./src/writer.js"
+		}
+	},
 	"scripts": {
 		"test": "echo \"Error: no test specified\" && exit 1",
 		"prepare": "husky && husky install"
@@ -18,7 +29,10 @@
 		"@commander-js/extra-typings": "^14.0.0",
 		"@inquirer/prompts": "^7.8.6",
 		"archiver": "^7.0.1",
+		"bcp-47": "^2.1.0",
 		"commander": "^14.0.1",
+		"dot-prop": "^10.0.0",
+		"p-event": "^7.0.0",
 		"parse-json": "^8.3.0",
 		"svgo": "^4.0.0",
 		"valibot": "^1.1.0",
