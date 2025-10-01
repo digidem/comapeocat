@@ -53,3 +53,18 @@ export function parse(schema, data, { fileName }) {
 export function isNonEmptyArray(value) {
 	return value.length > 0
 }
+
+/**
+ * Add a preset reference to a map of missing references
+ * @param {Map<string, Set<string>>} map
+ * @param {string} refId
+ * @param {string} presetId
+ */
+export function addRefToMap(map, refId, presetId) {
+	const existing = map.get(refId)
+	if (existing) {
+		existing.add(presetId)
+	} else {
+		map.set(refId, new Set([presetId]))
+	}
+}

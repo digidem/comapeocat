@@ -6,6 +6,7 @@ import parseJson from 'parse-json'
 import * as v from 'valibot'
 import { VERSION_FILE } from './lib/constants.js'
 import {
+	InvalidDefaultsError,
 	InvalidFileError,
 	InvalidFileVersionError,
 	isInvalidFileError,
@@ -13,19 +14,21 @@ import {
 	MissingPresetsError,
 	UnsupportedFileVersionError,
 } from './lib/errors.js'
-import { parse } from './lib/utils.js'
+import { addRefToMap, parse } from './lib/utils.js'
 
 const SUPPORTED_MAJOR_VERSION = 1
 /** @import { ZipFile, Entry } from 'yauzl-promise' */
 /** @import { SchemaError } from './lib/errors.js' */
 /** @import { JSONError } from 'parse-json' */
+/** @import {DefaultsOutput} from './schema/defaults.js' */
+/** @import {Entries, SetOptional} from 'type-fest' */
 /**
  * @typedef {{
  *   presets: Entry,
  *   defaults: Entry,
  *   fields?: Entry,
  *   icons: Map<string, Entry>,
- * }} Entries
+ * }} ZipEntries
  */
 const FILENAMES = /** @type {const} */ ({
 	'presets.json': 'presets',
@@ -40,7 +43,7 @@ const PresetMapSchema = v.record(v.string(), PresetSchema)
 export class Reader {
 	/** @type {Promise<ZipFile>} */
 	#zipPromise
-	/** @type {Promise<Entries>} */
+	/** @type {Promise<ZipEntries>} */
 	#entriesPromise
 	/** @type {undefined | Promise<void>} */
 	#closePromise
@@ -55,7 +58,7 @@ export class Reader {
 				: Promise.resolve(filepathOrZip))
 		zipPromise.catch(noop)
 		this.#entriesPromise = (async () => {
-			/** @type {import('type-fest').SetOptional<Entries, 'presets' | 'defaults'>} */
+			/** @type {SetOptional<ZipEntries, 'presets' | 'defaults'>} */
 			const entries = {
 				icons: new Map(),
 			}
@@ -103,6 +106,27 @@ export class Reader {
 	async validate() {
 		try {
 			await this.#entriesPromise
+			// Validate that presets referenced in defaults have the correct geometry types
+			const presets = await this.presets()
+			const defaults = await this.defaults()
+			/** @type {Map<string, Set<string>>} */
+			const invalidRefs = new Map()
+
+			for (const [
+				geometryType,
+				presetIds,
+			] of /** @type {Entries<DefaultsOutput>} */ (Object.entries(defaults))) {
+				for (const presetId of presetIds) {
+					const preset = presets.get(presetId)
+					if (preset && !preset.geometry.includes(geometryType)) {
+						addRefToMap(invalidRefs, geometryType, presetId)
+					}
+				}
+			}
+
+			if (invalidRefs.size > 0) {
+				throw new InvalidDefaultsError({ invalidRefs })
+			}
 		} catch (error) {
 			if (isInvalidFileError(error)) {
 				throw new InvalidFileError({ cause: error })
@@ -196,8 +220,8 @@ async function concatStream(stream) {
 }
 
 /**
- * @param {import('type-fest').SetOptional<Entries, 'presets' | 'defaults'>} entries
- * @returns {asserts entries is Entries}
+ * @param {import('type-fest').SetOptional<ZipEntries, 'presets' | 'defaults'>} entries
+ * @returns {asserts entries is ZipEntries}
  */
 function assertValidEntries(entries) {
 	if (!entries.presets) {

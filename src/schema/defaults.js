@@ -3,6 +3,8 @@ import { GEOMETRY_TYPES } from '../lib/constants.js'
 
 /** @typedef {v.InferOutput<typeof DefaultsSchema>} DefaultsOutput */
 /** @typedef {v.InferInput<typeof DefaultsSchema>} DefaultsInput */
+/** @typedef {v.InferOutput<typeof DefaultsSchemaStrict>} DefaultsStrictOutput */
+/** @typedef {v.InferInput<typeof DefaultsSchemaStrict>} DefaultsStrictInput */
 
 export const DefaultsSchema = v.pipe(
 	v.object(

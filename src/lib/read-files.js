@@ -3,52 +3,45 @@ import path from 'node:path'
 import { jsonFiles, parse } from './utils.js'
 import { PresetSchemaStrict } from '../schema/preset.js'
 import { FieldSchemaStrict } from '../schema/field.js'
-import { FIELDS_DIR, ICONS_DIR, PRESETS_DIR } from './constants.js'
-import { PresetRefError } from './errors.js'
+import { DefaultsSchemaStrict } from '../schema/defaults.js'
+import { MetadataSchemaStrict } from '../schema/metadata.js'
+import {
+	FIELDS_DIR,
+	ICONS_DIR,
+	METATADATA_FILE,
+	PRESETS_DIR,
+} from './constants.js'
 import { parseSvg } from './parse-svg.js'
+import parseJson from 'parse-json'
 
 /**
- * @import {PresetOutput} from '../schema/preset.js'
- * @import {FieldOutput} from '../schema/field.js'
- * @import {DefaultsOutput} from '../schema/defaults.js'
+ * @import {PresetStrictOutput} from '../schema/preset.js'
+ * @import {FieldStrictOutput} from '../schema/field.js'
+ * @import {DefaultsStrictOutput} from '../schema/defaults.js'
+ * @import {MetadataStrictOutput} from '../schema/metadata.js'
  */
 
 /**
  * Read the preset, field, defaults, and icon files in a directory and validate them.
  *
  * @param {string} dir - Directory path
- * @returns {AsyncGenerator<{type: 'preset', value: PresetOutput }
- *  | { type: 'field', value: FieldOutput }
- *  | { type: 'defaults', value: DefaultsOutput }
- *  | { type: 'icon', value: string }
+ * @returns {AsyncGenerator<
+ *  | { type: 'preset', id: string, value: PresetStrictOutput }
+ *  | { type: 'field', id: string, value: FieldStrictOutput }
+ *  | { type: 'defaults', id: 'defaults', value: DefaultsStrictOutput }
+ *  | { type: 'icon', id: string, value: string }
+ *  | { type: 'metadata', id: 'metadata', value: MetadataStrictOutput }
  * >} Completes when all files are read and validated
  */
 export async function* readFiles(dir) {
-	/** @type {Map<string, Set<string>>} */
-	const fieldRefs = new Map()
-	/** @type {Map<string, Set<string>>} */
-	const iconRefs = new Map()
-
 	for await (const { name, data } of jsonFiles(path.join(dir, PRESETS_DIR))) {
 		const value = parse(PresetSchemaStrict, data, { fileName: name })
-		const { fields, icon } = value
-
-		for (const fieldRef of fields) {
-			fieldRefs.set(
-				fieldRef,
-				new Set([...(fieldRefs.get(fieldRef) || []), name]),
-			)
-		}
-		if (icon) {
-			iconRefs.set(icon, new Set([...(iconRefs.get(icon) || []), name]))
-		}
-		yield { type: 'preset', value }
+		yield { type: 'preset', id: nameToId(name), value }
 	}
 
 	for await (const { name, data } of jsonFiles(path.join(dir, FIELDS_DIR))) {
 		const value = parse(FieldSchemaStrict, data, { fileName: name })
-		fieldRefs.delete(name.replace(/\.json$/, ''))
-		yield { type: 'field', value }
+		yield { type: 'field', id: nameToId(name), value }
 	}
 
 	const iconFiles = await fs.readdir(path.join(dir, ICONS_DIR), {
@@ -56,16 +49,54 @@ export async function* readFiles(dir) {
 	})
 	for (const name of iconFiles) {
 		if (!name.endsWith('.svg')) continue
-		iconRefs.delete(name.replace(/\.svg$/, ''))
 		const data = await fs.readFile(path.join(dir, ICONS_DIR, name), 'utf-8')
 		const value = parseSvg(data)
-		yield { type: 'icon', value }
+		yield { type: 'icon', id: nameToId(name), value }
 	}
 
-	if (fieldRefs.size > 0) {
-		throw new PresetRefError({ missingRefs: fieldRefs, property: 'field' })
+	/** @type {string | undefined} */
+	let metadataJson
+	try {
+		metadataJson = await fs.readFile(path.join(dir, METATADATA_FILE), 'utf-8')
+	} catch (err) {
+		// metadata.json is optional
+		if (!isNotFoundError(err)) throw err
 	}
-	if (iconRefs.size > 0) {
-		throw new PresetRefError({ missingRefs: iconRefs, property: 'icon' })
+	if (metadataJson) {
+		const data = parseJson(metadataJson, undefined, METATADATA_FILE)
+		const value = parse(MetadataSchemaStrict, data, {
+			fileName: METATADATA_FILE,
+		})
+		yield { type: 'metadata', id: 'metadata', value }
 	}
+
+	/** @type {string | undefined} */
+	let defaultsJson
+	try {
+		defaultsJson = await fs.readFile(path.join(dir, 'defaults.json'), 'utf-8')
+	} catch (err) {
+		// defaults.json is optional
+		if (!isNotFoundError(err)) throw err
+	}
+	if (defaultsJson) {
+		const data = parseJson(defaultsJson, undefined, 'defaults.json')
+		const value = parse(DefaultsSchemaStrict, data, {
+			fileName: 'defaults.json',
+		})
+		yield { type: 'defaults', id: 'defaults', value }
+	}
+}
+
+/** @param {unknown} err */
+function isNotFoundError(err) {
+	return err instanceof Error && 'code' in err && err.code === 'ENOENT'
+}
+
+/**
+ * Convert a filename to an ID by removing its extension
+ * @param {string} name - Filename
+ * @returns {string} ID (filename without extension)
+ */
+function nameToId(name) {
+	return name.replace(/\.[^/.]+$/, '')
 }

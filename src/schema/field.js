@@ -2,6 +2,8 @@ import * as v from 'valibot'
 
 /** @typedef {v.InferOutput<typeof FieldSchema>} FieldOutput */
 /** @typedef {v.InferInput<typeof FieldSchema>} FieldInput */
+/** @typedef {v.InferOutput<typeof FieldSchemaStrict>} FieldStrictOutput */
+/** @typedef {v.InferInput<typeof FieldSchemaStrict>} FieldStrictInput */
 
 const AppearanceSchema = v.pipe(
 	v.union([
@@ -115,22 +117,14 @@ const SelectFieldSchemaStrict = v.strictObject({
 	}).entries,
 })
 
-const FieldSchemaMetadata = v.metadata({
-	title: 'Field',
-	description:
-		'A field defines a form field that will be shown to the user when creating or editing a map entity. Presets define which fields are shown to the user for a particular map entity. The field definition defines whether the field should show as a text box, multiple choice, single-select, etc. It defines what tag-value is set when the field is entered.',
-})
+export const FieldSchema = v.union([
+	TextFieldSchema,
+	NumberFieldSchema,
+	SelectFieldSchema,
+])
 
-export const FieldSchema = v.pipe(
-	v.union([TextFieldSchema, NumberFieldSchema, SelectFieldSchema]),
-	FieldSchemaMetadata,
-)
-
-export const FieldSchemaStrict = v.pipe(
-	v.union([
-		v.strictObject(TextFieldSchema.entries),
-		v.strictObject(NumberFieldSchema.entries),
-		SelectFieldSchemaStrict,
-	]),
-	FieldSchemaMetadata,
-)
+export const FieldSchemaStrict = v.union([
+	v.strictObject(TextFieldSchema.entries),
+	v.strictObject(NumberFieldSchema.entries),
+	SelectFieldSchemaStrict,
+])

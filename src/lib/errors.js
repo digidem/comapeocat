@@ -13,14 +13,15 @@ import path from 'node:path'
  * @template {SchemaError<BaseSchema<unknown, unknown, BaseIssue<unknown>>
  *   | BaseSchemaAsync<unknown, unknown, BaseIssue<unknown>>>} TSchemaError
  * @param {unknown | TSchemaError} err - The error to check
- * @returns {err is JSONError | TSchemaError | PresetRefError} True if the error is a parse or schema error
+ * @returns {err is JSONError | TSchemaError | PresetRefError | InvalidDefaultsError} True if the error is a parse or schema error
  */
 export function isParseError(err) {
 	return (
 		err instanceof Error &&
 		(err.name === 'JSONError' ||
 			err.name === 'SchemaError' ||
-			err.name === 'PresetRefError')
+			err.name === 'PresetRefError' ||
+			err.name === 'InvalidDefaultsError')
 	)
 }
 
@@ -91,6 +92,26 @@ export class PresetRefError extends Error {
 	}
 }
 
+export class InvalidDefaultsError extends Error {
+	name = 'InvalidDefaultsError'
+
+	/**
+	 * @param {object} params
+	 * @param {Map<string, Set<string>>} params.invalidRefs - Map of geometry type to preset IDs that don't support that geometry
+	 */
+	constructor({ invalidRefs }) {
+		let message = `× Presets in defaults.json do not support the referenced geometry type:\n`
+		for (const [geometryType, presetIds] of invalidRefs) {
+			for (const presetId of presetIds) {
+				message += `  → Preset "${presetId}" in defaults.${geometryType} does not include "${geometryType}" in its geometry array\n`
+			}
+		}
+		super(message)
+
+		Error.captureStackTrace?.(this, InvalidDefaultsError)
+	}
+}
+
 export class UnsupportedFileVersionError extends Error {
 	name = 'UnsupportedFileVersionError'
 
@@ -126,22 +147,33 @@ export class InvalidFileVersionError extends Error {
 	}
 }
 
-export class MissingPresetsError extends Error {
-	name = 'MissingPresetsError'
+/**
+ * @template {string} TName
+ * @typedef {{
+ *   new (): Error & { name: TName }
+ * }} SimpleErrorConstructor
+ */
 
-	constructor() {
-		super('Missing required presets definitions in file.')
-		Error.captureStackTrace?.(this, MissingPresetsError)
+/**
+ * Factory function to create simple error classes with a static message
+ * @template {string} TName
+ * @param {TName} name - The error class name
+ * @param {string} message - The error message
+ * @returns {SimpleErrorConstructor<TName>}
+ */
+function createSimpleError(name, message) {
+	const ErrorClass = class extends Error {
+		name = name
+
+		constructor() {
+			super(message)
+			Error.captureStackTrace?.(this, ErrorClass)
+		}
 	}
-}
 
-export class MissingDefaultsError extends Error {
-	name = 'MissingDefaultsError'
+	Object.defineProperty(ErrorClass, 'name', { value: name })
 
-	constructor() {
-		super('Missing required defaults definitions in file.')
-		Error.captureStackTrace?.(this, MissingDefaultsError)
-	}
+	return /** @type {SimpleErrorConstructor<TName>} */ (ErrorClass)
 }
 
 export class InvalidFileError extends Error {
@@ -157,3 +189,23 @@ export class InvalidFileError extends Error {
 		Error.captureStackTrace?.(this, InvalidFileError)
 	}
 }
+
+export const MissingPresetsError = createSimpleError(
+	'MissingPresetsError',
+	'Missing required presets definitions.',
+)
+
+export const MissingDefaultsError = createSimpleError(
+	'MissingDefaultsError',
+	'Missing required defaults definitions.',
+)
+
+export const MissingMetadataError = createSimpleError(
+	'MissingMetadataError',
+	'Missing required metadata definitions.',
+)
+
+export const AddAfterFinishError = createSimpleError(
+	'AddAfterFinishError',
+	'Cannot add more data after finish() has been called.',
+)

@@ -3,6 +3,8 @@ import { GEOMETRY_TYPES } from '../lib/constants.js'
 
 /** @typedef {v.InferOutput<typeof PresetSchema>} PresetOutput */
 /** @typedef {v.InferInput<typeof PresetSchema>} PresetInput */
+/** @typedef {v.InferOutput<typeof PresetSchemaStrict>} PresetStrictOutput */
+/** @typedef {v.InferInput<typeof PresetSchemaStrict>} PresetStrictInput */
 
 const TagValueSchema = v.union([
 	v.boolean(),
@@ -23,13 +25,14 @@ export const PresetSchema = v.pipe(
 			v.description('Name for the feature in default language.'),
 		),
 		geometry: v.pipe(
-			v.array(v.picklist(GEOMETRY_TYPES)),
+			v.array(v.string()),
+			v.minLength(1),
 			v.check(
 				(arr) => arr.length === new Set(arr).size,
 				'Array must contain unique values',
 			),
 			v.description(
-				`Valid geometry types for the feature - this preset will only match features of this geometry type \`${GEOMETRY_TYPES.join('", "')}\``,
+				`Geometry types for the feature - this preset will only match features of this geometry type. Known types: \`${GEOMETRY_TYPES.join('", "')}\`. Unknown types are accepted for forward compatibility.`,
 			),
 		),
 		tags: v.pipe(
@@ -77,8 +80,8 @@ export const PresetSchema = v.pipe(
 		color: v.optional(
 			v.pipe(
 				v.string(),
-				v.regex(/^#[a-fA-F0-9]{6}$/),
-				v.description('string representation of a color in 24 bit (#rrggbb)'),
+				v.hexColor(),
+				v.description('Color in 24-bit RGB hex format, e.g. `#ff0000`'),
 			),
 		),
 	}),
@@ -90,6 +93,18 @@ export const PresetSchema = v.pipe(
 )
 
 export const PresetSchemaStrict = v.pipe(
-	v.strictObject(PresetSchema.entries),
+	v.strictObject({
+		...PresetSchema.entries,
+		geometry: v.pipe(
+			v.array(v.picklist(GEOMETRY_TYPES)),
+			v.check(
+				(arr) => arr.length === new Set(arr).size,
+				'Array must contain unique values',
+			),
+			v.description(
+				`Valid geometry types for the feature - this preset will only match features of this geometry type \`${GEOMETRY_TYPES.join('", "')}\``,
+			),
+		),
+	}),
 	v.metadata(v.getMetadata(PresetSchema)),
 )
