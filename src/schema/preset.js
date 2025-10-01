@@ -97,6 +97,7 @@ export const PresetSchemaStrict = v.pipe(
 		...PresetSchema.entries,
 		geometry: v.pipe(
 			v.array(v.picklist(GEOMETRY_TYPES)),
+			v.minLength(1),
 			v.check(
 				(arr) => arr.length === new Set(arr).size,
 				'Array must contain unique values',
