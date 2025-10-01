@@ -6,7 +6,6 @@ import {
 	AddAfterFinishError,
 	MissingMetadataError,
 	MissingPresetsError,
-	PresetRefError,
 } from './lib/errors.js'
 import { PresetSchemaStrict } from './schema/preset.js'
 import { FieldSchemaStrict } from './schema/field.js'
@@ -14,7 +13,7 @@ import { DefaultsSchemaStrict } from './schema/defaults.js'
 import { MetadataSchemaStrict } from './schema/metadata.js'
 import { parseSvg } from './lib/parse-svg.js'
 import { VERSION_FILE } from './lib/constants.js'
-import { addRefToMap } from './lib/utils.js'
+import { validatePresetReferences } from './lib/utils.js'
 
 /** @import { PresetStrictInput , PresetStrictOutput } from './schema/preset.js' */
 /** @import { FieldStrictInput, FieldStrictOutput } from './schema/field.js' */
@@ -147,33 +146,11 @@ export class Writer extends EventEmitter {
 	}
 
 	#checkRefs() {
-		/** @type {Map<string, Set<string>>} */
-		const missingIconRefs = new Map()
-		/** @type {Map<string, Set<string>>} */
-		const missingFieldRefs = new Map()
-		const fieldIds = new Set(this.#fields.keys())
-		for (const [presetId, preset] of this.#presets.entries()) {
-			for (const fieldId of preset.fields) {
-				if (!fieldIds.has(fieldId)) {
-					addRefToMap(missingFieldRefs, fieldId, presetId)
-				}
-			}
-			if (preset.icon && !this.#iconIds.has(preset.icon)) {
-				addRefToMap(missingIconRefs, preset.icon, presetId)
-			}
-		}
-		if (missingFieldRefs.size > 0) {
-			throw new PresetRefError({
-				missingRefs: missingFieldRefs,
-				property: 'field',
-			})
-		}
-		if (missingIconRefs.size > 0) {
-			throw new PresetRefError({
-				missingRefs: missingIconRefs,
-				property: 'icon',
-			})
-		}
+		validatePresetReferences({
+			presets: this.#presets,
+			fieldIds: this.#fields,
+			iconIds: this.#iconIds,
+		})
 	}
 }
 

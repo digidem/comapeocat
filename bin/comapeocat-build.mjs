@@ -50,13 +50,14 @@ program
 						break
 				}
 			}
-			const pkg = await readPkgJson().catch(() => ({}))
 			// Metadata from the command line overrides metadata from the file, fallback to package.json
 			const mergedMetadata = {
-				name: pkg.name,
-				version: pkg.version,
 				...fileMetadata,
 				...metadata,
+			}
+			if (!mergedMetadata.name) {
+				console.error('You must provide a name via --name or in metadata.json')
+				process.exit(1)
 			}
 			v.assert(MetadataSchemaStrict, mergedMetadata)
 			writer.setMetadata(mergedMetadata)
@@ -79,10 +80,4 @@ function handleError(err) {
 		console.error(err)
 	}
 	process.exit(1)
-}
-
-async function readPkgJson() {
-	const pkgUrl = new URL('../package.json', import.meta.url)
-	const pkgText = await fs.promises.readFile(pkgUrl, 'utf-8')
-	return JSON.parse(pkgText)
 }

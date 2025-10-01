@@ -2,30 +2,35 @@ import { open } from 'yauzl-promise'
 import { PresetSchema } from './schema/preset.js'
 import { FieldSchema } from './schema/field.js'
 import { DefaultsSchema } from './schema/defaults.js'
+import { MetadataSchema } from './schema/metadata.js'
 import parseJson from 'parse-json'
 import * as v from 'valibot'
 import { VERSION_FILE } from './lib/constants.js'
 import {
-	InvalidDefaultsError,
 	InvalidFileError,
 	InvalidFileVersionError,
 	isInvalidFileError,
 	MissingDefaultsError,
+	MissingMetadataError,
 	MissingPresetsError,
 	UnsupportedFileVersionError,
 } from './lib/errors.js'
-import { addRefToMap, parse } from './lib/utils.js'
+import { parse, validatePresetReferences } from './lib/utils.js'
 
 const SUPPORTED_MAJOR_VERSION = 1
 /** @import { ZipFile, Entry } from 'yauzl-promise' */
 /** @import { SchemaError } from './lib/errors.js' */
 /** @import { JSONError } from 'parse-json' */
+/** @import {SetOptional} from 'type-fest' */
+/** @import {FieldOutput} from './schema/field.js' */
+/** @import {PresetOutput} from './schema/preset.js' */
 /** @import {DefaultsOutput} from './schema/defaults.js' */
-/** @import {Entries, SetOptional} from 'type-fest' */
+/** @import {MetadataOutput} from './schema/metadata.js' */
 /**
  * @typedef {{
  *   presets: Entry,
  *   defaults: Entry,
+ *   metadata: Entry,
  *   fields?: Entry,
  *   icons: Map<string, Entry>,
  * }} ZipEntries
@@ -34,6 +39,7 @@ const FILENAMES = /** @type {const} */ ({
 	'presets.json': 'presets',
 	'fields.json': 'fields',
 	'defaults.json': 'defaults',
+	'metadata.json': 'metadata',
 })
 const ICON_REGEX = /^icons\/(.+)\.svg$/
 const VERSION_REGEX = /^(\d+)\.(\d+)$/
@@ -47,6 +53,16 @@ export class Reader {
 	#entriesPromise
 	/** @type {undefined | Promise<void>} */
 	#closePromise
+	#cached = {
+		/** @type {Map<string, FieldOutput> | undefined} */
+		fields: undefined,
+		/** @type {Map<string, PresetOutput> | undefined} */
+		presets: undefined,
+		/** @type {DefaultsOutput | undefined} */
+		defaults: undefined,
+		/** @type {MetadataOutput | undefined} */
+		metadata: undefined,
+	}
 
 	/**
 	 * @param {string | ZipFile} filepathOrZip Path to comapeo categories file (.comapeocat), or an instance of yauzl ZipFile
@@ -58,7 +74,7 @@ export class Reader {
 				: Promise.resolve(filepathOrZip))
 		zipPromise.catch(noop)
 		this.#entriesPromise = (async () => {
-			/** @type {SetOptional<ZipEntries, 'presets' | 'defaults'>} */
+			/** @type {SetOptional<ZipEntries, 'presets' | 'defaults' | 'metadata'>} */
 			const entries = {
 				icons: new Map(),
 			}
@@ -106,27 +122,18 @@ export class Reader {
 	async validate() {
 		try {
 			await this.#entriesPromise
-			// Validate that presets referenced in defaults have the correct geometry types
+
 			const presets = await this.presets()
 			const defaults = await this.defaults()
-			/** @type {Map<string, Set<string>>} */
-			const invalidRefs = new Map()
+			const fields = await this.fields()
+			const iconNames = await this.iconNames()
 
-			for (const [
-				geometryType,
-				presetIds,
-			] of /** @type {Entries<DefaultsOutput>} */ (Object.entries(defaults))) {
-				for (const presetId of presetIds) {
-					const preset = presets.get(presetId)
-					if (preset && !preset.geometry.includes(geometryType)) {
-						addRefToMap(invalidRefs, geometryType, presetId)
-					}
-				}
-			}
-
-			if (invalidRefs.size > 0) {
-				throw new InvalidDefaultsError({ invalidRefs })
-			}
+			validatePresetReferences({
+				presets,
+				fieldIds: fields,
+				iconIds: iconNames,
+				defaults,
+			})
 		} catch (error) {
 			if (isInvalidFileError(error)) {
 				throw new InvalidFileError({ cause: error })
@@ -136,32 +143,34 @@ export class Reader {
 	}
 
 	/**
-	 * @returns {Promise<Map<string, v.InferOutput<typeof PresetSchema>>>} Map of preset ID to preset data
+	 * @returns {Promise<Map<string, PresetOutput>>} Map of preset ID to preset data
 	 * @throws {SchemaError | JSONError} When the presets.json file in the archive is not valid
 	 * @throws {InvalidFileError} When the file is not a valid comapeocat file
 	 */
 	async presets() {
+		if (this.#cached.presets) return this.#cached.presets
 		const { presets: entry } = await this.#entriesPromise
-		const json = await concatStream(await entry.openReadStream())
-		const data = parseJson(json, undefined, entry.filename)
+		const data = await this.#readJsonEntry(entry)
 		const result = parse(PresetMapSchema, data, { fileName: entry.filename })
-		return new Map(Object.entries(result))
+		this.#cached.presets = new Map(Object.entries(result))
+		return this.#cached.presets
 	}
 
 	/**
-	 * @returns {Promise<Map<string, v.InferOutput<typeof FieldSchema>>>} Map of field ID to field data
+	 * @returns {Promise<Map<string, FieldOutput>>} Map of field ID to field data
 	 * @throws {SchemaError | JSONError} When the fields.json file in the archive is not valid
 	 * @throws {InvalidFileError} When the file is not a valid comapeocat file
 	 */
 	async fields() {
+		if (this.#cached.fields) return this.#cached.fields
 		const { fields: entry } = await this.#entriesPromise
 		if (!entry) return new Map()
-		const json = await concatStream(await entry.openReadStream())
-		const data = parseJson(json, undefined, entry.filename)
+		const data = await this.#readJsonEntry(entry)
 		const result = parse(v.record(v.string(), FieldSchema), data, {
 			fileName: entry.filename,
 		})
-		return new Map(Object.entries(result))
+		this.#cached.fields = new Map(Object.entries(result))
+		return this.#cached.fields
 	}
 
 	/**
@@ -186,13 +195,35 @@ export class Reader {
 	}
 
 	/**
-	 * @returns {Promise<v.InferOutput<typeof DefaultsSchema>>} Defaults data
+	 * @returns {Promise<DefaultsOutput>} Defaults data
 	 */
 	async defaults() {
+		if (this.#cached.defaults) return this.#cached.defaults
 		const { defaults: entry } = await this.#entriesPromise
+		const data = await this.#readJsonEntry(entry)
+		this.#cached.defaults = v.parse(DefaultsSchema, data)
+		return this.#cached.defaults
+	}
+
+	/**
+	 * @returns {Promise<MetadataOutput>} Metadata data
+	 */
+	async metadata() {
+		if (this.#cached.metadata) return this.#cached.metadata
+		const { metadata: entry } = await this.#entriesPromise
+		const data = await this.#readJsonEntry(entry)
+		this.#cached.metadata = v.parse(MetadataSchema, data)
+		return this.#cached.metadata
+	}
+
+	/**
+	 * @param {Entry} entry
+	 * @returns {Promise<unknown>}
+	 * @throws {JSONError} When the JSON is invalid or does not conform to the expected schema
+	 */
+	async #readJsonEntry(entry) {
 		const json = await concatStream(await entry.openReadStream())
-		const data = parseJson(json, undefined, entry.filename)
-		return v.parse(DefaultsSchema, data)
+		return parseJson(json, undefined, entry.filename)
 	}
 }
 
@@ -220,7 +251,7 @@ async function concatStream(stream) {
 }
 
 /**
- * @param {import('type-fest').SetOptional<ZipEntries, 'presets' | 'defaults'>} entries
+ * @param {import('type-fest').SetOptional<ZipEntries, 'presets' | 'defaults' | 'metadata'>} entries
  * @returns {asserts entries is ZipEntries}
  */
 function assertValidEntries(entries) {
@@ -229,6 +260,9 @@ function assertValidEntries(entries) {
 	}
 	if (!entries.defaults) {
 		throw new MissingDefaultsError()
+	}
+	if (!entries.metadata) {
+		throw new MissingMetadataError()
 	}
 }
 
