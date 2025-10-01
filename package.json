@@ -1,5 +1,5 @@
 {
-	"name": "comapeo-categories",
+	"name": "comapeocat",
 	"version": "1.0.0",
 	"main": "index.js",
 	"type": "module",
@@ -24,7 +24,7 @@
 	"keywords": [],
 	"author": "",
 	"license": "ISC",
-	"description": "",
+	"description": "A JavaScript library for reading and writing CoMapeo Categories files (`.comapeocat`). These files package category definitions (presets), custom fields, icons, and translations for use in [CoMapeo](https://www.comapeo.app) applications.",
 	"dependencies": {
 		"@commander-js/extra-typings": "^14.0.0",
 		"@inquirer/prompts": "^7.8.6",
