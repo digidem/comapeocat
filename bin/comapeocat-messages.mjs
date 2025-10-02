@@ -5,9 +5,7 @@ import path from 'node:path'
 import { Command } from '@commander-js/extra-typings'
 import { escapePath } from 'dot-prop'
 
-import { MESSAGES_DIR } from '../src/lib/constants.js'
 import { readFiles } from '../src/lib/read-files.js'
-import { assertValidBCP47 } from '../src/lib/utils.js'
 
 const program = new Command()
 
@@ -18,9 +16,8 @@ program
 		'directory containing presets, fields, defaults and icons',
 		process.cwd(),
 	)
-	.option('--lang <lang>', 'language code for the messages', 'en')
-	.action(async (inputDir, { lang }) => {
-		assertValidBCP47(lang)
+	.option('-o, --output <file>', 'output JSON file path (defaults to stdout)')
+	.action(async (inputDir, { output }) => {
 		/** @type {import('../src/schema/messages.js').MessagesOutput} */
 		const messages = {}
 		for await (const { type, id, value } of readFiles(inputDir)) {
@@ -64,10 +61,14 @@ program
 					break
 			}
 		}
-		const output = JSON.stringify(messages, null, 2)
-		const outputFile = path.join(inputDir, MESSAGES_DIR, `${lang}.json`)
-		await fs.mkdir(path.dirname(outputFile), { recursive: true })
-		await fs.writeFile(outputFile, output)
+		const messagesJson = JSON.stringify(messages, null, 2)
+		if (output) {
+			await fs.mkdir(path.dirname(output), { recursive: true })
+			await fs.writeFile(output, messagesJson)
+			console.log(`Wrote messages to ${output}`)
+		} else {
+			process.stdout.write(messagesJson)
+		}
 	})
 
 program.parseAsync(process.argv)

@@ -11,15 +11,125 @@ A JavaScript library for reading and writing CoMapeo Categories files (`.comapeo
 - Full TypeScript type definitions
 - Comprehensive validation with helpful error messages
 
-## Installation
+## Quick Start
+
+Build a `.comapeocat` file from a directory of JSON files and icons:
+
+```bash
+npx comapeocat build --output mycategories.comapeocat
+```
+
+Extract messages for translation:
+
+```bash
+npx comapeocat messages --output messages/en.json
+```
+
+## CLI Usage
+
+### Installation
+
+Install the CLI globally for offline-use and convenience (you can always use `npx comapeocat` without installing):
+
+```bash
+npm install -g comapeocat
+```
+
+### Commands
+
+#### `npx comapeocat build [inputDir]`
+
+Build a `.comapeocat` file from a directory containing JSON files and icons.
+
+**Arguments:**
+
+- `[inputDir]` - Directory containing presets, fields, defaults, icons, and messages (default: current directory)
+
+**Options:**
+
+- `-o, --output <file>` - Output file path (default: stdout)
+- `--name <name>` - Name of the category set (overrides metadata.json)
+- `--version <version>` - Version of the category set (overrides metadata.json)
+
+**Directory structure:**
+
+```
+inputDir/
+├── presets/
+│   ├── tree.json
+│   └── river.json
+├── fields/
+│   ├── species.json
+│   └── height.json
+├── icons/
+│   ├── tree.svg
+│   └── river.svg
+├── messages/
+│   ├── en.json
+│   └── es.json
+├── defaults.json
+└── metadata.json
+```
+
+**Example:**
+
+```bash
+# Build from current directory to stdout
+npx comapeocat build
+
+# Build to a specific file
+npx comapeocat build ./categories --output output.comapeocat
+
+# Override metadata
+npx comapeocat build --name "My Categories" --version "1.0.0" --output output.comapeocat
+```
+
+#### `npx comapeocat lint [inputDir]`
+
+Lint preset and field JSON files to validate against schemas and check references.
+
+**Arguments:**
+
+- `[inputDir]` - Directory containing presets and fields (default: current directory)
+
+**Example:**
+
+```bash
+# Lint files in current directory
+npx comapeocat lint
+```
+
+#### `npx comapeocat messages [inputDir]`
+
+Extract translatable messages from presets and fields for a given language.
+
+**Arguments:**
+
+- `[inputDir]` - Directory containing presets and fields (default: current directory)
+
+**Options:**
+
+- `-o, --output <file>` - Output file path (default: stdout)
+
+**Example:**
+
+```bash
+comapeocat messages --output messages/en.json
+```
+
+This creates a `messages/<lang>.json` file with all translatable strings extracted from presets and fields. The filename should be a valid BCP 47 language code (e.g., `en`, `es-PE`, `fr`) and the file should be placed in a `messages` subdirectory of the input directory to be picked up by the `build` command.
+
+## API Reference
+
+### Installation
 
 ```bash
 npm install comapeocat
 ```
 
-## Quick Start
+### Quick Start
 
-### Reading a Categories File
+#### Reading a Categories File
 
 ```javascript
 import { Reader } from 'comapeocat'
@@ -57,7 +167,7 @@ await reader.validate()
 await reader.close()
 ```
 
-### Writing a Categories File
+#### Writing a Categories File
 
 ```javascript
 import { Writer } from 'comapeocat'
@@ -120,8 +230,6 @@ writer.setMetadata({
 writer.finish()
 await pipeline(writer.outputStream, createWriteStream('output.comapeocat'))
 ```
-
-## API Reference
 
 ### Reader
 
@@ -222,104 +330,6 @@ Finalizes the archive. Must be called before reading from `outputStream`. Valida
 #### `writer.outputStream` _(property)_
 
 Readable stream containing the `.comapeocat` file data. Only readable after calling `finish()`.
-
-## CLI Tool
-
-The package includes a `comapeocat` CLI tool for managing category files.
-
-### Commands
-
-#### `comapeocat build [inputDir]`
-
-Build a `.comapeocat` file from a directory containing JSON files and icons.
-
-**Arguments:**
-
-- `[inputDir]` - Directory containing presets, fields, defaults, icons, and messages (default: current directory)
-
-**Options:**
-
-- `-o, --output <file>` - Output file path (default: stdout)
-- `--name <name>` - Name of the category set (overrides metadata.json)
-- `--version <version>` - Version of the category set (overrides metadata.json)
-
-**Directory structure:**
-
-```
-inputDir/
-├── presets/
-│   ├── tree.json
-│   └── river.json
-├── fields/
-│   ├── species.json
-│   └── height.json
-├── icons/
-│   ├── tree.svg
-│   └── river.svg
-├── messages/
-│   ├── en.json
-│   └── es.json
-├── defaults.json
-└── metadata.json
-```
-
-**Example:**
-
-```bash
-# Build from current directory to stdout
-comapeocat build
-
-# Build to a specific file
-comapeocat build ./categories -o output.comapeocat
-
-# Override metadata
-comapeocat build --name "My Categories" --version "1.0.0" -o output.comapeocat
-```
-
-#### `comapeocat lint [inputDir]`
-
-Lint preset and field JSON files to validate against schemas and check references.
-
-**Arguments:**
-
-- `[inputDir]` - Directory containing presets and fields (default: current directory)
-
-**Example:**
-
-```bash
-# Lint files in current directory
-comapeocat lint
-
-# Lint files in specific directory
-comapeocat lint ./categories
-```
-
-#### `comapeocat messages [inputDir]`
-
-Extract translatable messages from presets and fields for a given language.
-
-**Arguments:**
-
-- `[inputDir]` - Directory containing presets and fields (default: current directory)
-
-**Options:**
-
-- `--lang <lang>` - Language code for the messages (default: `en`)
-
-**Example:**
-
-```bash
-# Extract English messages (default)
-comapeocat messages
-
-# Extract Spanish messages
-comapeocat messages --lang es
-
-# Extract messages from specific directory
-comapeocat messages ./categories --lang fr
-```
-
-This creates a `messages/<lang>.json` file with all translatable strings extracted from presets and fields.
 
 ## File Format Specification
 
