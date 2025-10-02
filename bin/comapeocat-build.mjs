@@ -8,8 +8,9 @@ import * as v from 'valibot'
 import { isParseError } from '../src/lib/errors.js'
 import { readFiles } from '../src/lib/read-files.js'
 import { assertValidBCP47 } from '../src/lib/utils.js'
-import { MetadataSchemaStrict } from '../src/schema/metadata.js'
+import { MetadataSchemaInput } from '../src/schema/metadata.js'
 import { Writer } from '../src/writer.js'
+import { generateDefaults } from './helpers/generate-defaults.js'
 import { lint } from './helpers/lint.js'
 import { messagesToTranslations } from './helpers/messages-to-translations.js'
 
@@ -33,19 +34,24 @@ program
 			handleError,
 		)
 		writer.on('error', handleError)
-		/** @type {import('../src/schema/metadata.js').MetadataStrictOutput | undefined} */
+		/** @type {Map<string, import('../src/schema/preset.js').PresetDeprecatedOutput>} */
+		const presetsMap = new Map()
+		/** @type {import('../src/schema/metadata.js').MetadataInput | undefined} */
 		let fileMetadata
+		/** @type {import('../src/schema/defaults.js').DefaultsInput | undefined} */
+		let defaults
 		try {
 			for await (const { type, id, value } of readFiles(dir)) {
 				switch (type) {
 					case 'preset':
+						presetsMap.set(id, value)
 						writer.addPreset(id, value)
 						break
 					case 'field':
 						writer.addField(id, value)
 						break
 					case 'defaults':
-						writer.setDefaults(value)
+						defaults = value
 						break
 					case 'icon':
 						writer.addIcon(id, value)
@@ -68,8 +74,14 @@ program
 				console.error('You must provide a name via --name or in metadata.json')
 				process.exit(1)
 			}
-			v.assert(MetadataSchemaStrict, mergedMetadata)
+			v.assert(MetadataSchemaInput, mergedMetadata)
 			writer.setMetadata(mergedMetadata)
+
+			if (!defaults) {
+				defaults = generateDefaults(presetsMap)
+			}
+			writer.setDefaults(defaults)
+
 			writer.finish()
 			await pipelinePromise
 		} catch (err) {

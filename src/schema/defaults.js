@@ -4,8 +4,6 @@ import { GEOMETRY_TYPES } from '../lib/constants.js'
 
 /** @typedef {v.InferOutput<typeof DefaultsSchema>} DefaultsOutput */
 /** @typedef {v.InferInput<typeof DefaultsSchema>} DefaultsInput */
-/** @typedef {v.InferOutput<typeof DefaultsSchemaStrict>} DefaultsStrictOutput */
-/** @typedef {v.InferInput<typeof DefaultsSchemaStrict>} DefaultsStrictInput */
 
 export const DefaultsSchema = v.pipe(
 	v.object(
@@ -24,9 +22,4 @@ export const DefaultsSchema = v.pipe(
 		description:
 			'Defines the order of categories (presets) and which should be shown to the user by default for each geometry type.',
 	}),
-)
-
-export const DefaultsSchemaStrict = v.pipe(
-	v.strictObject(DefaultsSchema.entries),
-	v.metadata(v.getMetadata(DefaultsSchema)),
 )

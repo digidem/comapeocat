@@ -11,14 +11,11 @@ import {
 	MissingPresetsError,
 	UnsupportedFileVersionError,
 } from './lib/errors.js'
-import {
-	isSupportedBCP47,
-	parse,
-	validatePresetReferences,
-} from './lib/utils.js'
+import { isSupportedBCP47, parse } from './lib/utils.js'
+import { validatePresetReferences } from './lib/validate-references.js'
 import { DefaultsSchema } from './schema/defaults.js'
 import { FieldSchema } from './schema/field.js'
-import { MetadataSchema } from './schema/metadata.js'
+import { MetadataSchemaOutput } from './schema/metadata.js'
 import { PresetSchema } from './schema/preset.js'
 import { TranslationsSchema } from './schema/translations.js'
 
@@ -245,7 +242,7 @@ export class Reader {
 		if (this.#cached.metadata) return this.#cached.metadata
 		const { metadata: entry } = await this.#entriesPromise
 		const data = await this.#readJsonEntry(entry)
-		this.#cached.metadata = v.parse(MetadataSchema, data)
+		this.#cached.metadata = v.parse(MetadataSchemaOutput, data)
 		return this.#cached.metadata
 	}
 

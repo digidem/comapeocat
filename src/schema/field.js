@@ -2,8 +2,6 @@ import * as v from 'valibot'
 
 /** @typedef {v.InferOutput<typeof FieldSchema>} FieldOutput */
 /** @typedef {v.InferInput<typeof FieldSchema>} FieldInput */
-/** @typedef {v.InferOutput<typeof FieldSchemaStrict>} FieldStrictOutput */
-/** @typedef {v.InferInput<typeof FieldSchemaStrict>} FieldStrictInput */
 
 const AppearanceSchema = v.pipe(
 	v.union([
@@ -30,12 +28,20 @@ const OptionValueSchema = v.union([
 	v.null(),
 ])
 
-const OptionSchema = v.strictObject({
+const OptionSchema = v.object({
 	label: v.pipe(v.string(), v.minLength(1)),
 	value: OptionValueSchema,
 })
 
-const BaseFieldSchema = {
+const OptionsSchema = v.pipe(
+	v.array(OptionSchema),
+	v.minLength(1),
+	v.description(
+		'List of options the user can select for single- or multi-select fields',
+	),
+)
+
+const BaseFieldSchema = v.object({
 	tagKey: v.pipe(
 		v.string(),
 		v.minLength(1),
@@ -62,69 +68,40 @@ const BaseFieldSchema = {
 			),
 		),
 	),
-}
+})
 
-const TextFieldSchema = v.object({
-	...BaseFieldSchema,
-	type: v.pipe(v.literal('text'), v.description('Freeform text input')),
-	appearance: v.optional(
-		v.pipe(
-			AppearanceSchema,
-			v.description(
-				'For text fields, display as a single-line or multi-line field',
+export const FieldSchema = v.variant('type', [
+	v.object({
+		...BaseFieldSchema.entries,
+		type: v.pipe(v.literal('text'), v.description('Freeform text input')),
+		appearance: v.optional(
+			v.pipe(
+				AppearanceSchema,
+				v.description(
+					'For text fields, display as a single-line or multi-line field',
+				),
 			),
+			'multiline',
 		),
-		'multiline',
-	),
-})
-
-const NumberFieldSchema = v.object({
-	...BaseFieldSchema,
-	type: v.pipe(v.literal('number'), v.description('Allows only numbers')),
-})
-
-const SelectFieldSchema = v.object({
-	...BaseFieldSchema,
-	type: v.union([
-		v.pipe(
+	}),
+	v.object({
+		...BaseFieldSchema.entries,
+		type: v.pipe(v.literal('number'), v.description('Allows only numbers')),
+	}),
+	v.object({
+		...BaseFieldSchema.entries,
+		type: v.pipe(
 			v.literal('selectOne'),
 			v.description('Select one item from a list of pre-defined options'),
 		),
-		v.pipe(
+		options: OptionsSchema,
+	}),
+	v.object({
+		...BaseFieldSchema.entries,
+		type: v.pipe(
 			v.literal('selectMultiple'),
 			v.description('Select multiple items from a list of pre-defined options'),
 		),
-	]),
-	options: v.pipe(
-		v.array(OptionSchema),
-		v.minLength(1),
-		v.description(
-			'List of options the user can select for single- or multi-select fields',
-		),
-	),
-})
-
-const SelectFieldSchemaStrict = v.strictObject({
-	...v.omit(SelectFieldSchema, ['options']).entries,
-	...v.strictObject({
-		options: v.pipe(
-			v.array(v.strictObject(OptionSchema.entries)),
-			v.minLength(1),
-			v.description(
-				'List of options the user can select for single- or multi-select fields',
-			),
-		),
-	}).entries,
-})
-
-export const FieldSchema = v.union([
-	TextFieldSchema,
-	NumberFieldSchema,
-	SelectFieldSchema,
-])
-
-export const FieldSchemaStrict = v.union([
-	v.strictObject(TextFieldSchema.entries),
-	v.strictObject(NumberFieldSchema.entries),
-	SelectFieldSchemaStrict,
+		options: OptionsSchema,
+	}),
 ])

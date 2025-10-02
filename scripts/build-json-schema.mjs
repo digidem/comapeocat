@@ -3,16 +3,17 @@ import fs from 'node:fs'
 
 import { toJsonSchema } from '@valibot/to-json-schema'
 
-import { DefaultsSchemaStrict } from '../src/schema/defaults.js'
-import { FieldSchemaStrict } from '../src/schema/field.js'
-import { PresetSchemaStrict } from '../src/schema/preset.js'
+import { DefaultsSchema } from '../src/schema/defaults.js'
+import { FieldSchema } from '../src/schema/field.js'
+import { MessagesSchema } from '../src/schema/messages.js'
+import { PresetSchemaDeprecated } from '../src/schema/preset.js'
 
 const outDir = new URL('../dist/schema/', import.meta.url)
 
 fs.rmSync(outDir, { recursive: true, force: true })
 fs.mkdirSync(outDir, { recursive: true })
 
-const presetSchemaJson = toJsonSchema(PresetSchemaStrict, {
+const presetSchemaJson = toJsonSchema(PresetSchemaDeprecated, {
 	typeMode: 'input',
 	ignoreActions: ['check'],
 	overrideAction({ valibotAction, jsonSchema }) {
@@ -31,11 +32,14 @@ const presetSchemaJson = toJsonSchema(PresetSchemaStrict, {
 		return jsonSchema
 	},
 })
-const fieldSchemaJson = toJsonSchema(FieldSchemaStrict, {
+const fieldSchemaJson = toJsonSchema(FieldSchema, {
 	typeMode: 'input',
 	ignoreActions: ['check'],
 })
-const defaultsSchemaJson = toJsonSchema(DefaultsSchemaStrict, {
+const defaultsSchemaJson = toJsonSchema(DefaultsSchema, {
+	typeMode: 'input',
+})
+const messagesSchemaJson = toJsonSchema(MessagesSchema, {
 	typeMode: 'input',
 })
 
@@ -50,4 +54,8 @@ fs.writeFileSync(
 fs.writeFileSync(
 	new URL('defaults.json', outDir),
 	JSON.stringify(defaultsSchemaJson, null, 2),
+)
+fs.writeFileSync(
+	new URL('messages.json', outDir),
+	JSON.stringify(messagesSchemaJson, null, 2),
 )

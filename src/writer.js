@@ -8,21 +8,22 @@ import * as v from 'valibot'
 import { ICONS_DIR, TRANSLATIONS_DIR, VERSION_FILE } from './lib/constants.js'
 import {
 	AddAfterFinishError,
+	MissingDefaultsError,
 	MissingMetadataError,
 	MissingPresetsError,
 } from './lib/errors.js'
 import { parseSvg } from './lib/parse-svg.js'
-import { validatePresetReferences } from './lib/utils.js'
-import { DefaultsSchemaStrict } from './schema/defaults.js'
-import { FieldSchemaStrict } from './schema/field.js'
-import { MetadataSchemaStrict } from './schema/metadata.js'
-import { PresetSchemaStrict } from './schema/preset.js'
+import { validatePresetReferences } from './lib/validate-references.js'
+import { DefaultsSchema } from './schema/defaults.js'
+import { FieldSchema } from './schema/field.js'
+import { MetadataSchemaOutput } from './schema/metadata.js'
+import { PresetSchema } from './schema/preset.js'
 import { TranslationsSchema } from './schema/translations.js'
 
-/** @import { PresetStrictInput , PresetStrictOutput } from './schema/preset.js' */
-/** @import { FieldStrictInput, FieldStrictOutput } from './schema/field.js' */
-/** @import { DefaultsStrictInput, DefaultsStrictOutput } from './schema/defaults.js' */
-/** @import { MetadataStrictInput, MetadataStrictOutput } from './schema/metadata.js' */
+/** @import { PresetInput, PresetOutput } from './schema/preset.js' */
+/** @import { FieldInput, FieldOutput } from './schema/field.js' */
+/** @import { DefaultsInput, DefaultsOutput } from './schema/defaults.js' */
+/** @import { MetadataInput, MetadataOutput } from './schema/metadata.js' */
 /** @import { Entries } from 'type-fest'*/
 
 const FILE_VERSION = '1.0'
@@ -38,15 +39,15 @@ export class Writer extends EventEmitter {
 		this.#handleError,
 	)
 	#outputStream
-	/** @type {Map<string, PresetStrictOutput>} */
+	/** @type {Map<string, PresetOutput>} */
 	#presets = new Map()
-	/** @type {Map<string, FieldStrictOutput>} */
+	/** @type {Map<string, FieldOutput>} */
 	#fields = new Map()
 	/** @type {Set<string>} */
 	#iconIds = new Set()
-	/** @type {DefaultsStrictOutput | undefined} */
+	/** @type {DefaultsOutput | undefined} */
 	#defaults = undefined
-	/** @type {MetadataStrictOutput | undefined} */
+	/** @type {MetadataOutput | undefined} */
 	#metadata = undefined
 	#finished = false
 
@@ -64,41 +65,55 @@ export class Writer extends EventEmitter {
 
 	/**
 	 * @param {string} id preset ID (normally the filename without .json)
-	 * @param {PresetStrictInput} preset
+	 * @param {PresetInput} preset
+	 * @returns {readonly PresetOutput} The parsed preset that was added (unknown properties are stripped)
 	 */
 	addPreset(id, preset) {
 		if (this.#finished) throw new AddAfterFinishError()
-		this.#presets.set(id, v.parse(PresetSchemaStrict, preset))
+		const parsedPreset = v.parse(PresetSchema, preset)
+		this.#presets.set(id, parsedPreset)
+		return parsedPreset
 	}
 
 	/**
-	 * @param {DefaultsStrictInput} defaults
+	 * @param {DefaultsInput} defaults
+	 * @returns {readonly DefaultsOutput} The parsed defaults that were set (unknown properties are stripped)
 	 */
 	setDefaults(defaults) {
 		if (this.#finished) throw new AddAfterFinishError()
-		this.#defaults = v.parse(DefaultsSchemaStrict, defaults)
+		this.#defaults = v.parse(DefaultsSchema, defaults)
+		return this.#defaults
 	}
 
 	/**
-	 * @param {MetadataStrictInput} metadata
+	 * @param {MetadataInput} metadata
+	 * @return {readonly MetadataOutput} The parsed metadata that was set (unknown properties are stripped)
 	 */
 	setMetadata(metadata) {
 		if (this.#finished) throw new AddAfterFinishError()
-		this.#metadata = v.parse(MetadataSchemaStrict, metadata)
+		// NB: We add buildDateValue here for type simplicity, and update it in finish()
+		this.#metadata = v.parse(MetadataSchemaOutput, {
+			...metadata,
+			buildDateValue: Date.now(),
+		})
+		return this.#metadata
 	}
 
 	/**
 	 * @param {string} id field ID (normally the filename without .json)
-	 * @param {FieldStrictInput} field
+	 * @param {FieldInput} field
 	 */
 	addField(id, field) {
 		if (this.#finished) throw new AddAfterFinishError()
-		this.#fields.set(id, v.parse(FieldSchemaStrict, field))
+		const parsedField = v.parse(FieldSchema, field)
+		this.#fields.set(id, parsedField)
+		return parsedField
 	}
 
 	/**
 	 * @param {string} lang BCP47 language tag (e.g. "en", "de", "fr", "en-US")
 	 * @param {v.InferInput<typeof TranslationsSchema>} translations
+	 * @returns {Promise<readonly v.InferOutput<typeof TranslationsSchema>>} The parsed translations that were added (unknown properties are stripped)
 	 */
 	async addTranslations(lang, translations) {
 		if (this.#finished) throw new AddAfterFinishError()
@@ -106,17 +121,20 @@ export class Writer extends EventEmitter {
 		await this.#append(JSON.stringify(parsedTranslations, null, 2), {
 			name: `${TRANSLATIONS_DIR}/${lang}.json`,
 		})
+		return parsedTranslations
 	}
 
 	/**
 	 * @param {string} id icon ID (normally the filename without .svg)
 	 * @param {string} svg SVG content
+	 * @returns {Promise<string>} The parsed SVG that was added (extraneous data is stripped)
 	 */
 	async addIcon(id, svg) {
 		if (this.#finished) throw new AddAfterFinishError()
 		const parsedSvg = parseSvg(svg) // Validate SVG
 		await this.#append(parsedSvg, { name: `${ICONS_DIR}/${id}.svg` })
 		this.#iconIds.add(id)
+		return parsedSvg
 	}
 
 	/**
@@ -154,7 +172,7 @@ export class Writer extends EventEmitter {
 			throw new MissingPresetsError()
 		}
 		if (!this.#defaults) {
-			this.#defaults = generateDefaults(this.#presets)
+			throw new MissingDefaultsError()
 		}
 		this.#finished = true
 		const presets = Object.fromEntries(this.#presets)
@@ -168,6 +186,7 @@ export class Writer extends EventEmitter {
 		this.#archive.append(JSON.stringify(this.#defaults, null, 2), {
 			name: 'defaults.json',
 		})
+		/** @type {MetadataOutput} */
 		const metadata = {
 			...this.#metadata,
 			buildDateValue: Date.now(),
@@ -185,66 +204,5 @@ export class Writer extends EventEmitter {
 			fieldIds: this.#fields,
 			iconIds: this.#iconIds,
 		})
-	}
-}
-
-/** @typedef {Pick<PresetStrictOutput, 'sort' | 'name'> & { id: string }} PresetForSort */
-
-/**
- * Generate defaults from presets if no defaults are provided. Sort presets by
- * sort field first, then by name.
- *
- * @param {Map<string, PresetStrictOutput>} presetsMap
- * @returns {DefaultsStrictOutput}
- */
-function generateDefaults(presetsMap) {
-	/** @type {Record<keyof DefaultsStrictOutput, Array<PresetForSort>>} */
-	const defaultsForSort = {
-		point: [],
-		line: [],
-		area: [],
-	}
-	for (const [id, preset] of presetsMap) {
-		for (const geom of preset.geometry) {
-			defaultsForSort[geom].push({ id, sort: preset.sort, name: preset.name })
-		}
-	}
-	/** @type {Entries<DefaultsStrictOutput>} */
-	const defaultsEntries = []
-	for (const [
-		geom,
-		presetsForSort,
-	] of /** @type {Entries<typeof defaultsForSort>} */ (
-		Object.entries(defaultsForSort)
-	)) {
-		defaultsEntries.push([
-			geom,
-			presetsForSort.sort(sortPresets).map((p) => p.id),
-		])
-	}
-	return /** @type {DefaultsStrictOutput} */ (
-		Object.fromEntries(defaultsEntries)
-	)
-}
-
-/**
- * @param {PresetForSort} a
- * @param {PresetForSort} b
- * @returns {number}
- */
-function sortPresets(a, b) {
-	if (
-		'sort' in a &&
-		typeof a.sort === 'number' &&
-		'sort' in b &&
-		typeof b.sort === 'number'
-	) {
-		return a.sort - b.sort || a.name.localeCompare(b.name)
-	} else if ('sort' in a && typeof a.sort === 'number') {
-		return -1 // a has sort, b doesn't
-	} else if ('sort' in b && typeof b.sort === 'number') {
-		return 1 // b has sort, a doesn't
-	} else {
-		return a.name.localeCompare(b.name) // neither has sort
 	}
 }

@@ -4,18 +4,13 @@ import { GEOMETRY_TYPES } from '../lib/constants.js'
 
 /** @typedef {v.InferOutput<typeof PresetSchema>} PresetOutput */
 /** @typedef {v.InferInput<typeof PresetSchema>} PresetInput */
-/** @typedef {v.InferOutput<typeof PresetSchemaStrict>} PresetStrictOutput */
-/** @typedef {v.InferInput<typeof PresetSchemaStrict>} PresetStrictInput */
+/** @typedef {v.InferOutput<typeof PresetSchemaDeprecated>} PresetDeprecatedOutput */
+/** @typedef {v.InferInput<typeof PresetSchemaDeprecated>} PresetDeprecatedInput */
 
-const TagValueSchema = v.union([
-	v.boolean(),
-	v.number(),
+const TagsSchema = v.record(
 	v.string(),
-	v.null(),
-	v.array(v.union([v.boolean(), v.number(), v.string(), v.null()])),
-])
-
-const TagsSchema = v.record(v.string(), TagValueSchema)
+	v.union([v.boolean(), v.number(), v.string(), v.null()]),
+)
 
 const RefSchema = v.pipe(v.string(), v.minLength(1))
 
@@ -38,6 +33,7 @@ export const PresetSchema = v.pipe(
 		),
 		tags: v.pipe(
 			TagsSchema,
+			v.minEntries(1),
 			v.description(
 				'The tags are used to match the preset to existing map entities. You can match based on multiple tags E.g. if you have existing points with the tags `nature:tree` and `species:oak` then you can add both these tags here in order to match only oak trees.',
 			),
@@ -77,15 +73,6 @@ export const PresetSchema = v.pipe(
 			),
 			[],
 		),
-		sort: v.optional(
-			v.pipe(
-				v.number(),
-				v.metadata({
-					description: 'Sort order (deprecated, use defaults.json instead)',
-					deprecated: true,
-				}),
-			),
-		),
 		color: v.optional(
 			v.pipe(
 				v.string(),
@@ -101,18 +88,20 @@ export const PresetSchema = v.pipe(
 	}),
 )
 
-export const PresetSchemaStrict = v.pipe(
-	v.strictObject({
+// We support reading this schema off disk when generating the comapeocat file,
+// but we do not use this schema in the file format itself - deprecated fields
+// are mapping to equivalents in the file format (e.g. sort is used to determine
+// the order of defaults)
+export const PresetSchemaDeprecated = v.pipe(
+	v.object({
 		...PresetSchema.entries,
-		geometry: v.pipe(
-			v.array(v.picklist(GEOMETRY_TYPES)),
-			v.minLength(1),
-			v.check(
-				(arr) => arr.length === new Set(arr).size,
-				'Array must contain unique values',
-			),
-			v.description(
-				`Valid geometry types for the feature - this preset will only match features of this geometry type \`${GEOMETRY_TYPES.join('", "')}\``,
+		sort: v.optional(
+			v.pipe(
+				v.number(),
+				v.metadata({
+					description: 'Sort order (deprecated, use defaults.json instead)',
+					deprecated: true,
+				}),
 			),
 		),
 	}),

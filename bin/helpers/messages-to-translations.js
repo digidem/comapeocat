@@ -10,7 +10,7 @@ const UNESCAPED_DOTS_REGEX = /(?<!\\)\./g
  * @returns {TranslationsOutput}
  */
 export function messagesToTranslations(messages) {
-	/** @type {TranslationsOutput} */
+	/** @type {Required<TranslationsOutput>} */
 	const translations = { preset: {}, field: {} }
 
 	for (const [messageId, value] of Object.entries(messages)) {
@@ -20,14 +20,9 @@ export function messagesToTranslations(messages) {
 		const propertyRef = rest.join('.')
 
 		if (type === 'preset' || type === 'field') {
-			const translation = {
-				propertyRef,
-				message: value.message,
-			}
-			if (translations[type][id]) {
-				translations[type][id].push(translation)
-			} else {
-				translations[type][id] = [translation]
+			translations[type][id] = {
+				...translations[type][id],
+				[propertyRef]: value.message,
 			}
 		} else {
 			throw new Error(`Invalid message ID: ${messageId}`)

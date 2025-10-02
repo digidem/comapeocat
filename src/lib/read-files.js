@@ -3,11 +3,11 @@ import path from 'node:path'
 
 import parseJson from 'parse-json'
 
-import { DefaultsSchemaStrict } from '../schema/defaults.js'
-import { FieldSchemaStrict } from '../schema/field.js'
-import { MessagesSchemaStrict } from '../schema/messages.js'
-import { MetadataSchemaStrict } from '../schema/metadata.js'
-import { PresetSchemaStrict } from '../schema/preset.js'
+import { DefaultsSchema } from '../schema/defaults.js'
+import { FieldSchema } from '../schema/field.js'
+import { MessagesSchema } from '../schema/messages.js'
+import { MetadataSchemaInput } from '../schema/metadata.js'
+import { PresetSchemaDeprecated } from '../schema/preset.js'
 import {
 	FIELDS_DIR,
 	ICONS_DIR,
@@ -19,11 +19,11 @@ import { parseSvg } from './parse-svg.js'
 import { jsonFiles, parse, isNotFoundError } from './utils.js'
 
 /**
- * @import {PresetStrictOutput} from '../schema/preset.js'
- * @import {FieldStrictOutput} from '../schema/field.js'
- * @import {DefaultsStrictOutput} from '../schema/defaults.js'
- * @import {MetadataStrictOutput} from '../schema/metadata.js'
- * @import {MessagesStrictOutput} from '../schema/messages.js'
+ * @import {PresetDeprecatedOutput} from '../schema/preset.js'
+ * @import {FieldOutput} from '../schema/field.js'
+ * @import {DefaultsOutput} from '../schema/defaults.js'
+ * @import {MetadataInput} from '../schema/metadata.js'
+ * @import {MessagesOutput} from '../schema/messages.js'
  */
 
 /**
@@ -31,22 +31,22 @@ import { jsonFiles, parse, isNotFoundError } from './utils.js'
  *
  * @param {string} dir - Directory path
  * @returns {AsyncGenerator<
- *  | { type: 'preset', id: string, value: PresetStrictOutput }
- *  | { type: 'field', id: string, value: FieldStrictOutput }
- *  | { type: 'defaults', id: 'defaults', value: DefaultsStrictOutput }
+ *  | { type: 'preset', id: string, value: PresetDeprecatedOutput }
+ *  | { type: 'field', id: string, value: FieldOutput }
+ *  | { type: 'defaults', id: 'defaults', value: DefaultsOutput }
  *  | { type: 'icon', id: string, value: string }
- *  | { type: 'metadata', id: 'metadata', value: MetadataStrictOutput }
- *  | { type: 'messages', id: string, value: MessagesStrictOutput 	}
+ *  | { type: 'metadata', id: 'metadata', value: MetadataInput }
+ *  | { type: 'messages', id: string, value: MessagesOutput 	}
  * >} Completes when all files are read and validated
  */
 export async function* readFiles(dir) {
 	for await (const { name, data } of jsonFiles(path.join(dir, PRESETS_DIR))) {
-		const value = parse(PresetSchemaStrict, data, { fileName: name })
+		const value = parse(PresetSchemaDeprecated, data, { fileName: name })
 		yield { type: 'preset', id: nameToId(name), value }
 	}
 
 	for await (const { name, data } of jsonFiles(path.join(dir, FIELDS_DIR))) {
-		const value = parse(FieldSchemaStrict, data, { fileName: name })
+		const value = parse(FieldSchema, data, { fileName: name })
 		yield { type: 'field', id: nameToId(name), value }
 	}
 
@@ -71,7 +71,7 @@ export async function* readFiles(dir) {
 	for await (const { name, data } of jsonFiles(path.join(dir, MESSAGES_DIR), {
 		recursive: false,
 	})) {
-		const value = parse(MessagesSchemaStrict, data, { fileName: name })
+		const value = parse(MessagesSchema, data, { fileName: name })
 		yield { type: 'messages', id: nameToId(name), value }
 	}
 
@@ -85,7 +85,7 @@ export async function* readFiles(dir) {
 	}
 	if (metadataJson) {
 		const data = parseJson(metadataJson, undefined, METATADATA_FILE)
-		const value = parse(MetadataSchemaStrict, data, {
+		const value = parse(MetadataSchemaInput, data, {
 			fileName: METATADATA_FILE,
 		})
 		yield { type: 'metadata', id: 'metadata', value }
@@ -101,7 +101,7 @@ export async function* readFiles(dir) {
 	}
 	if (defaultsJson) {
 		const data = parseJson(defaultsJson, undefined, 'defaults.json')
-		const value = parse(DefaultsSchemaStrict, data, {
+		const value = parse(DefaultsSchema, data, {
 			fileName: 'defaults.json',
 		})
 		yield { type: 'defaults', id: 'defaults', value }

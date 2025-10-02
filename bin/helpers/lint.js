@@ -1,8 +1,8 @@
-import { InvalidDefaultsError, PresetRefError } from './lib/errors.js'
-import { readFiles } from './lib/read-files.js'
-import { addRefToMap } from './lib/utils.js'
+import { InvalidDefaultsError, PresetRefError } from '../../src/lib/errors.js'
+import { readFiles } from '../../src/lib/read-files.js'
+import { addRefToMap } from '../../src/lib/utils.js'
 
-/** @import {DefaultsStrictOutput} from './schema/defaults.js' */
+/** @import {DefaultsOutput} from '../../src/schema/defaults.js' */
 /** @import {Entries} from 'type-fest' */
 /**
  * Lint and validate categories in a folder
@@ -17,9 +17,9 @@ export async function lint(dir) {
 	const fieldIds = new Set()
 	/** @type {Set<string>} */
 	const iconIds = new Set()
-	/** @type {Map<string, import('./schema/preset.js').PresetStrictOutput>} */
+	/** @type {Map<string, import('../../src/schema/preset.js').PresetDeprecatedOutput>} */
 	const presets = new Map()
-	/** @type {DefaultsStrictOutput | undefined} */
+	/** @type {DefaultsOutput | undefined} */
 	let defaults = undefined
 	/** @type {string[]} */
 	const warnings = []
@@ -102,9 +102,7 @@ export async function lint(dir) {
 		for (const [
 			geometryType,
 			presetIds,
-		] of /** @type {Entries<DefaultsStrictOutput>} */ (
-			Object.entries(defaults)
-		)) {
+		] of /** @type {Entries<DefaultsOutput>} */ (Object.entries(defaults))) {
 			for (const presetId of presetIds) {
 				const preset = presets.get(presetId)
 				if (preset && !preset.geometry.includes(geometryType)) {

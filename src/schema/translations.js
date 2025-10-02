@@ -1,34 +1,31 @@
 import * as v from 'valibot'
 
-/** @typedef {v.InferOutput<typeof TranslationSchema>} TranslationOutput */
+/** @typedef {v.InferOutput<typeof DocTranslationSchema>} DocTranslationSchema */
+/** @typedef {v.InferInput<typeof TranslationsSchema>} TranslationsIntput */
 /** @typedef {v.InferOutput<typeof TranslationsSchema>} TranslationsOutput */
 
-const TranslationSchema = v.object({
-	propertyRef: v.pipe(
+const DocTranslationSchema = v.record(
+	v.pipe(
 		v.string(),
 		v.minLength(1),
-		v.description(
-			'Reference to the property being translated in dot-prop notation, e.g., "options.0"',
-		),
+		v.description('The ID of the preset or field being translated'),
 	),
-	message: v.pipe(v.string(), v.description('The translated message')),
-})
+	v.record(
+		v.pipe(
+			v.string(),
+			v.minLength(1),
+			v.description(
+				'property reference in dot-prop notation, e.g. "options.0.label"',
+			),
+		),
+		v.pipe(v.string(), v.description('The translated message')),
+	),
+)
 
-export const TranslationsSchema = v.object({
-	preset: v.record(
-		v.pipe(
-			v.string(),
-			v.minLength(1),
-			v.description('The ID of the preset being translated'),
-		),
-		v.array(TranslationSchema),
+export const TranslationsSchema = v.record(
+	v.pipe(
+		v.union([v.literal('preset'), v.literal('field')]),
+		v.description('The type of documented translated (preset or field)'),
 	),
-	field: v.record(
-		v.pipe(
-			v.string(),
-			v.minLength(1),
-			v.description('The ID of the field being translated'),
-		),
-		v.array(TranslationSchema),
-	),
-})
+	DocTranslationSchema,
+)

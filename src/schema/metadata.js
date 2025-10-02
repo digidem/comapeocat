@@ -1,12 +1,10 @@
 import * as v from 'valibot'
 
-/** @typedef {v.InferOutput<typeof MetadataSchema>} MetadataOutput */
-/** @typedef {v.InferInput<typeof MetadataSchema>} MetadataInput */
-/** @typedef {v.InferOutput<typeof MetadataSchemaStrict>} MetadataStrictOutput */
-/** @typedef {v.InferInput<typeof MetadataSchemaStrict>} MetadataStrictInput */
+/** @typedef {v.InferOutput<typeof MetadataSchemaOutput>} MetadataOutput */
+/** @typedef {v.InferInput<typeof MetadataSchemaInput>} MetadataInput */
 
 // This is the metadata that should be provided to the writer
-export const MetadataSchemaStrict = v.strictObject({
+export const MetadataSchemaInput = v.object({
 	name: v.pipe(
 		v.string(),
 		v.minLength(1),
@@ -26,8 +24,8 @@ export const MetadataSchemaStrict = v.strictObject({
 })
 
 // This is the metadata as-stored in the comapeocat file, which includes a build date and may include other fields in the future
-export const MetadataSchema = v.object({
-	...MetadataSchemaStrict.entries,
+export const MetadataSchemaOutput = v.object({
+	...MetadataSchemaInput.entries,
 	buildDateValue: v.pipe(
 		v.number(),
 		v.description('Build date as a unix timestamp in milliseconds'),
