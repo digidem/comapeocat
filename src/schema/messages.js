@@ -27,7 +27,7 @@ const NUMBER = '\\d+'
 const MESSAGE_ID_PATTERN = new RegExp(
 	`^(?:` +
 		`field\\.${ESCAPED_STRING}\\.(?:name|label|placeholder|helperText)|` +
-		`field\\.${ESCAPED_STRING}\\.options\\.${NUMBER}|` +
+		`field\\.${ESCAPED_STRING}\\.options\\.${NUMBER}\\.label|` +
 		`preset\\.${ESCAPED_STRING}\\.(?:name|terms)` +
 		`)$`,
 )
