@@ -77,7 +77,15 @@ export const PresetSchema = v.pipe(
 			),
 			[],
 		),
-		sort: v.optional(v.pipe(v.number(), v.description('Sort order'))),
+		sort: v.optional(
+			v.pipe(
+				v.number(),
+				v.metadata({
+					description: 'Sort order (deprecated, use defaults.json instead)',
+					deprecated: true,
+				}),
+			),
+		),
 		color: v.optional(
 			v.pipe(
 				v.string(),

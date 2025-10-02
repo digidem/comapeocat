@@ -15,6 +15,21 @@ fs.mkdirSync(outDir, { recursive: true })
 const presetSchemaJson = toJsonSchema(PresetSchemaStrict, {
 	typeMode: 'input',
 	ignoreActions: ['check'],
+	overrideAction({ valibotAction, jsonSchema }) {
+		if (
+			valibotAction.type === 'metadata' &&
+			'metadata' in valibotAction &&
+			valibotAction.metadata &&
+			typeof valibotAction.metadata === 'object' &&
+			'deprecated' in valibotAction.metadata
+		) {
+			return {
+				...jsonSchema,
+				deprecated: valibotAction.metadata.deprecated,
+			}
+		}
+		return jsonSchema
+	},
 })
 const fieldSchemaJson = toJsonSchema(FieldSchemaStrict, {
 	typeMode: 'input',
