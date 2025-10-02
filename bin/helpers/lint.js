@@ -1,6 +1,6 @@
 import { InvalidDefaultsError, PresetRefError } from '../../src/lib/errors.js'
-import { readFiles } from '../../src/lib/read-files.js'
 import { addRefToMap } from '../../src/lib/utils.js'
+import { readFiles } from './read-files.js'
 
 /** @import {DefaultsOutput} from '../../src/schema/defaults.js' */
 /** @import {Entries} from 'type-fest' */
@@ -17,7 +17,7 @@ export async function lint(dir) {
 	const fieldIds = new Set()
 	/** @type {Set<string>} */
 	const iconIds = new Set()
-	/** @type {Map<string, import('../../src/schema/preset.js').PresetDeprecatedOutput>} */
+	/** @type {Map<string, import('../../src/schema/preset.js').PresetDeprecatedInput>} */
 	const presets = new Map()
 	/** @type {DefaultsOutput | undefined} */
 	let defaults = undefined

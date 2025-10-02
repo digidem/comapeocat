@@ -1,34 +1,7 @@
-import fs from 'node:fs/promises'
-import path from 'node:path'
-
 import { parse as parseBCP47 } from 'bcp-47'
-import parseJson from 'parse-json'
 import * as v from 'valibot'
 
 import { SchemaError } from './errors.js'
-
-/**
- * Async generator to read all JSON files in a directory
- * @param {string} dir - Directory path
- * @returns {AsyncGenerator<{name: string, data: unknown}>} Yields objects with file name and parsed JSON data
- */
-export async function* jsonFiles(dir, { recursive = true } = {}) {
-	let entries
-	try {
-		entries = await fs.readdir(dir, { recursive })
-	} catch (err) {
-		// If directory doesn't exist, just return without yielding anything
-		if (isNotFoundError(err)) return
-		throw err
-	}
-	for (const entry of entries) {
-		if (path.extname(entry) !== '.json') continue
-		const json = await fs.readFile(path.join(dir, entry), 'utf-8')
-		// Use parse-json to get better error messages
-		const data = parseJson(json)
-		yield { name: entry, data }
-	}
-}
 
 /** @param {unknown} err */
 export function isNotFoundError(err) {

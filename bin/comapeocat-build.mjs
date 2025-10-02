@@ -6,13 +6,14 @@ import { Command } from '@commander-js/extra-typings'
 import * as v from 'valibot'
 
 import { isParseError } from '../src/lib/errors.js'
-import { readFiles } from '../src/lib/read-files.js'
 import { assertValidBCP47 } from '../src/lib/utils.js'
 import { MetadataSchemaInput } from '../src/schema/metadata.js'
+import { PresetSchema } from '../src/schema/preset.js'
 import { Writer } from '../src/writer.js'
 import { generateDefaults } from './helpers/generate-defaults.js'
 import { lint } from './helpers/lint.js'
 import { messagesToTranslations } from './helpers/messages-to-translations.js'
+import { readFiles } from './helpers/read-files.js'
 
 const program = new Command()
 
@@ -34,7 +35,7 @@ program
 			handleError,
 		)
 		writer.on('error', handleError)
-		/** @type {Map<string, import('../src/schema/preset.js').PresetDeprecatedOutput>} */
+		/** @type {Map<string, import('../src/schema/preset.js').PresetDeprecatedInput>} */
 		const presetsMap = new Map()
 		/** @type {import('../src/schema/metadata.js').MetadataInput | undefined} */
 		let fileMetadata
@@ -43,10 +44,15 @@ program
 		try {
 			for await (const { type, id, value } of readFiles(dir)) {
 				switch (type) {
-					case 'preset':
+					case 'preset': {
+						// We use the deprecated schema here to generate defaults.json if it's missing
 						presetsMap.set(id, value)
-						writer.addPreset(id, value)
+						// Currently parsing will migrate, because all that needs done is
+						// removing the `sort` field (v.parse removes unknown fields)
+						const migratedPreset = v.parse(PresetSchema, value)
+						writer.addPreset(id, migratedPreset)
 						break
+					}
 					case 'field':
 						writer.addField(id, value)
 						break

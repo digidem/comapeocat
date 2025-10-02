@@ -1,16 +1,16 @@
 import { typedEntries } from '../../src/lib/utils.js'
 
-/** @import {PresetDeprecatedOutput} from '../../src/schema/preset.js' */
+/** @import {PresetDeprecatedInput} from '../../src/schema/preset.js' */
 /** @import {DefaultsInput} from '../../src/schema/defaults.js' */
 /** @import {Entries} from 'type-fest' */
 
-/** @typedef {Pick<PresetDeprecatedOutput, 'sort' | 'name'> & { id: string }} PresetForSort */
+/** @typedef {Pick<PresetDeprecatedInput, 'sort' | 'name'> & { id: string }} PresetForSort */
 
 /**
  * Generate defaults from presets if no defaults are provided. Sort presets by
  * sort field first, then by name.
  *
- * @param {Map<string, PresetDeprecatedOutput>} presetsMap
+ * @param {Map<string, PresetDeprecatedInput>} presetsMap
  * @returns {DefaultsInput}
  */
 export function generateDefaults(presetsMap) {

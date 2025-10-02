@@ -5,7 +5,7 @@ import path from 'node:path'
 import { Command } from '@commander-js/extra-typings'
 import { escapePath } from 'dot-prop'
 
-import { readFiles } from '../src/lib/read-files.js'
+import { readFiles } from './helpers/read-files.js'
 
 const program = new Command()
 
