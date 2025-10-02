@@ -32,7 +32,7 @@ program
 						message: value.name,
 					}
 					messages[`preset.${escapedId}.terms`] = {
-						description: `List of search terms for category '${id}'`,
+						description: `Comma-separated search terms for category '${id}'`,
 						message: value.terms.join(',') || '',
 					}
 					break
@@ -54,7 +54,7 @@ program
 
 					if ('options' in value && Array.isArray(value.options)) {
 						for (const [index, option] of value.options.entries()) {
-							messages[`field.${escapedId}.options.${index}`] = {
+							messages[`field.${escapedId}.options.${index}.label`] = {
 								description: `Label for option '${option.value}' (option ${index}) of field '${id}'`,
 								message: option.label,
 							}
