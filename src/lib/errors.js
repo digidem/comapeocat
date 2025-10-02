@@ -224,3 +224,21 @@ export class InvalidSvgError extends Error {
 		Error.captureStackTrace?.(this, InvalidSvgError)
 	}
 }
+
+export class DuplicateTagsError extends Error {
+	name = 'DuplicateTagsError'
+
+	/**
+	 * @param {object} params
+	 * @param {Array<{ presetIds: string[], tags: Record<string, unknown> }>} params.duplicates - Array of duplicate tag groups
+	 */
+	constructor({ duplicates }) {
+		let message = '× Multiple presets have identical tags:\n'
+		for (const { presetIds, tags } of duplicates) {
+			message += `  → Presets ${presetIds.map((id) => `"${id}"`).join(', ')} share tags: ${JSON.stringify(tags)}\n`
+		}
+		super(message)
+
+		Error.captureStackTrace?.(this, DuplicateTagsError)
+	}
+}
