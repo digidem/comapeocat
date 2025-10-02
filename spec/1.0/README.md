@@ -170,10 +170,11 @@ Each preset object MUST contain:
 - **name** (required): Display name for the feature (string)
 - **geometry** (required): Array of valid geometry types for this preset
   - MUST contain one or more of: `"point"`, `"line"`, `"area"`
+  - MAY contain other geometry types in future versions
   - SHOULD contain only unique values
 - **tags** (required): Object mapping tag keys to tag values
   - Used to match the preset to existing map entities
-  - Tag values MAY be: string, number, boolean, null, or arrays thereof
+  - Tag values MAY be: string, number, boolean or null
 - **fields** (required): Array of field IDs to display for this preset
   - Each field ID MUST be a non-empty string
   - Field IDs MUST reference fields defined in `fields.json`
@@ -303,7 +304,7 @@ Each geometry type property:
 
 - MUST be present (`point`, `line`, and `area`)
 - MUST be an array of preset IDs (non-empty strings)
-- Preset IDs SHOULD reference presets defined in `presets.json`
+- Preset IDs MUST reference presets defined in `presets.json`
 - Each referenced preset MUST include the corresponding geometry type in its `geometry` array
   - For example, a preset referenced in `defaults.point` MUST have `"point"` in its `geometry` array
 
@@ -366,6 +367,7 @@ Translation file names:
 
 - MUST have the `.json` extension
 - MUST be named using a valid BCP 47 language tag (without the `.json` extension)
+- SHOULD only use ISO 639-1 or ISO 639-3 language codes for the primary language subtag (translations with other primary language subtags MAY be ignored by readers)
 - SHOULD use only language and region subtags (e.g., `en.json`, `es.json`, `en-US.json`)
 - MAY use other BCP 47 subtags (script, variant, extension) for forward compatibility
 
@@ -375,12 +377,10 @@ Each translation file MUST be a valid JSON object with the following structure:
 
 ```json
 {
-  "preset": {
-    "preset-id": [ ... ],
-    ...
-  },
-  "field": {
-    "field-id": [ ... ],
+  "[docType]": {
+    "[docId]": {
+			"[propertyRef]": "string",
+		},
     ...
   }
 }
@@ -388,42 +388,19 @@ Each translation file MUST be a valid JSON object with the following structure:
 
 Where:
 
-- **preset** (required): Object mapping preset IDs to arrays of translation objects
-- **field** (required): Object mapping field IDs to arrays of translation objects
+- `[docType]` is either `"preset"` or `"field"`
+- `[docId]` is the ID of the preset or field being translated
+- `[propertyRef]` is the name of the property being translated, using dot-notation for nested properties (e.g., `"options.0"` for the first option label in a select field)
+- Each translation for a given docId MAY have multiple propertyRef entries.
+- Each propertyRef entry SHOULD reference an existing property in the corresponding preset or field definition
+- A reader MAY ignore propertyRef entries that do not correspond to existing properties
 
-### 11.4. Translation Object Schema
-
-Each translation object in the arrays MUST contain:
-
-- **propertyRef** (required): Reference to the property being translated (non-empty string)
-  - Uses dot notation for nested properties (e.g., `"options.0"`)
-- **message** (required): The translated text (string)
-
-### 11.5. Valid Property References
-
-#### 11.5.1. Preset Property References
-
-For presets, valid `propertyRef` values are:
-
-- `"name"` - Preset name
-- `"terms"` - Preset search terms
-
-#### 11.5.2. Field Property References
-
-For fields, valid `propertyRef` values are:
-
-- `"name"` - Field name
-- `"label"` - Field label
-- `"placeholder"` - Field placeholder text
-- `"helperText"` - Field helper text
-- `"options.{index}"` - Field option label, where `{index}` is a zero-based integer (e.g., `"options.0"`, `"options.1"`)
-
-### 11.6. Validation
+### 11.4. Validation
 
 Readers:
 
-- MUST ignore translation files with invalid or unsupported BCP 47 language tags
-- SHOULD ignore translation objects with `propertyRef` values that do not correspond to existing properties
+- SHOULD ignore translation files with invalid or unsupported BCP 47 language tags
+- MAY ignore translation objects with `propertyRef` values that do not correspond to existing properties
 - SHOULD ignore preset or field IDs that do not exist in `presets.json` or `fields.json`
 - MAY provide different coverage across languages (not all languages need to translate the same properties)
 
@@ -432,59 +409,32 @@ Writers:
 - SHOULD only include translation files with valid BCP 47 language tags
 - SHOULD only use language and region subtags unless other subtags are needed
 
-### 11.7. Example
+### 11.6. Example
 
 File: `translations/es.json`
 
 ```json
 {
 	"preset": {
-		"tree": [
-			{
-				"propertyRef": "name",
-				"message": "Árbol"
-			},
-			{
-				"propertyRef": "terms",
-				"message": "arbre"
-			}
-		],
-		"waterhole": [
-			{
-				"propertyRef": "name",
-				"message": "Pozo de agua"
-			}
-		]
+		"tree": {
+			"name": "Árbol",
+			"terms": "arbre"
+		},
+		"waterhole": {
+			"name": "Pozo de agua"
+		}
 	},
 	"field": {
-		"species": [
-			{
-				"propertyRef": "label",
-				"message": "Especie"
-			},
-			{
-				"propertyRef": "placeholder",
-				"message": "ej. Quercus robur"
-			}
-		],
-		"condition": [
-			{
-				"propertyRef": "label",
-				"message": "Condición del árbol"
-			},
-			{
-				"propertyRef": "options.0",
-				"message": "Saludable"
-			},
-			{
-				"propertyRef": "options.1",
-				"message": "Dañado"
-			},
-			{
-				"propertyRef": "options.2",
-				"message": "Muerto"
-			}
-		]
+		"species": {
+			"label": "Especie",
+			"placeholder": "ej. Quercus robur"
+		},
+		"condition": {
+			"label": "Condición del árbol",
+			"options.0": "Saludable",
+			"options.1": "Dañado",
+			"options.2": "Muerto"
+		}
 	}
 }
 ```
