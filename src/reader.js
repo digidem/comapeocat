@@ -12,7 +12,7 @@ import {
 	UnsupportedFileVersionError,
 } from './lib/errors.js'
 import { isSupportedBCP47, parse } from './lib/utils.js'
-import { validatePresetReferences } from './lib/validate-references.js'
+import { validateReferences } from './lib/validate-references.js'
 import { DefaultsSchema } from './schema/defaults.js'
 import { FieldSchema } from './schema/field.js'
 import { MetadataSchemaOutput } from './schema/metadata.js'
@@ -149,7 +149,7 @@ export class Reader {
 		const fields = await this.fields()
 		const iconNames = await this.iconNames()
 
-		validatePresetReferences({
+		validateReferences({
 			presets,
 			fieldIds: fields,
 			iconIds: iconNames,

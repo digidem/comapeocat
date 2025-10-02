@@ -13,7 +13,7 @@ import {
 	MissingPresetsError,
 } from './lib/errors.js'
 import { parseSvg } from './lib/parse-svg.js'
-import { validatePresetReferences } from './lib/validate-references.js'
+import { validateReferences } from './lib/validate-references.js'
 import { DefaultsSchema } from './schema/defaults.js'
 import { FieldSchema } from './schema/field.js'
 import { MetadataSchemaOutput } from './schema/metadata.js'
@@ -199,7 +199,7 @@ export class Writer extends EventEmitter {
 	}
 
 	#checkRefs() {
-		validatePresetReferences({
+		validateReferences({
 			presets: this.#presets,
 			fieldIds: this.#fields,
 			iconIds: this.#iconIds,

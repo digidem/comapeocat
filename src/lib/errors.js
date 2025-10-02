@@ -242,3 +242,18 @@ export class DuplicateTagsError extends Error {
 		Error.captureStackTrace?.(this, DuplicateTagsError)
 	}
 }
+export class DefaultsRefError extends Error {
+	name = 'DefaultsRefError'
+
+	/**
+	 * @param {object} params
+	 * @param {string} params.presetId - The missing preset ID
+	 * @param {string} params.geometryType - The geometry type where the preset is referenced
+	 */
+	constructor({ presetId, geometryType }) {
+		const message = `× Preset "${presetId}" referenced by "defaults${geometryType}" is missing.`
+		super(message)
+
+		Error.captureStackTrace?.(this, DefaultsRefError)
+	}
+}

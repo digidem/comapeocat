@@ -1,4 +1,8 @@
-import { PresetRefError, InvalidDefaultsError } from './errors.js'
+import {
+	PresetRefError,
+	InvalidDefaultsError,
+	DefaultsRefError,
+} from './errors.js'
 import { addRefToMap, typedEntries } from './utils.js'
 
 /**
@@ -14,12 +18,7 @@ import { addRefToMap, typedEntries } from './utils.js'
  * @throws {import('./errors.js').InvalidDefaultsError} When presets in defaults don't support the geometry type
  */
 
-export function validatePresetReferences({
-	presets,
-	fieldIds,
-	iconIds,
-	defaults,
-}) {
+export function validateReferences({ presets, fieldIds, iconIds, defaults }) {
 	/** @type {Map<string, Set<string>>} */
 	const missingIconRefs = new Map()
 	/** @type {Map<string, Set<string>>} */
@@ -62,6 +61,9 @@ export function validatePresetReferences({
 		for (const [geometryType, presetIds] of typedEntries(defaults)) {
 			for (const presetId of presetIds) {
 				const preset = presets.get(presetId)
+				if (!preset) {
+					throw new DefaultsRefError({ presetId, geometryType })
+				}
 				if (preset && !preset.geometry.includes(geometryType)) {
 					addRefToMap(invalidGeometryRefs, geometryType, presetId)
 				}
