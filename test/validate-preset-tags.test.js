@@ -2,8 +2,8 @@
 import assert from 'node:assert/strict'
 import { describe, test } from 'node:test'
 
+import { validatePresetTags } from '../bin/helpers/validate-preset-tags.js'
 import { DuplicateTagsError } from '../src/lib/errors.js'
-import { validatePresetTags } from '../src/lib/validate-preset-tags.js'
 
 describe('validatePresetTags', () => {
 	test('accepts presets with unique tags', () => {

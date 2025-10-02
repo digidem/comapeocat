@@ -1,8 +1,8 @@
-import { DuplicateTagsError } from './errors.js'
+import { DuplicateTagsError } from '../../src/lib/errors.js'
 
 /**
  * Validate that all preset tags are unique
- * @param {Map<string, import('../schema/preset.js').PresetOutput>} presetsMap
+ * @param {Map<string, import('../../src/schema/preset.js').PresetInput>} presetsMap
  */
 export function validatePresetTags(presetsMap) {
 	/** @type {Map<string, { presetIds: string[], tags: Record<string, unknown> }>} */
@@ -37,7 +37,7 @@ export function validatePresetTags(presetsMap) {
 
 /**
  * Stable stringify tags object for comparison
- * @param {import('../schema/preset.js').PresetOutput['tags']} tags
+ * @param {import('../../src/schema/preset.js').PresetOutput['tags']} tags
  */
 function stableStringifyTags(tags) {
 	// Sort by keys to ensure consistent ordering

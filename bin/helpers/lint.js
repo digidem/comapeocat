@@ -1,6 +1,7 @@
-import { InvalidDefaultsError, PresetRefError } from '../../src/lib/errors.js'
 import { addRefToMap } from '../../src/lib/utils.js'
+import { validateReferences } from '../../src/lib/validate-references.js'
 import { readFiles } from './read-files.js'
+import { validatePresetTags } from './validate-preset-tags.js'
 
 /** @import {DefaultsOutput} from '../../src/schema/defaults.js' */
 /** @import {Entries} from 'type-fest' */
@@ -57,14 +58,15 @@ export async function lint(dir) {
 		}
 	}
 
+	validatePresetTags(presets)
+	validateReferences({ presets, fieldIds, iconIds, defaults })
+
+	// Currently validateReferences does not report warnings, so lint does that below:
+
 	for (const fieldId of fieldIds) {
 		if (fieldRefs.delete(fieldId)) {
 			fieldIds.delete(fieldId)
 		}
-	}
-
-	if (fieldRefs.size > 0) {
-		throw new PresetRefError({ missingRefs: fieldRefs, property: 'field' })
 	}
 
 	if (fieldIds.size > 0) {
@@ -82,10 +84,6 @@ export async function lint(dir) {
 		}
 	}
 
-	if (iconRefs.size > 0) {
-		throw new PresetRefError({ missingRefs: iconRefs, property: 'icon' })
-	}
-
 	if (iconIds.size > 0) {
 		const warning = `⚠️ Warning: ${iconIds.size} icon file${
 			iconIds.size > 1 ? 's' : ''
@@ -93,27 +91,6 @@ export async function lint(dir) {
 			.map((id) => `  - ${id}`)
 			.join('\n')}`
 		warnings.push(warning)
-	}
-
-	// Validate that presets referenced in defaults have the correct geometry types
-	if (defaults) {
-		/** @type {Map<string, Set<string>>} */
-		const invalidRefs = new Map()
-		for (const [
-			geometryType,
-			presetIds,
-		] of /** @type {Entries<DefaultsOutput>} */ (Object.entries(defaults))) {
-			for (const presetId of presetIds) {
-				const preset = presets.get(presetId)
-				if (preset && !preset.geometry.includes(geometryType)) {
-					addRefToMap(invalidRefs, geometryType, presetId)
-				}
-			}
-		}
-
-		if (invalidRefs.size > 0) {
-			throw new InvalidDefaultsError({ invalidRefs })
-		}
 	}
 
 	let successMessage = ''
