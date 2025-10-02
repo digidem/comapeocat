@@ -31,10 +31,11 @@ program
 						description: `The name of category '${id}'`,
 						message: value.name,
 					}
-					messages[`preset.${escapedId}.terms`] = {
-						description: `Comma-separated search terms for category '${id}'`,
-						message: value.terms.join(',') || '',
-					}
+					// Not currently used in the app, so don't extract for translation
+					// messages[`preset.${escapedId}.terms`] = {
+					// 	description: `Comma-separated search terms for category '${id}'`,
+					// 	message: value.terms.join(',') || '',
+					// }
 					break
 				case 'field':
 					messages[`field.${escapedId}.label`] = {
