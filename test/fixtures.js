@@ -28,7 +28,6 @@ export const fixtures = /** @type {const} */ ({
 			icon: 'tree',
 			color: '#228B22',
 			terms: ['árbol', 'arbre'],
-			sort: 1,
 		},
 		river: {
 			name: 'River',
@@ -55,7 +54,6 @@ export const fixtures = /** @type {const} */ ({
 			fields: ['name', 'area_size'],
 			icon: 'forest',
 			color: '#006400',
-			sort: 10,
 		},
 		multiGeometry: {
 			name: 'Water',
@@ -165,33 +163,28 @@ export const fixtures = /** @type {const} */ ({
 	translations: {
 		es: {
 			preset: {
-				tree: [{ propertyRef: 'name', message: 'Árbol' }],
+				tree: { name: 'Árbol' },
 			},
 			field: {},
 		},
 		esComplete: {
 			preset: {
-				tree: [
-					{ propertyRef: 'name', message: 'Árbol' },
-					{ propertyRef: 'terms', message: 'tree, plant' },
-				],
+				tree: { name: 'Árbol', terms: 'tree, plant' },
 			},
 			field: {
-				species: [
-					{ propertyRef: 'label', message: 'Especie' },
-					{ propertyRef: 'placeholder', message: 'ej. Quercus robur' },
-				],
-				condition: [
-					{ propertyRef: 'label', message: 'Condición del árbol' },
-					{ propertyRef: 'options.0', message: 'Saludable' },
-					{ propertyRef: 'options.1', message: 'Dañado' },
-					{ propertyRef: 'options.2', message: 'Muerto' },
-				],
+				species: { label: 'Especie', placeholder: 'ej. Quercus robur' },
+
+				condition: {
+					label: 'Condición del árbol',
+					'options.0': 'Saludable',
+					'options.1': 'Dañado',
+					'options.2': 'Muerto',
+				},
 			},
 		},
 		fr: {
 			preset: {
-				tree: [{ propertyRef: 'name', message: 'Arbre' }],
+				tree: { name: 'Arbre' },
 			},
 			field: {},
 		},

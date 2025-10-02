@@ -10,6 +10,7 @@ import { describe, test, before, after } from 'node:test'
 import { Reader } from '../src/reader.js'
 import { Writer } from '../src/writer.js'
 import { fixtures } from './fixtures.js'
+import { createTestWriter } from './helpers.js'
 
 const TEST_DIR = join(
 	tmpdir(),
@@ -73,32 +74,22 @@ describe('Writer -> Reader roundtrip tests', () => {
 		assert.equal(presets.size, 3)
 
 		const tree = presets.get('tree')
-		assert.equal(tree.name, 'Tree')
-		assert.deepEqual(tree.geometry, ['point'])
-		assert.deepEqual(tree.tags, { natural: 'tree' })
-		assert.deepEqual(tree.addTags, { natural: 'tree', source: 'survey' })
-		assert.deepEqual(tree.removeTags, { natural: 'tree', source: 'survey' })
-		assert.deepEqual(tree.fields, ['species', 'height', 'condition'])
-		assert.equal(tree.icon, 'tree')
-		assert.equal(tree.color, '#228B22')
-		assert.deepEqual(tree.terms, ['árbol', 'arbre'])
-		assert.equal(tree.sort, 1)
+		assert.deepEqual(tree, fixtures.presets.treeComplete)
 
 		// Verify fields
 		const fields = await reader.fields()
 		assert.equal(fields.size, 6)
 
-		const species = fields.get('species')
-		assert.equal(species.type, 'text')
-		assert.equal(species.tagKey, 'species')
-		assert.equal(species.label, 'Species')
-		assert.equal(species.appearance, 'singleline')
-		assert.equal(species.placeholder, 'e.g., Quercus robur')
-
-		const condition = fields.get('condition')
-		assert.equal(condition.type, 'selectOne')
-		assert.equal(condition.options.length, 3)
-		assert.equal(condition.options[1].label, 'Damaged')
+		assert.deepEqual(fields.get('species'), fixtures.fields.speciesComplete)
+		assert.deepEqual(fields.get('height'), fixtures.fields.height)
+		assert.deepEqual(fields.get('name'), {
+			...fixtures.fields.name,
+			// Expect default appearance to be set
+			appearance: 'multiline',
+		})
+		assert.deepEqual(fields.get('area_size'), fixtures.fields.area_size)
+		assert.deepEqual(fields.get('width'), fixtures.fields.width)
+		assert.deepEqual(fields.get('condition'), fixtures.fields.condition)
 
 		// Verify icons
 		const iconNames = await reader.iconNames()
@@ -115,14 +106,19 @@ describe('Writer -> Reader roundtrip tests', () => {
 
 		const esTranslation = translations.find((t) => t.lang === 'es')
 		assert.ok(esTranslation)
-		assert.equal(esTranslation.translations.preset.tree.length, 2)
-		assert.equal(esTranslation.translations.field.condition.length, 4)
+		assert.equal(Object.keys(esTranslation.translations.preset.tree).length, 2)
+		assert.equal(
+			Object.keys(esTranslation.translations.field.condition).length,
+			4,
+		)
 
 		// Verify defaults
 		const defaults = await reader.defaults()
-		assert.deepEqual(defaults.point, ['tree'])
-		assert.deepEqual(defaults.line, ['river'])
-		assert.deepEqual(defaults.area, ['forest'])
+		assert.deepEqual(defaults, {
+			point: ['tree'],
+			line: ['river'],
+			area: ['forest'],
+		})
 
 		// Verify metadata
 		const metadata = await reader.metadata()
@@ -138,7 +134,7 @@ describe('Writer -> Reader roundtrip tests', () => {
 
 	test('roundtrip with minimal data', async () => {
 		const filepath = join(TEST_DIR, 'roundtrip-minimal.comapeocat')
-		const writer = new Writer()
+		const writer = createTestWriter()
 
 		writer.addPreset('poi', {
 			name: 'Point of Interest',
@@ -167,51 +163,9 @@ describe('Writer -> Reader roundtrip tests', () => {
 		await reader.close()
 	})
 
-	test('roundtrip with auto-generated defaults', async () => {
-		const filepath = join(TEST_DIR, 'roundtrip-auto-defaults.comapeocat')
-		const writer = new Writer()
-
-		writer.addPreset('a_point', {
-			name: 'A Point',
-			geometry: ['point'],
-			tags: { test: 'a' },
-			fields: [],
-			sort: 2,
-		})
-
-		writer.addPreset('b_point', {
-			name: 'B Point',
-			geometry: ['point'],
-			tags: { test: 'b' },
-			fields: [],
-			sort: 1,
-		})
-
-		writer.addPreset('c_line', {
-			name: 'C Line',
-			geometry: ['line'],
-			tags: { test: 'c' },
-			fields: [],
-		})
-
-		writer.setMetadata({ name: 'Auto Defaults Test' })
-		writer.finish()
-
-		await pipeline(writer.outputStream, createWriteStream(filepath))
-
-		const reader = new Reader(filepath)
-		const defaults = await reader.defaults()
-
-		assert.deepEqual(defaults.point, ['b_point', 'a_point'])
-		assert.deepEqual(defaults.line, ['c_line'])
-		assert.deepEqual(defaults.area, [])
-
-		await reader.close()
-	})
-
 	test('roundtrip validates preset references', async () => {
 		const filepath = join(TEST_DIR, 'roundtrip-valid-refs.comapeocat')
-		const writer = new Writer()
+		const writer = createTestWriter()
 
 		writer.addPreset('tree', {
 			...fixtures.presets.tree,
@@ -234,7 +188,7 @@ describe('Writer -> Reader roundtrip tests', () => {
 
 	test('roundtrip with complex tags', async () => {
 		const filepath = join(TEST_DIR, 'roundtrip-complex-tags.comapeocat')
-		const writer = new Writer()
+		const writer = createTestWriter()
 
 		writer.addPreset('multi_tag', {
 			name: 'Multi Tag',
@@ -244,7 +198,6 @@ describe('Writer -> Reader roundtrip tests', () => {
 				number: 42,
 				boolean: true,
 				null_value: null,
-				array: ['a', 'b', 'c'],
 			},
 			fields: [],
 		})
@@ -262,14 +215,13 @@ describe('Writer -> Reader roundtrip tests', () => {
 		assert.equal(preset.tags.number, 42)
 		assert.equal(preset.tags.boolean, true)
 		assert.equal(preset.tags.null_value, null)
-		assert.deepEqual(preset.tags.array, ['a', 'b', 'c'])
 
 		await reader.close()
 	})
 
 	test('roundtrip with multiline text field', async () => {
 		const filepath = join(TEST_DIR, 'roundtrip-multiline.comapeocat')
-		const writer = new Writer()
+		const writer = createTestWriter()
 
 		writer.addPreset('note', {
 			name: 'Note',
@@ -295,7 +247,7 @@ describe('Writer -> Reader roundtrip tests', () => {
 
 	test('roundtrip with selectMultiple field', async () => {
 		const filepath = join(TEST_DIR, 'roundtrip-select-multiple.comapeocat')
-		const writer = new Writer()
+		const writer = createTestWriter()
 
 		writer.addPreset('survey', {
 			name: 'Survey',

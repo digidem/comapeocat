@@ -10,6 +10,7 @@ import { describe, test, before, after } from 'node:test'
 import { Reader } from '../src/reader.js'
 import { Writer } from '../src/writer.js'
 import { fixtures } from './fixtures.js'
+import { createTestWriter } from './helpers.js'
 
 const TEST_DIR = join(
 	tmpdir(),
@@ -107,88 +108,18 @@ describe('Writer', () => {
 		await reader.close()
 	})
 
-	test('auto-generates defaults when not set', async () => {
-		const filepath = join(TEST_DIR, 'writer-auto-defaults.comapeocat')
-		const writer = new Writer()
-
-		writer.addPreset('tree', {
-			...fixtures.presets.tree,
-			sort: 1,
-		})
-
-		writer.addPreset('water', {
-			...fixtures.presets.water,
-			geometry: ['point'],
-			sort: 2,
-		})
-
-		writer.setMetadata({ name: 'Test' })
-		writer.finish()
-
-		await pipeline(writer.outputStream, createWriteStream(filepath))
-
-		const reader = new Reader(filepath)
-		const defaults = await reader.defaults()
-
-		assert.deepEqual(defaults.point, ['tree', 'water'])
-		assert.deepEqual(defaults.line, [])
-		assert.deepEqual(defaults.area, [])
-
-		await reader.close()
-	})
-
-	test('sorts presets by sort field then name', async () => {
-		const filepath = join(TEST_DIR, 'writer-sort.comapeocat')
-		const writer = new Writer()
-
-		writer.addPreset('zebra', {
-			name: 'Zebra',
-			geometry: ['point'],
-			tags: { animal: 'zebra' },
-			fields: [],
-		})
-
-		writer.addPreset('apple', {
-			name: 'Apple',
-			geometry: ['point'],
-			tags: { natural: 'tree', tree: 'apple' },
-			fields: [],
-			sort: 10,
-		})
-
-		writer.addPreset('banana', {
-			name: 'Banana',
-			geometry: ['point'],
-			tags: { natural: 'tree', tree: 'banana' },
-			fields: [],
-		})
-
-		writer.addPreset('cherry', {
-			name: 'Cherry',
-			geometry: ['point'],
-			tags: { natural: 'tree', tree: 'cherry' },
-			fields: [],
-			sort: 5,
-		})
-
-		writer.setMetadata({ name: 'Test' })
-		writer.finish()
-
-		await pipeline(writer.outputStream, createWriteStream(filepath))
-
-		const reader = new Reader(filepath)
-		const defaults = await reader.defaults()
-
-		assert.deepEqual(defaults.point, ['cherry', 'apple', 'banana', 'zebra'])
-
-		await reader.close()
-	})
-
-	test('throws when adding after finish', async () => {
+	test('throws when no defaults set', async () => {
 		const writer = new Writer()
 
 		writer.addPreset('tree', fixtures.presets.tree)
 		writer.setMetadata({ name: 'Test' })
+		assert.throws(() => writer.finish(), { name: 'MissingDefaultsError' })
+	})
+
+	test('throws when adding after finish', async () => {
+		const writer = createTestWriter()
+
+		writer.addPreset('tree', fixtures.presets.tree)
 		writer.finish()
 
 		assert.throws(() => writer.addPreset('river', fixtures.presets.river), {
@@ -275,11 +206,10 @@ describe('Writer', () => {
 
 	test('allows valid SVG', async () => {
 		const filepath = join(TEST_DIR, 'writer-svg.comapeocat')
-		const writer = new Writer()
+		const writer = createTestWriter()
 
 		writer.addPreset('tree', { ...fixtures.presets.tree, icon: 'tree' })
 		await writer.addIcon('tree', fixtures.icons.complex)
-		writer.setMetadata({ name: 'Test' })
 		writer.finish()
 
 		await pipeline(writer.outputStream, createWriteStream(filepath))
@@ -339,27 +269,26 @@ describe('Writer', () => {
 
 	test('handles multiple geometry types', async () => {
 		const filepath = join(TEST_DIR, 'writer-multi-geom.comapeocat')
-		const writer = new Writer()
+		const writer = createTestWriter()
 
 		writer.addPreset('water', fixtures.presets.multiGeometry)
-		writer.setMetadata({ name: 'Test' })
 		writer.finish()
 
 		await pipeline(writer.outputStream, createWriteStream(filepath))
 
 		const reader = new Reader(filepath)
-		const defaults = await reader.defaults()
+		const presets = await reader.presets()
 
-		assert.ok(defaults.point.includes('water'))
-		assert.ok(defaults.line.includes('water'))
-		assert.ok(defaults.area.includes('water'))
+		assert.ok(presets.get('water')?.geometry.includes('point'))
+		assert.ok(presets.get('water')?.geometry.includes('line'))
+		assert.ok(presets.get('water')?.geometry.includes('area'))
 
 		await reader.close()
 	})
 
 	test('handles select field with options', async () => {
 		const filepath = join(TEST_DIR, 'writer-select.comapeocat')
-		const writer = new Writer()
+		const writer = createTestWriter()
 
 		writer.addPreset('tree', {
 			...fixtures.presets.tree,
@@ -367,7 +296,6 @@ describe('Writer', () => {
 		})
 
 		writer.addField('condition', fixtures.fields.condition)
-		writer.setMetadata({ name: 'Test' })
 		writer.finish()
 
 		await pipeline(writer.outputStream, createWriteStream(filepath))

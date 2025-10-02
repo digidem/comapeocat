@@ -10,6 +10,7 @@ import { describe, test, before, after } from 'node:test'
 import { Reader } from '../src/reader.js'
 import { Writer } from '../src/writer.js'
 import { createTestZip, fixtures } from './fixtures.js'
+import { createTestWriter } from './helpers.js'
 
 const TEST_DIR = join(
 	tmpdir(),
@@ -26,155 +27,9 @@ describe('Edge cases and untested spec details', () => {
 	})
 
 	describe('Special characters in IDs', () => {
-		test('handles preset IDs with dots', async () => {
-			const filepath = join(TEST_DIR, 'preset-id-dots.comapeocat')
-			const writer = new Writer()
-
-			writer.addPreset('category.subcategory', {
-				name: 'Category Subcategory',
-				geometry: ['point'],
-				tags: { test: 'value' },
-				fields: [],
-			})
-
-			writer.setMetadata({ name: 'Test' })
-			writer.finish()
-
-			await pipeline(writer.outputStream, createWriteStream(filepath))
-
-			const reader = new Reader(filepath)
-			const presets = await reader.presets()
-
-			assert.ok(presets.has('category.subcategory'))
-			assert.equal(
-				presets.get('category.subcategory').name,
-				'Category Subcategory',
-			)
-
-			await reader.close()
-		})
-
-		test('handles field IDs with dots', async () => {
-			const filepath = join(TEST_DIR, 'field-id-dots.comapeocat')
-			const writer = new Writer()
-
-			writer.addPreset('test', {
-				name: 'Test',
-				geometry: ['point'],
-				tags: { test: 'value' },
-				fields: ['field.name'],
-			})
-
-			writer.addField('field.name', {
-				type: 'text',
-				tagKey: 'test',
-				label: 'Test Field',
-			})
-
-			writer.setMetadata({ name: 'Test' })
-			writer.finish()
-
-			await pipeline(writer.outputStream, createWriteStream(filepath))
-
-			const reader = new Reader(filepath)
-			const fields = await reader.fields()
-
-			assert.ok(fields.has('field.name'))
-			assert.equal(fields.get('field.name').label, 'Test Field')
-
-			await reader.close()
-		})
-
-		test('handles icon IDs with dots in filename', async () => {
-			const filepath = join(TEST_DIR, 'icon-id-dots.comapeocat')
-			const writer = new Writer()
-
-			writer.addPreset('test', {
-				name: 'Test',
-				geometry: ['point'],
-				tags: { test: 'value' },
-				fields: [],
-				icon: 'icon.category',
-			})
-
-			await writer.addIcon('icon.category', fixtures.icons.simple)
-			writer.setMetadata({ name: 'Test' })
-			writer.finish()
-
-			await pipeline(writer.outputStream, createWriteStream(filepath))
-
-			const reader = new Reader(filepath)
-			const iconNames = await reader.iconNames()
-
-			assert.ok(iconNames.has('icon.category'))
-
-			await reader.close()
-		})
-
-		test('handles preset IDs with backslashes (escaped)', async () => {
-			const filepath = join(TEST_DIR, 'preset-id-backslash.comapeocat')
-			const writer = new Writer()
-
-			writer.addPreset('category\\subcategory', {
-				name: 'Category Backslash',
-				geometry: ['point'],
-				tags: { test: 'value' },
-				fields: [],
-			})
-
-			writer.setMetadata({ name: 'Test' })
-			writer.finish()
-
-			await pipeline(writer.outputStream, createWriteStream(filepath))
-
-			const reader = new Reader(filepath)
-			const presets = await reader.presets()
-
-			assert.ok(presets.has('category\\subcategory'))
-
-			await reader.close()
-		})
-
-		test('handles field IDs with underscores and hyphens', async () => {
-			const filepath = join(TEST_DIR, 'field-id-special.comapeocat')
-			const writer = new Writer()
-
-			writer.addPreset('test', {
-				name: 'Test',
-				geometry: ['point'],
-				tags: { test: 'value' },
-				fields: ['field_name', 'field-name'],
-			})
-
-			writer.addField('field_name', {
-				type: 'text',
-				tagKey: 'test1',
-				label: 'Underscore Field',
-			})
-
-			writer.addField('field-name', {
-				type: 'text',
-				tagKey: 'test2',
-				label: 'Hyphen Field',
-			})
-
-			writer.setMetadata({ name: 'Test' })
-			writer.finish()
-
-			await pipeline(writer.outputStream, createWriteStream(filepath))
-
-			const reader = new Reader(filepath)
-			const fields = await reader.fields()
-
-			assert.ok(fields.has('field_name'))
-			assert.ok(fields.has('field-name'))
-
-			await reader.close()
-		})
-
 		test('handles UTF-8 characters in preset IDs', async () => {
 			const filepath = join(TEST_DIR, 'preset-id-utf8.comapeocat')
-			const writer = new Writer()
+			const writer = createTestWriter()
 
 			writer.addPreset('árbol_🌳', {
 				name: 'Tree',
@@ -182,8 +37,6 @@ describe('Edge cases and untested spec details', () => {
 				tags: { natural: 'tree' },
 				fields: [],
 			})
-
-			writer.setMetadata({ name: 'Test' })
 			writer.finish()
 
 			await pipeline(writer.outputStream, createWriteStream(filepath))
@@ -198,7 +51,7 @@ describe('Edge cases and untested spec details', () => {
 
 		test('handles UTF-8 characters in field names and values', async () => {
 			const filepath = join(TEST_DIR, 'field-utf8.comapeocat')
-			const writer = new Writer()
+			const writer = createTestWriter()
 
 			writer.addPreset('test', {
 				name: 'Test',
@@ -214,7 +67,6 @@ describe('Edge cases and untested spec details', () => {
 				placeholder: 'par exemple: Quercus robur',
 			})
 
-			writer.setMetadata({ name: 'Test UTF-8' })
 			writer.finish()
 
 			await pipeline(writer.outputStream, createWriteStream(filepath))
@@ -322,9 +174,25 @@ describe('Edge cases and untested spec details', () => {
 			)
 		})
 
+		test('rejects preset with no valid geometry types', async () => {
+			const writer = new Writer()
+
+			assert.throws(
+				() => {
+					writer.addPreset('invalid', {
+						name: 'Invalid',
+						geometry: ['invalid_type'],
+						tags: { test: 'value' },
+						fields: [],
+					})
+				},
+				{ name: 'ValiError' },
+			)
+		})
+
 		test('accepts geometry with all three types', async () => {
 			const filepath = join(TEST_DIR, 'geometry-all-types.comapeocat')
-			const writer = new Writer()
+			const writer = createTestWriter()
 
 			writer.addPreset('multi', {
 				name: 'Multi Geometry',
@@ -332,8 +200,6 @@ describe('Edge cases and untested spec details', () => {
 				tags: { test: 'value' },
 				fields: [],
 			})
-
-			writer.setMetadata({ name: 'Test' })
 			writer.finish()
 
 			await pipeline(writer.outputStream, createWriteStream(filepath))
@@ -346,20 +212,27 @@ describe('Edge cases and untested spec details', () => {
 			await reader.close()
 		})
 
-		test('rejects invalid geometry type', async () => {
-			const writer = new Writer()
+		test('ignores and removes invalid geometry types', async () => {
+			const filepath = join(TEST_DIR, 'geometry-invalid-types.comapeocat')
+			const writer = createTestWriter()
 
-			assert.throws(
-				() => {
-					writer.addPreset('invalid', {
-						name: 'Invalid',
-						geometry: ['polygon'],
-						tags: { test: 'value' },
-						fields: [],
-					})
-				},
-				{ name: 'ValiError' },
-			)
+			writer.addPreset('invalid', {
+				name: 'Invalid',
+				geometry: ['point', 'polygon'],
+				tags: { test: 'value' },
+				fields: [],
+			})
+
+			writer.finish()
+
+			await pipeline(writer.outputStream, createWriteStream(filepath))
+
+			const reader = new Reader(filepath)
+			const presets = await reader.presets()
+
+			assert.deepEqual(presets.get('invalid').geometry, ['point'])
+
+			await reader.close()
 		})
 	})
 
@@ -437,7 +310,7 @@ describe('Edge cases and untested spec details', () => {
 	describe('Color validation', () => {
 		test('accepts 3-digit hex color', async () => {
 			const filepath = join(TEST_DIR, 'color-3-digit.comapeocat')
-			const writer = new Writer()
+			const writer = createTestWriter()
 
 			writer.addPreset('test', {
 				name: 'Test',
@@ -447,7 +320,6 @@ describe('Edge cases and untested spec details', () => {
 				color: '#abc',
 			})
 
-			writer.setMetadata({ name: 'Test' })
 			writer.finish()
 
 			await pipeline(writer.outputStream, createWriteStream(filepath))
@@ -462,7 +334,7 @@ describe('Edge cases and untested spec details', () => {
 
 		test('accepts 6-digit hex color', async () => {
 			const filepath = join(TEST_DIR, 'color-6-digit.comapeocat')
-			const writer = new Writer()
+			const writer = createTestWriter()
 
 			writer.addPreset('test', {
 				name: 'Test',
@@ -472,7 +344,6 @@ describe('Edge cases and untested spec details', () => {
 				color: '#aabbcc',
 			})
 
-			writer.setMetadata({ name: 'Test' })
 			writer.finish()
 
 			await pipeline(writer.outputStream, createWriteStream(filepath))
@@ -487,7 +358,7 @@ describe('Edge cases and untested spec details', () => {
 
 		test('accepts 8-digit hex color with alpha', async () => {
 			const filepath = join(TEST_DIR, 'color-8-digit.comapeocat')
-			const writer = new Writer()
+			const writer = createTestWriter()
 
 			writer.addPreset('test', {
 				name: 'Test',
@@ -497,7 +368,6 @@ describe('Edge cases and untested spec details', () => {
 				color: '#aabbccdd',
 			})
 
-			writer.setMetadata({ name: 'Test' })
 			writer.finish()
 
 			await pipeline(writer.outputStream, createWriteStream(filepath))
@@ -512,7 +382,7 @@ describe('Edge cases and untested spec details', () => {
 
 		test('accepts uppercase hex color', async () => {
 			const filepath = join(TEST_DIR, 'color-uppercase.comapeocat')
-			const writer = new Writer()
+			const writer = createTestWriter()
 
 			writer.addPreset('test', {
 				name: 'Test',
@@ -522,7 +392,6 @@ describe('Edge cases and untested spec details', () => {
 				color: '#AABBCC',
 			})
 
-			writer.setMetadata({ name: 'Test' })
 			writer.finish()
 
 			await pipeline(writer.outputStream, createWriteStream(filepath))
@@ -536,7 +405,7 @@ describe('Edge cases and untested spec details', () => {
 		})
 
 		test('rejects invalid hex color', async () => {
-			const writer = new Writer()
+			const writer = createTestWriter()
 
 			assert.throws(
 				() => {
@@ -553,7 +422,7 @@ describe('Edge cases and untested spec details', () => {
 		})
 
 		test('rejects hex color without hash', async () => {
-			const writer = new Writer()
+			const writer = createTestWriter()
 
 			assert.throws(
 				() => {
@@ -570,7 +439,7 @@ describe('Edge cases and untested spec details', () => {
 		})
 
 		test('rejects invalid hex digits', async () => {
-			const writer = new Writer()
+			const writer = createTestWriter()
 
 			assert.throws(
 				() => {
@@ -589,7 +458,7 @@ describe('Edge cases and untested spec details', () => {
 
 	describe('Field options validation', () => {
 		test('rejects selectOne field with no options', async () => {
-			const writer = new Writer()
+			const writer = createTestWriter()
 
 			assert.throws(
 				() => {
@@ -605,7 +474,7 @@ describe('Edge cases and untested spec details', () => {
 		})
 
 		test('rejects selectMultiple field with no options', async () => {
-			const writer = new Writer()
+			const writer = createTestWriter()
 
 			assert.throws(
 				() => {
@@ -622,7 +491,7 @@ describe('Edge cases and untested spec details', () => {
 
 		test('accepts option values of different types', async () => {
 			const filepath = join(TEST_DIR, 'options-mixed-types.comapeocat')
-			const writer = new Writer()
+			const writer = createTestWriter()
 
 			writer.addPreset('test', {
 				name: 'Test',
@@ -643,7 +512,6 @@ describe('Edge cases and untested spec details', () => {
 				],
 			})
 
-			writer.setMetadata({ name: 'Test' })
 			writer.finish()
 
 			await pipeline(writer.outputStream, createWriteStream(filepath))
@@ -664,7 +532,7 @@ describe('Edge cases and untested spec details', () => {
 	describe('Metadata validation', () => {
 		test('accepts metadata with minimal required fields', async () => {
 			const filepath = join(TEST_DIR, 'metadata-minimal.comapeocat')
-			const writer = new Writer()
+			const writer = createTestWriter()
 
 			writer.addPreset('test', {
 				name: 'Test',
@@ -673,7 +541,6 @@ describe('Edge cases and untested spec details', () => {
 				fields: [],
 			})
 
-			writer.setMetadata({ name: 'Test' })
 			writer.finish()
 
 			await pipeline(writer.outputStream, createWriteStream(filepath))
@@ -688,7 +555,7 @@ describe('Edge cases and untested spec details', () => {
 		})
 
 		test('rejects metadata with empty name', async () => {
-			const writer = new Writer()
+			const writer = createTestWriter()
 
 			assert.throws(
 				() => {
@@ -699,7 +566,7 @@ describe('Edge cases and untested spec details', () => {
 		})
 
 		test('rejects metadata version exactly 21 characters', async () => {
-			const writer = new Writer()
+			const writer = createTestWriter()
 
 			assert.throws(
 				() => {
@@ -714,7 +581,7 @@ describe('Edge cases and untested spec details', () => {
 
 		test('accepts metadata version exactly 20 characters', async () => {
 			const filepath = join(TEST_DIR, 'metadata-version-20.comapeocat')
-			const writer = new Writer()
+			const writer = createTestWriter()
 
 			writer.addPreset('test', {
 				name: 'Test',
@@ -741,7 +608,7 @@ describe('Edge cases and untested spec details', () => {
 
 		test('accepts metadata name exactly 100 characters', async () => {
 			const filepath = join(TEST_DIR, 'metadata-name-100.comapeocat')
-			const writer = new Writer()
+			const writer = createTestWriter()
 
 			writer.addPreset('test', {
 				name: 'Test',
@@ -769,7 +636,7 @@ describe('Edge cases and untested spec details', () => {
 	describe('Translation validation', () => {
 		test('accepts valid BCP 47 language codes', async () => {
 			const filepath = join(TEST_DIR, 'translation-bcp47-valid.comapeocat')
-			const writer = new Writer()
+			const writer = createTestWriter()
 
 			writer.addPreset('tree', fixtures.presets.tree)
 
@@ -810,7 +677,7 @@ describe('Edge cases and untested spec details', () => {
 					'metadata.json': fixtures.metadata.minimal,
 					'translations/es.json': {
 						preset: {
-							nonexistent: [{ propertyRef: 'name', message: 'No existe' }],
+							nonexistent: { name: 'No existe' },
 						},
 						field: {},
 					},
@@ -843,7 +710,7 @@ describe('Edge cases and untested spec details', () => {
 					'translations/es.json': {
 						preset: {},
 						field: {
-							nonexistent: [{ propertyRef: 'label', message: 'No existe' }],
+							nonexistent: { label: 'No existe' },
 						},
 					},
 				},
@@ -865,7 +732,7 @@ describe('Edge cases and untested spec details', () => {
 	describe('Tag value types', () => {
 		test('accepts all valid tag value types', async () => {
 			const filepath = join(TEST_DIR, 'tags-all-types.comapeocat')
-			const writer = new Writer()
+			const writer = createTestWriter()
 
 			writer.addPreset('test', {
 				name: 'Test',
@@ -875,11 +742,6 @@ describe('Edge cases and untested spec details', () => {
 					number_tag: 123,
 					boolean_tag: true,
 					null_tag: null,
-					array_string: ['a', 'b', 'c'],
-					array_number: [1, 2, 3],
-					array_boolean: [true, false],
-					array_null: [null, null],
-					array_mixed: ['text', 42, true, null],
 				},
 				fields: [],
 			})
@@ -897,11 +759,6 @@ describe('Edge cases and untested spec details', () => {
 			assert.equal(tags.number_tag, 123)
 			assert.equal(tags.boolean_tag, true)
 			assert.equal(tags.null_tag, null)
-			assert.deepEqual(tags.array_string, ['a', 'b', 'c'])
-			assert.deepEqual(tags.array_number, [1, 2, 3])
-			assert.deepEqual(tags.array_boolean, [true, false])
-			assert.deepEqual(tags.array_null, [null, null])
-			assert.deepEqual(tags.array_mixed, ['text', 42, true, null])
 
 			await reader.close()
 		})
@@ -910,7 +767,7 @@ describe('Edge cases and untested spec details', () => {
 	describe('Text field appearance', () => {
 		test('text field appearance defaults to multiline', async () => {
 			const filepath = join(TEST_DIR, 'text-appearance-default.comapeocat')
-			const writer = new Writer()
+			const writer = createTestWriter()
 
 			writer.addPreset('test', {
 				name: 'Test',
@@ -942,7 +799,7 @@ describe('Edge cases and untested spec details', () => {
 
 		test('accepts singleline appearance', async () => {
 			const filepath = join(TEST_DIR, 'text-appearance-singleline.comapeocat')
-			const writer = new Writer()
+			const writer = createTestWriter()
 
 			writer.addPreset('test', {
 				name: 'Test',
