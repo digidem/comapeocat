@@ -1,0 +1,16 @@
+{
+  "name": "Marsha Ondricka MD",
+  "geometry": [
+    "area"
+  ],
+  "tags": {
+    "ager": null
+  },
+  "addTags": {},
+  "removeTags": {},
+  "fields": [
+    "field1",
+    "field2"
+  ],
+  "terms": []
+}

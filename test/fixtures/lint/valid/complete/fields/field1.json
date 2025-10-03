@@ -1,0 +1,12 @@
+{
+  "tagKey": "patrocinor",
+  "label": "autus",
+  "placeholder": "creta",
+  "type": "selectMultiple",
+  "options": [
+    {
+      "label": "vos",
+      "value": null
+    }
+  ]
+}

@@ -1,0 +1,6 @@
+{
+  "type": "text",
+  "tagKey": "species",
+  "label": "Species",
+  "appearance": "singleline"
+}

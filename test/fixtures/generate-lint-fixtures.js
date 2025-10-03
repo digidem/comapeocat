@@ -1,0 +1,121 @@
+import { writeFileSync, mkdirSync } from 'node:fs'
+import { join, dirname } from 'node:path'
+import { fileURLToPath } from 'node:url'
+
+import { faker } from '@faker-js/faker'
+import { Valimock } from 'valimock'
+
+import { FieldSchema } from '../../src/schema/field.js'
+import { PresetSchema } from '../../src/schema/preset.js'
+
+const __dirname = dirname(fileURLToPath(import.meta.url))
+
+// Set a fixed seed for reproducible fixtures
+faker.seed(42)
+
+const valimock = new Valimock()
+
+const FIXTURES_DIR = join(__dirname, 'lint')
+
+/**
+ * Helper to write a JSON file
+ * @param {string} dirPath
+ * @param {string} filename
+ * @param {unknown} content
+ */
+function writeJSON(dirPath, filename, content) {
+	mkdirSync(dirPath, { recursive: true })
+	writeFileSync(join(dirPath, filename), JSON.stringify(content, null, 2))
+}
+
+// Generate valid fixtures using valimock
+
+// Minimal valid fixture - no fields, no icons, no defaults, no metadata
+const minimalDir = join(FIXTURES_DIR, 'valid', 'minimal')
+const minimalPreset = valimock.mock(PresetSchema)
+// Override to ensure no field/icon references and valid geometry
+minimalPreset.fields = []
+// @ts-expect-error
+minimalPreset.geometry = ['point']
+delete minimalPreset.icon
+writeJSON(join(minimalDir, 'presets'), 'preset1.json', minimalPreset)
+
+// Complete valid fixture - with fields, icons, defaults, and metadata
+const completeDir = join(FIXTURES_DIR, 'valid', 'complete')
+
+// Generate fields first
+const field1 = valimock.mock(FieldSchema)
+const field2 = valimock.mock(FieldSchema)
+const field3 = valimock.mock(FieldSchema)
+
+writeJSON(join(completeDir, 'fields'), 'field1.json', field1)
+writeJSON(join(completeDir, 'fields'), 'field2.json', field2)
+writeJSON(join(completeDir, 'fields'), 'field3.json', field3)
+
+// Generate presets that reference the fields and icons
+const preset1 = valimock.mock(PresetSchema)
+preset1.fields = ['field1', 'field2']
+preset1.icon = 'icon1'
+// @ts-expect-error
+preset1.geometry = ['point']
+
+const preset2 = valimock.mock(PresetSchema)
+preset2.fields = ['field2', 'field3']
+preset2.icon = 'icon2'
+// @ts-expect-error
+preset2.geometry = ['line']
+
+const preset3 = valimock.mock(PresetSchema)
+preset3.fields = ['field1']
+preset3.icon = 'icon3'
+// @ts-expect-error
+preset3.geometry = ['area']
+
+writeJSON(join(completeDir, 'presets'), 'preset1.json', preset1)
+writeJSON(join(completeDir, 'presets'), 'preset2.json', preset2)
+writeJSON(join(completeDir, 'presets'), 'preset3.json', preset3)
+
+// Generate icons
+mkdirSync(join(completeDir, 'icons'), { recursive: true })
+writeFileSync(
+	join(completeDir, 'icons', 'icon1.svg'),
+	'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><circle cx="50" cy="50" r="40"/></svg>',
+)
+writeFileSync(
+	join(completeDir, 'icons', 'icon2.svg'),
+	'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><rect x="10" y="10" width="80" height="80"/></svg>',
+)
+writeFileSync(
+	join(completeDir, 'icons', 'icon3.svg'),
+	'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><polygon points="50,10 90,90 10,90"/></svg>',
+)
+
+// Generate defaults
+writeJSON(completeDir, 'defaults.json', {
+	point: ['preset1'],
+	line: ['preset2'],
+	area: ['preset3'],
+})
+
+// Generate metadata
+writeJSON(completeDir, 'metadata.json', {
+	name: 'Test Categories',
+	version: '1.0.0',
+})
+
+// Generate messages
+writeJSON(join(completeDir, 'messages'), 'en.json', {
+	'preset.preset1.name': {
+		message: preset1.name,
+		description: "The name of category 'preset1'",
+	},
+	'field.field1.label': {
+		message: field1.label,
+		description: "Label for field 'field1'",
+	},
+})
+
+console.log(`Generated lint fixtures at ${FIXTURES_DIR}`)
+console.log('Valid fixtures:')
+console.log('  - valid/minimal (no fields, icons, defaults, or metadata)')
+console.log('  - valid/complete (with fields, icons, defaults, and metadata)')

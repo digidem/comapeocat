@@ -1,0 +1,13 @@
+{
+  "name": "Tree",
+  "geometry": [
+    "point"
+  ],
+  "tags": {
+    "natural": "tree"
+  },
+  "fields": [
+    "species"
+  ],
+  "icon": "tree"
+}

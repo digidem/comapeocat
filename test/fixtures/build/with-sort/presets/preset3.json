@@ -1,0 +1,16 @@
+{
+  "name": "Frankie Goodwin",
+  "geometry": [
+    "point"
+  ],
+  "tags": {
+    "coerceo": true
+  },
+  "addTags": {},
+  "removeTags": {},
+  "fields": [
+    "field1"
+  ],
+  "terms": [],
+  "sort": 2
+}

@@ -1,0 +1,17 @@
+{
+  "name": "Kelle",
+  "geometry": [
+    "point"
+  ],
+  "tags": {
+    "cometes": true
+  },
+  "addTags": {},
+  "removeTags": {},
+  "fields": [
+    "field1",
+    "field2"
+  ],
+  "icon": "icon1",
+  "terms": []
+}
