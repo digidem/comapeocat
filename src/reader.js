@@ -198,6 +198,19 @@ export class Reader {
 	}
 
 	/**
+	 * Get the SVG XML content of an icon by its ID
+	 * @param {string} iconId Icon ID
+	 * @returns {Promise<string | null>} SVG XML content, or null if the icon does not exist
+	 * @throws {InvalidFileError} When the file is not a valid comapeocat file
+	 */
+	async getIcon(iconId) {
+		const { icons: entries } = await this.#entriesPromise
+		const entry = entries.get(iconId)
+		if (!entry) return null
+		return concatStream(await entry.openReadStream())
+	}
+
+	/**
 	 * Async generator to yield icon name and SVG XML content
 	 * @returns {AsyncGenerator<{name: string, iconXml: string}>}
 	 */

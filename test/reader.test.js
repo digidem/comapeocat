@@ -330,6 +330,52 @@ describe('Reader', () => {
 			await reader.close()
 		})
 
+		test('gets icon by ID', async () => {
+			const filepath = join(TEST_DIR, 'get-icon.comapeocat')
+			await createTestZip({
+				filepath,
+				files: {
+					'presets.json': { tree: { ...fixtures.presets.tree, icon: 'tree' } },
+					'defaults.json': fixtures.defaults.point,
+					'metadata.json': fixtures.metadata.minimal,
+					'icons/tree.svg': fixtures.icons.tree,
+					'icons/water.svg': fixtures.icons.simple,
+				},
+			})
+
+			const reader = new Reader(filepath)
+
+			const treeIcon = await reader.getIcon('tree')
+			assert.ok(treeIcon)
+			assert.ok(treeIcon.includes('<svg'))
+
+			const waterIcon = await reader.getIcon('water')
+			assert.ok(waterIcon)
+			assert.ok(waterIcon.includes('<svg'))
+
+			await reader.close()
+		})
+
+		test('returns null for non-existent icon', async () => {
+			const filepath = join(TEST_DIR, 'get-missing-icon.comapeocat')
+			await createTestZip({
+				filepath,
+				files: {
+					'presets.json': { tree: fixtures.presets.tree },
+					'defaults.json': fixtures.defaults.point,
+					'metadata.json': fixtures.metadata.minimal,
+					'icons/tree.svg': fixtures.icons.tree,
+				},
+			})
+
+			const reader = new Reader(filepath)
+			const icon = await reader.getIcon('nonexistent')
+
+			assert.equal(icon, null)
+
+			await reader.close()
+		})
+
 		test('iterates translations', async () => {
 			const filepath = join(TEST_DIR, 'iterate-translations.comapeocat')
 			await createTestZip({

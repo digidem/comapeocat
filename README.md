@@ -266,6 +266,20 @@ Returns a `Promise<Metadata>` - the metadata object with name, version, and buil
 
 Returns a `Promise<Set<string>>` of all icon names (without `.svg` extension).
 
+#### `async reader.getIcon(iconId)`
+
+Returns the SVG XML content of an icon by its ID, or `null` if the icon doesn't exist.
+
+- **iconId**: `string` - Icon ID (without `.svg` extension)
+- **Returns**: `Promise<string | null>` - SVG XML content or null
+
+```javascript
+const iconXml = await reader.getIcon('tree')
+if (iconXml) {
+	console.log('Icon found:', iconXml)
+}
+```
+
 #### `async *reader.icons()`
 
 Returns an async generator that yields `{ name, iconXml }` objects.
