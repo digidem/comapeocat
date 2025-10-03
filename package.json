@@ -92,10 +92,10 @@
 	},
 	"repository": {
 		"type": "git",
-		"url": "git+https://github.com/digidem/comapeo-categories.git"
+		"url": "git+https://github.com/digidem/comapeocat.git"
 	},
 	"bugs": {
-		"url": "https://github.com/digidem/comapeo-categories/issues"
+		"url": "https://github.com/digidem/comapeocat/issues"
 	},
-	"homepage": "https://github.com/digidem/comapeo-categories#readme"
+	"homepage": "https://github.com/digidem/comapeocat#readme"
 }
