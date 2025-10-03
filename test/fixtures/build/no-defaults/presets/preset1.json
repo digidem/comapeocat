@@ -1,0 +1,16 @@
+{
+  "name": "Francis Johnson",
+  "geometry": [
+    "point"
+  ],
+  "tags": {
+    "iu": true
+  },
+  "addTags": {},
+  "removeTags": {},
+  "fields": [
+    "field1"
+  ],
+  "terms": [],
+  "color": "#57be22"
+}

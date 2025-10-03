@@ -1,0 +1,10 @@
+{
+  "preset.preset1.name": {
+    "message": "Kelle",
+    "description": "The name of category 'preset1'"
+  },
+  "field.field1.label": {
+    "message": "autus",
+    "description": "Label for field 'field1'"
+  }
+}

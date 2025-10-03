@@ -1,0 +1,11 @@
+{
+  "name": "River",
+  "geometry": [
+    "line"
+  ],
+  "tags": {
+    "natural": "water",
+    "water": "river"
+  },
+  "fields": []
+}

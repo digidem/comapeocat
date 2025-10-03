@@ -1,0 +1,28 @@
+{
+  "tagKey": "ambulo",
+  "label": "admiratio",
+  "helperText": "attonbitus",
+  "type": "selectMultiple",
+  "options": [
+    {
+      "label": "vox",
+      "value": "aliqua"
+    },
+    {
+      "label": "combibo",
+      "value": "capitulus"
+    },
+    {
+      "label": "adimpleo",
+      "value": false
+    },
+    {
+      "label": "abscido",
+      "value": false
+    },
+    {
+      "label": "deinde",
+      "value": null
+    }
+  ]
+}

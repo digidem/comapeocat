@@ -1,0 +1,17 @@
+{
+  "name": "Grace Treutel DDS",
+  "geometry": [
+    "area"
+  ],
+  "tags": {
+    "capio": 3.732457025590121
+  },
+  "addTags": {},
+  "removeTags": {},
+  "fields": [
+    "field1"
+  ],
+  "icon": "icon3",
+  "terms": [],
+  "color": "#0e3eee"
+}
