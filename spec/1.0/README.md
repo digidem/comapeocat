@@ -1,6 +1,6 @@
 # CoMapeo Categories File Format Specification
 
-**Version:** 1.0
+**Version:** 1.0-pre.0
 **Date:** 2025-10-01
 **File Extension:** `.comapeocat`
 
