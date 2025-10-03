@@ -13,7 +13,7 @@ program
 	.description('Extract messages for translation from <inputDir>')
 	.argument(
 		'[inputDir]',
-		'directory containing presets, fields, defaults and icons',
+		'directory containing categories, fields, defaults and icons',
 		process.cwd(),
 	)
 	.option('-o, --output <file>', 'output JSON file path (defaults to stdout)')
@@ -23,13 +23,13 @@ program
 		for await (const { type, id, value } of readFiles(inputDir)) {
 			const escapedId = escapePath(id)
 			switch (type) {
-				case 'preset':
-					messages[`preset.${escapedId}.name`] = {
+				case 'category':
+					messages[`category.${escapedId}.name`] = {
 						description: `The name of category '${id}'`,
 						message: value.name,
 					}
 					// Not currently used in the app, so don't extract for translation
-					// messages[`preset.${escapedId}.terms`] = {
+					// messages[`category.${escapedId}.terms`] = {
 					// 	description: `Comma-separated search terms for category '${id}'`,
 					// 	message: value.terms.join(',') || '',
 					// }

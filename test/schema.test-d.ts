@@ -2,7 +2,7 @@ import type { PresetValue, FieldValue } from '@comapeo/schema'
 import type { ExtendsStrict } from 'type-fest'
 
 import type { FieldOutput } from '../src/schema/field.js'
-import type { PresetOutput } from '../src/schema/preset.js'
+import type { CategoryOutput } from '../src/schema/category.js'
 
 // No schemaName, and refs are strings not objects, without `Ref` or `Refs` suffix
 type Expected<T> = Omit<T, 'schemaName' | `${string}Refs` | `${string}Ref`> & {
@@ -28,7 +28,7 @@ Expect<
 		}>
 	>
 >
-Expect<ExtendsStrict<PresetOutput, Expected<PresetValue>>>
+Expect<ExtendsStrict<CategoryOutput, Expected<PresetValue>>>
 Expect<ExtendsStrict<FieldOutput, Expected<FieldValue>>>
 
 function Expect<T extends true>() {}

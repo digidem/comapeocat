@@ -45,8 +45,8 @@ describe('CLI build command', () => {
 		const reader = new Reader(outputPath)
 		await reader.opened()
 
-		const presets = await reader.presets()
-		assert.equal(presets.size, 2)
+		const categories = await reader.categories()
+		assert.equal(categories.size, 2)
 
 		const fields = await reader.fields()
 		assert.equal(fields.size, 2)
@@ -82,22 +82,22 @@ describe('CLI build command', () => {
 		await reader.opened()
 
 		const defaults = await reader.defaults()
-		const presets = await reader.presets()
+		const categories = await reader.categories()
 
 		// Check that defaults exist for each geometry type
 		assert.ok(Array.isArray(defaults.point))
 		assert.ok(Array.isArray(defaults.line))
 		assert.ok(Array.isArray(defaults.area))
 
-		// Verify that the generated defaults reference existing presets
-		for (const presetId of defaults.point) {
-			assert.ok(presets.has(presetId))
+		// Verify that the generated defaults reference existing categories
+		for (const categoryId of defaults.point) {
+			assert.ok(categories.has(categoryId))
 		}
-		for (const presetId of defaults.line) {
-			assert.ok(presets.has(presetId))
+		for (const categoryId of defaults.line) {
+			assert.ok(categories.has(categoryId))
 		}
-		for (const presetId of defaults.area) {
-			assert.ok(presets.has(presetId))
+		for (const categoryId of defaults.area) {
+			assert.ok(categories.has(categoryId))
 		}
 
 		await reader.close()
@@ -184,5 +184,32 @@ describe('CLI build command', () => {
 				return true
 			},
 		)
+	})
+
+	test('should support backwards compatibility with presets folder', async () => {
+		const fixturePath = join(FIXTURES_DIR, 'backwards-compat-presets')
+		const outputPath = join(TEST_DIR, 'backwards-compat.comapeocat')
+
+		const { exitCode } = await execa('node', [
+			CLI_PATH,
+			fixturePath,
+			'--output',
+			outputPath,
+			'--name',
+			'Backwards Compat Test',
+		])
+		assert.equal(exitCode, 0)
+
+		// Verify the file is valid by reading it
+		const reader = new Reader(outputPath)
+		await reader.opened()
+
+		const categories = await reader.categories()
+		assert.ok(
+			categories.size > 0,
+			'Should have loaded categories from presets folder',
+		)
+
+		await reader.close()
 	})
 })

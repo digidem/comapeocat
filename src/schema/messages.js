@@ -19,6 +19,6 @@ const MessageSchema = v.object({
 export const MessagesSchema = v.pipe(
 	v.record(v.string(), MessageSchema),
 	v.description(
-		'Message IDs are of the format `preset|field.<id>.<property>` where `<property>` can use dot-prop notation to reference nested properties.',
+		'Message IDs are of the format `category|field.<id>.<property>` where `<property>` can use dot-prop notation to reference nested properties.',
 	),
 )

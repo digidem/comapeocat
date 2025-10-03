@@ -29,7 +29,7 @@ describe('Reader', () => {
 				filepath,
 				version: '1.0',
 				files: {
-					'presets.json': { tree: fixtures.presets.tree },
+					'categories.json': { tree: fixtures.categories.tree },
 					'defaults.json': fixtures.defaults.point,
 					'metadata.json': fixtures.metadata.minimal,
 				},
@@ -46,7 +46,7 @@ describe('Reader', () => {
 				filepath,
 				version: '1.5',
 				files: {
-					'presets.json': { tree: fixtures.presets.tree },
+					'categories.json': { tree: fixtures.categories.tree },
 					'defaults.json': fixtures.defaults.point,
 					'metadata.json': fixtures.metadata.minimal,
 				},
@@ -63,7 +63,7 @@ describe('Reader', () => {
 				filepath,
 				version: '2.0',
 				files: {
-					'presets.json': { tree: fixtures.presets.tree },
+					'categories.json': { tree: fixtures.categories.tree },
 					'defaults.json': fixtures.defaults.point,
 					'metadata.json': fixtures.metadata.minimal,
 				},
@@ -82,7 +82,7 @@ describe('Reader', () => {
 				filepath,
 				version: 'invalid',
 				files: {
-					'presets.json': { tree: fixtures.presets.tree },
+					'categories.json': { tree: fixtures.categories.tree },
 					'defaults.json': fixtures.defaults.point,
 					'metadata.json': fixtures.metadata.minimal,
 				},
@@ -101,7 +101,7 @@ describe('Reader', () => {
 				filepath,
 				version: null,
 				files: {
-					'presets.json': { tree: fixtures.presets.tree },
+					'categories.json': { tree: fixtures.categories.tree },
 					'defaults.json': fixtures.defaults.point,
 					'metadata.json': fixtures.metadata.minimal,
 				},
@@ -114,8 +114,8 @@ describe('Reader', () => {
 	})
 
 	describe('Required files validation', () => {
-		test('rejects missing presets.json', async () => {
-			const filepath = join(TEST_DIR, 'no-presets.comapeocat')
+		test('rejects missing categories.json', async () => {
+			const filepath = join(TEST_DIR, 'no-categories.comapeocat')
 			await createTestZip({
 				filepath,
 				files: {
@@ -126,7 +126,7 @@ describe('Reader', () => {
 
 			const reader = new Reader(filepath)
 			await assert.rejects(() => reader.opened(), {
-				name: 'MissingPresetsError',
+				name: 'MissingCategoriesError',
 			})
 			await reader.close()
 		})
@@ -136,7 +136,7 @@ describe('Reader', () => {
 			await createTestZip({
 				filepath,
 				files: {
-					'presets.json': { tree: fixtures.presets.tree },
+					'categories.json': { tree: fixtures.categories.tree },
 					'metadata.json': fixtures.metadata.minimal,
 				},
 			})
@@ -153,7 +153,7 @@ describe('Reader', () => {
 			await createTestZip({
 				filepath,
 				files: {
-					'presets.json': { tree: fixtures.presets.tree },
+					'categories.json': { tree: fixtures.categories.tree },
 					'defaults.json': fixtures.defaults.point,
 				},
 			})
@@ -167,14 +167,14 @@ describe('Reader', () => {
 	})
 
 	describe('Reading data', () => {
-		test('reads presets', async () => {
-			const filepath = join(TEST_DIR, 'read-presets.comapeocat')
+		test('reads categories', async () => {
+			const filepath = join(TEST_DIR, 'read-categories.comapeocat')
 			await createTestZip({
 				filepath,
 				files: {
-					'presets.json': {
-						tree: fixtures.presets.tree,
-						water: fixtures.presets.water,
+					'categories.json': {
+						tree: fixtures.categories.tree,
+						water: fixtures.categories.water,
 					},
 					'defaults.json': { point: ['tree'], line: [], area: ['water'] },
 					'metadata.json': fixtures.metadata.minimal,
@@ -182,12 +182,12 @@ describe('Reader', () => {
 			})
 
 			const reader = new Reader(filepath)
-			const presets = await reader.presets()
+			const categories = await reader.categories()
 
-			assert.equal(presets.size, 2)
-			assert.equal(presets.get('tree')?.name, 'Tree')
-			assert.deepEqual(presets.get('tree')?.geometry, ['point'])
-			assert.equal(presets.get('water')?.name, 'Water')
+			assert.equal(categories.size, 2)
+			assert.equal(categories.get('tree')?.name, 'Tree')
+			assert.deepEqual(categories.get('tree')?.geometry, ['point'])
+			assert.equal(categories.get('water')?.name, 'Water')
 
 			await reader.close()
 		})
@@ -197,9 +197,9 @@ describe('Reader', () => {
 			await createTestZip({
 				filepath,
 				files: {
-					'presets.json': {
+					'categories.json': {
 						tree: {
-							...fixtures.presets.tree,
+							...fixtures.categories.tree,
 							fields: ['species'],
 						},
 					},
@@ -224,7 +224,7 @@ describe('Reader', () => {
 			await createTestZip({
 				filepath,
 				files: {
-					'presets.json': { tree: fixtures.presets.tree },
+					'categories.json': { tree: fixtures.categories.tree },
 					'defaults.json': fixtures.defaults.point,
 					'metadata.json': fixtures.metadata.minimal,
 				},
@@ -242,9 +242,9 @@ describe('Reader', () => {
 			await createTestZip({
 				filepath,
 				files: {
-					'presets.json': {
-						tree: fixtures.presets.tree,
-						river: fixtures.presets.river,
+					'categories.json': {
+						tree: fixtures.categories.tree,
+						river: fixtures.categories.river,
 					},
 					'defaults.json': { point: ['tree'], line: ['river'], area: [] },
 					'metadata.json': fixtures.metadata.minimal,
@@ -266,7 +266,7 @@ describe('Reader', () => {
 			await createTestZip({
 				filepath,
 				files: {
-					'presets.json': { tree: fixtures.presets.tree },
+					'categories.json': { tree: fixtures.categories.tree },
 					'defaults.json': fixtures.defaults.point,
 					'metadata.json': fixtures.metadata.complete,
 				},
@@ -287,7 +287,9 @@ describe('Reader', () => {
 			await createTestZip({
 				filepath,
 				files: {
-					'presets.json': { tree: { ...fixtures.presets.tree, icon: 'tree' } },
+					'categories.json': {
+						tree: { ...fixtures.categories.tree, icon: 'tree' },
+					},
 					'defaults.json': fixtures.defaults.point,
 					'metadata.json': fixtures.metadata.minimal,
 					'icons/tree.svg': fixtures.icons.tree,
@@ -310,7 +312,7 @@ describe('Reader', () => {
 			await createTestZip({
 				filepath,
 				files: {
-					'presets.json': { tree: fixtures.presets.tree },
+					'categories.json': { tree: fixtures.categories.tree },
 					'defaults.json': fixtures.defaults.point,
 					'metadata.json': fixtures.metadata.minimal,
 					'icons/tree.svg': fixtures.icons.tree,
@@ -335,7 +337,9 @@ describe('Reader', () => {
 			await createTestZip({
 				filepath,
 				files: {
-					'presets.json': { tree: { ...fixtures.presets.tree, icon: 'tree' } },
+					'categories.json': {
+						tree: { ...fixtures.categories.tree, icon: 'tree' },
+					},
 					'defaults.json': fixtures.defaults.point,
 					'metadata.json': fixtures.metadata.minimal,
 					'icons/tree.svg': fixtures.icons.tree,
@@ -361,7 +365,7 @@ describe('Reader', () => {
 			await createTestZip({
 				filepath,
 				files: {
-					'presets.json': { tree: fixtures.presets.tree },
+					'categories.json': { tree: fixtures.categories.tree },
 					'defaults.json': fixtures.defaults.point,
 					'metadata.json': fixtures.metadata.minimal,
 					'icons/tree.svg': fixtures.icons.tree,
@@ -381,7 +385,7 @@ describe('Reader', () => {
 			await createTestZip({
 				filepath,
 				files: {
-					'presets.json': { tree: fixtures.presets.tree },
+					'categories.json': { tree: fixtures.categories.tree },
 					'defaults.json': fixtures.defaults.point,
 					'metadata.json': fixtures.metadata.minimal,
 					'translations/es.json': fixtures.translations.es,
@@ -407,12 +411,12 @@ describe('Reader', () => {
 			await createTestZip({
 				filepath,
 				files: {
-					'presets.json': { tree: fixtures.presets.tree },
+					'categories.json': { tree: fixtures.categories.tree },
 					'defaults.json': fixtures.defaults.point,
 					'metadata.json': fixtures.metadata.minimal,
 					'translations/es.json': fixtures.translations.es,
 					'translations/invalid!!.json': {
-						preset: {
+						category: {
 							tree: [{ propertyRef: 'name', message: 'Should be ignored' }],
 						},
 						field: {},
@@ -439,7 +443,7 @@ describe('Reader', () => {
 			await createTestZip({
 				filepath,
 				files: {
-					'presets.json': { tree: fixtures.presets.treeWithFields },
+					'categories.json': { tree: fixtures.categories.treeWithFields },
 					'fields.json': {
 						species: fixtures.fields.species,
 						height: fixtures.fields.height,
@@ -460,9 +464,9 @@ describe('Reader', () => {
 			await createTestZip({
 				filepath,
 				files: {
-					'presets.json': {
+					'categories.json': {
 						tree: {
-							...fixtures.presets.tree,
+							...fixtures.categories.tree,
 							fields: ['nonexistent'],
 						},
 					},
@@ -473,7 +477,7 @@ describe('Reader', () => {
 
 			const reader = new Reader(filepath)
 			await assert.rejects(() => reader.validate(), {
-				name: 'PresetRefError',
+				name: 'CategoryRefError',
 			})
 			await reader.close()
 		})
@@ -483,9 +487,9 @@ describe('Reader', () => {
 			await createTestZip({
 				filepath,
 				files: {
-					'presets.json': {
+					'categories.json': {
 						tree: {
-							...fixtures.presets.tree,
+							...fixtures.categories.tree,
 							icon: 'nonexistent',
 						},
 					},
@@ -496,29 +500,29 @@ describe('Reader', () => {
 
 			const reader = new Reader(filepath)
 			await assert.rejects(() => reader.validate(), {
-				name: 'PresetRefError',
+				name: 'CategoryRefError',
 			})
 			await reader.close()
 		})
 	})
 
 	describe('Caching', () => {
-		test('presets are cached', async () => {
-			const filepath = join(TEST_DIR, 'cache-presets.comapeocat')
+		test('categories are cached', async () => {
+			const filepath = join(TEST_DIR, 'cache-categories.comapeocat')
 			await createTestZip({
 				filepath,
 				files: {
-					'presets.json': { tree: fixtures.presets.tree },
+					'categories.json': { tree: fixtures.categories.tree },
 					'defaults.json': fixtures.defaults.point,
 					'metadata.json': fixtures.metadata.minimal,
 				},
 			})
 
 			const reader = new Reader(filepath)
-			const presets1 = await reader.presets()
-			const presets2 = await reader.presets()
+			const categories1 = await reader.categories()
+			const categories2 = await reader.categories()
 
-			assert.equal(presets1, presets2)
+			assert.equal(categories1, categories2)
 			await reader.close()
 		})
 
@@ -527,9 +531,9 @@ describe('Reader', () => {
 			await createTestZip({
 				filepath,
 				files: {
-					'presets.json': {
+					'categories.json': {
 						tree: {
-							...fixtures.presets.tree,
+							...fixtures.categories.tree,
 							fields: ['species'],
 						},
 					},
@@ -549,12 +553,12 @@ describe('Reader', () => {
 	})
 
 	describe('Schema validation', () => {
-		test('rejects invalid preset schema', async () => {
-			const filepath = join(TEST_DIR, 'invalid-preset-schema.comapeocat')
+		test('rejects invalid category schema', async () => {
+			const filepath = join(TEST_DIR, 'invalid-category-schema.comapeocat')
 			await createTestZip({
 				filepath,
 				files: {
-					'presets.json': {
+					'categories.json': {
 						tree: { name: 'Tree' }, // Missing required fields
 					},
 					'defaults.json': fixtures.defaults.point,
@@ -563,7 +567,7 @@ describe('Reader', () => {
 			})
 
 			const reader = new Reader(filepath)
-			await assert.rejects(() => reader.presets())
+			await assert.rejects(() => reader.categories())
 			await reader.close()
 		})
 
@@ -572,7 +576,7 @@ describe('Reader', () => {
 			await createTestZip({
 				filepath,
 				files: {
-					'presets.json': { tree: fixtures.presets.tree },
+					'categories.json': { tree: fixtures.categories.tree },
 					'defaults.json': fixtures.defaults.point,
 					'metadata.json': {
 						name: 'A'.repeat(101),
@@ -591,14 +595,14 @@ describe('Reader', () => {
 			await createTestZip({
 				filepath,
 				files: {
-					'presets.json': '{ invalid json }',
+					'categories.json': '{ invalid json }',
 					'defaults.json': { point: [], line: [], area: [] },
 					'metadata.json': fixtures.metadata.minimal,
 				},
 			})
 
 			const reader = new Reader(filepath)
-			await assert.rejects(() => reader.presets())
+			await assert.rejects(() => reader.categories())
 			await reader.close()
 		})
 	})

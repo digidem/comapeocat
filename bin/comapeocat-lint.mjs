@@ -7,10 +7,10 @@ import { lint } from './helpers/lint.js'
 const program = new Command()
 
 program
-	.description('Lint preset and field JSON files')
+	.description('Lint category and field JSON files')
 	.argument(
 		'[inputDir]',
-		'directory containing presets, fields, defaults and icons',
+		'directory containing categories, fields, defaults and icons',
 		process.cwd(),
 	)
 	.action(async (dir) => {

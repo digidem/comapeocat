@@ -2,11 +2,11 @@ import path from 'node:path'
 
 import { summarize } from 'valibot'
 
-import { PRESETS_DIR } from './constants.js'
+import { CATEGORIES_DIR } from './constants.js'
 
 /** @import { ValiError, BaseSchema, BaseSchemaAsync, BaseIssue } from 'valibot' */
 /** @import { JSONError } from 'parse-json' */
-/** @typedef { InvalidFileVersionError | UnsupportedFileVersionError | MissingDefaultsError | MissingPresetsError } InvalidFileErrors */
+/** @typedef { InvalidFileVersionError | UnsupportedFileVersionError | MissingDefaultsError | MissingCategoriesError } InvalidFileErrors */
 
 /**
  * A typeguard to check if an error is due to issues parsing input JSON
@@ -15,14 +15,14 @@ import { PRESETS_DIR } from './constants.js'
  * @template {SchemaError<BaseSchema<unknown, unknown, BaseIssue<unknown>>
  *   | BaseSchemaAsync<unknown, unknown, BaseIssue<unknown>>>} TSchemaError
  * @param {unknown | TSchemaError} err - The error to check
- * @returns {err is JSONError | TSchemaError | PresetRefError | InvalidDefaultsError} True if the error is a parse or schema error
+ * @returns {err is JSONError | TSchemaError | CategoryRefError | InvalidDefaultsError} True if the error is a parse or schema error
  */
 export function isParseError(err) {
 	return (
 		err instanceof Error &&
 		(err.name === 'JSONError' ||
 			err.name === 'SchemaError' ||
-			err.name === 'PresetRefError' ||
+			err.name === 'CategoryRefError' ||
 			err.name === 'InvalidDefaultsError')
 	)
 }
@@ -39,7 +39,7 @@ export function isInvalidFileError(err) {
 		(err.name === 'InvalidFileVersionError' ||
 			err.name === 'UnsupportedFileVersionError' ||
 			err.name === 'MissingDefaultsError' ||
-			err.name === 'MissingPresetsError')
+			err.name === 'MissingCategoriesError')
 	)
 }
 
@@ -72,8 +72,8 @@ export class SchemaError extends Error {
 	}
 }
 
-export class PresetRefError extends Error {
-	name = 'PresetRefError'
+export class CategoryRefError extends Error {
+	name = 'CategoryRefError'
 
 	/**
 	 * @param {object} params
@@ -85,12 +85,12 @@ export class PresetRefError extends Error {
 		for (const [ref, sources] of missingRefs) {
 			message += `× Missing ${property} ref: "${ref}"\n`
 			for (const source of sources) {
-				message += `  → in ${path.join(PRESETS_DIR, source)}\n`
+				message += `  → in ${path.join(CATEGORIES_DIR, source)}\n`
 			}
 		}
 		super(message)
 
-		Error.captureStackTrace?.(this, PresetRefError)
+		Error.captureStackTrace?.(this, CategoryRefError)
 	}
 }
 
@@ -99,13 +99,13 @@ export class InvalidDefaultsError extends Error {
 
 	/**
 	 * @param {object} params
-	 * @param {Map<string, Set<string>>} params.invalidRefs - Map of geometry type to preset IDs that don't support that geometry
+	 * @param {Map<string, Set<string>>} params.invalidRefs - Map of geometry type to category IDs that don't support that geometry
 	 */
 	constructor({ invalidRefs }) {
-		let message = `× Presets in defaults.json do not support the referenced geometry type:\n`
-		for (const [geometryType, presetIds] of invalidRefs) {
-			for (const presetId of presetIds) {
-				message += `  → Preset "${presetId}" in defaults.${geometryType} does not include "${geometryType}" in its geometry array\n`
+		let message = `× Categories in defaults.json do not support the referenced geometry type:\n`
+		for (const [geometryType, categoryIds] of invalidRefs) {
+			for (const categoryId of categoryIds) {
+				message += `  → Category "${categoryId}" in defaults.${geometryType} does not include "${geometryType}" in its geometry array\n`
 			}
 		}
 		super(message)
@@ -192,9 +192,9 @@ export class InvalidFileError extends Error {
 	}
 }
 
-export const MissingPresetsError = createSimpleError(
-	'MissingPresetsError',
-	'Missing required presets definitions.',
+export const MissingCategoriesError = createSimpleError(
+	'MissingCategoriesError',
+	'Missing required categories definitions.',
 )
 
 export const MissingDefaultsError = createSimpleError(
@@ -230,12 +230,12 @@ export class DuplicateTagsError extends Error {
 
 	/**
 	 * @param {object} params
-	 * @param {Array<{ presetIds: string[], tags: Record<string, unknown> }>} params.duplicates - Array of duplicate tag groups
+	 * @param {Array<{ categoryIds: string[], tags: Record<string, unknown> }>} params.duplicates - Array of duplicate tag groups
 	 */
 	constructor({ duplicates }) {
-		let message = '× Multiple presets have identical tags:\n'
-		for (const { presetIds, tags } of duplicates) {
-			message += `  → Presets ${presetIds.map((id) => `"${id}"`).join(', ')} share tags: ${JSON.stringify(tags)}\n`
+		let message = '× Multiple categories have identical tags:\n'
+		for (const { categoryIds, tags } of duplicates) {
+			message += `  → Categories ${categoryIds.map((id) => `"${id}"`).join(', ')} share tags: ${JSON.stringify(tags)}\n`
 		}
 		super(message)
 
@@ -247,11 +247,11 @@ export class DefaultsRefError extends Error {
 
 	/**
 	 * @param {object} params
-	 * @param {string} params.presetId - The missing preset ID
-	 * @param {string} params.geometryType - The geometry type where the preset is referenced
+	 * @param {string} params.categoryId - The missing category ID
+	 * @param {string} params.geometryType - The geometry type where the category is referenced
 	 */
-	constructor({ presetId, geometryType }) {
-		const message = `× Preset "${presetId}" referenced by "defaults${geometryType}" is missing.`
+	constructor({ categoryId, geometryType }) {
+		const message = `× Category "${categoryId}" referenced by "defaults.${geometryType}" is missing.`
 		super(message)
 
 		Error.captureStackTrace?.(this, DefaultsRefError)

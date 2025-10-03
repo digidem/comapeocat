@@ -6,7 +6,7 @@
 
 ## 1. Introduction
 
-This document specifies the CoMapeo Categories file format, a ZIP-based archive format for packaging and distributing category definitions (presets), custom fields, and icons for use in CoMapeo applications.
+This document specifies the CoMapeo Categories file format, a ZIP-based archive format for packaging and distributing category definitions, custom fields, and icons for use in CoMapeo applications.
 
 ### 1.1. Purpose
 
@@ -24,7 +24,7 @@ The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT", "SHOULD", "S
 ### 2.1. Definitions
 
 - **Map Feature**: An observation, track, or other geographic entity displayed on a map in CoMapeo applications (e.g., a tree observation, a hiking trail, a forest boundary)
-- **Preset**: A category definition that determines how map features are displayed to the user and which fields are shown when creating or editing them
+- **Category**: A category that determines how map features are displayed to the user and which fields are shown when creating or editing them
 - **Field**: A form field definition that specifies data collection parameters and the user interface for editing tags associated with a map feature
 - **Icon**: An SVG graphic representing a category
 - **Tag**: A key-value pair used to identify and categorize map features
@@ -55,7 +55,7 @@ The archive MUST be a valid ZIP file and SHOULD use compression level 9 for opti
 ```
 archive.comapeocat
 ├── VERSION              (required)
-├── presets.json         (required)
+├── categories.json      (required)
 ├── defaults.json        (required)
 ├── metadata.json        (required)
 ├── fields.json          (optional)
@@ -150,42 +150,42 @@ The metadata file MUST be a valid JSON object with the following structure:
 }
 ```
 
-## 7. Presets File
+## 7. Categories File (categories.json)
 
 ### 7.1. Location
 
-The presets file MUST be named `presets.json` and MUST be located at the root of the archive.
+The categories file MUST be named `categories.json` and MUST be located at the root of the archive.
 
 ### 7.2. Format
 
-The presets file MUST be a valid JSON object where:
+The categories file MUST be a valid JSON object where:
 
-- Keys are preset IDs (non-empty strings)
-- Values are preset definition objects
+- Keys are category IDs (non-empty strings)
+- Values are category definition objects
 
-### 7.3. Preset Schema
+### 7.3. Category Schema
 
-Each preset object MUST contain:
+Each category object MUST contain:
 
 - **name** (required): Display name for the feature (string)
-- **geometry** (required): Array of valid geometry types for this preset
+- **geometry** (required): Array of valid geometry types for this category
   - MUST contain one or more of: `"point"`, `"line"`, `"area"`
   - MAY contain other geometry types in future versions
   - SHOULD contain only unique values
 - **tags** (required): Object mapping tag keys to tag values
-  - Used to match the preset to existing map entities
+  - Used to match the category to existing map entities
   - Tag values MAY be: string, number, boolean or null
-- **fields** (required): Array of field IDs to display for this preset
+- **fields** (required): Array of field IDs to display for this category
   - Each field ID MUST be a non-empty string
   - Field IDs MUST reference fields defined in `fields.json`
 
-Each preset object MAY contain:
+Each category object MAY contain:
 
-- **addTags** (optional): Tags added when creating an entity with this preset
+- **addTags** (optional): Tags added when creating an entity with this category
   - Defaults to the value of `tags` if not specified
-- **removeTags** (optional): Tags removed when changing to another preset
+- **removeTags** (optional): Tags removed when changing to another category
   - Defaults to the value of `addTags` if not specified
-- **icon** (optional): ID of an icon to display for this preset
+- **icon** (optional): ID of an icon to display for this category
   - MUST reference an icon in the `icons/` directory (without `.svg` extension)
 - **terms** (optional): Array of search terms and synonyms (strings)
 - **color** (optional): Color in hexadecimal format
@@ -292,9 +292,9 @@ The defaults file MUST be a valid JSON object with the following structure:
 
 ```json
 {
-  "point": ["preset-id-1", "preset-id-2", ...],
-  "line": ["preset-id-1", "preset-id-2", ...],
-  "area": ["preset-id-1", "preset-id-2", ...]
+  "point": ["category-id-1", "category-id-2", ...],
+  "line": ["category-id-1", "category-id-2", ...],
+  "area": ["category-id-1", "category-id-2", ...]
 }
 ```
 
@@ -303,12 +303,12 @@ The defaults file MUST be a valid JSON object with the following structure:
 Each geometry type property:
 
 - MUST be present (`point`, `line`, and `area`)
-- MUST be an array of preset IDs (non-empty strings)
-- Preset IDs MUST reference presets defined in `presets.json`
-- Each referenced preset MUST include the corresponding geometry type in its `geometry` array
-  - For example, a preset referenced in `defaults.point` MUST have `"point"` in its `geometry` array
+- MUST be an array of category IDs (non-empty strings)
+- Category IDs MUST reference categories defined in `categories.json`
+- Each referenced category MUST include the corresponding geometry type in its `geometry` array
+  - For example, a category referenced in `defaults.point` MUST have `"point"` in its `geometry` array
 
-The order of preset IDs in each array determines the display order of categories shown to the user in CoMapeo applications for that geometry type.
+The order of category IDs in each array determines the display order of categories shown to the user in CoMapeo applications for that geometry type.
 
 ### 9.4. Example
 
@@ -343,7 +343,7 @@ Individual icon files:
 
 ### 10.4. Naming
 
-Icon file names (without the `.svg` extension) are used as icon IDs when referenced from presets.
+Icon file names (without the `.svg` extension) are used as icon IDs when referenced from categories.
 
 ### 10.5. Example
 
@@ -388,11 +388,11 @@ Each translation file MUST be a valid JSON object with the following structure:
 
 Where:
 
-- `[docType]` is either `"preset"` or `"field"`
-- `[docId]` is the ID of the preset or field being translated
+- `[docType]` is either `"category"` or `"field"`
+- `[docId]` is the ID of the category or field being translated
 - `[propertyRef]` is the name of the property being translated, using dot-notation for nested properties (e.g., `"options.0"` for the first option label in a select field)
 - Each translation for a given docId MAY have multiple propertyRef entries.
-- Each propertyRef entry SHOULD reference an existing property in the corresponding preset or field definition
+- Each propertyRef entry SHOULD reference an existing property in the corresponding category or field definition
 - A reader MAY ignore propertyRef entries that do not correspond to existing properties
 
 ### 11.4. Validation
@@ -401,7 +401,7 @@ Readers:
 
 - SHOULD ignore translation files with invalid or unsupported BCP 47 language tags
 - MAY ignore translation objects with `propertyRef` values that do not correspond to existing properties
-- SHOULD ignore preset or field IDs that do not exist in `presets.json` or `fields.json`
+- SHOULD ignore category or field IDs that do not exist in `categories.json` or `fields.json`
 - MAY provide different coverage across languages (not all languages need to translate the same properties)
 
 Writers:
@@ -415,7 +415,7 @@ File: `translations/es.json`
 
 ```json
 {
-	"preset": {
+	"category": {
 		"tree": {
 			"name": "Árbol",
 			"terms": "arbre"
@@ -464,7 +464,7 @@ Readers:
 Readers MUST verify that the following files are present:
 
 - `VERSION`
-- `presets.json`
+- `categories.json`
 - `defaults.json`
 - `metadata.json`
 
@@ -485,19 +485,19 @@ Readers MUST validate that:
 
 - All JSON files are well-formed
 - All JSON files conform to their respective schemas
-- All preset references to fields and icons are valid (fields exist in `fields.json`, icons exist in `icons/` directory)
+- All category references to fields and icons are valid (fields exist in `fields.json`, icons exist in `icons/` directory)
 
 ### 13.4. Reference Validation
 
 Readers SHOULD validate that:
 
-- All field IDs referenced in presets exist in `fields.json`
-- All icon IDs referenced in presets exist in the `icons/` directory
+- All field IDs referenced in categories exist in `fields.json`
+- All icon IDs referenced in categories exist in the `icons/` directory
 
 Readers MAY issue warnings for:
 
-- Fields defined in `fields.json` that are not referenced by any preset
-- Icons in the `icons/` directory that are not referenced by any preset
+- Fields defined in `fields.json` that are not referenced by any category
+- Icons in the `icons/` directory that are not referenced by any category
 
 ## 14. Error Handling
 

@@ -5,6 +5,7 @@ import parseJson from 'parse-json'
 import * as v from 'valibot'
 
 import {
+	CATEGORIES_DIR,
 	FIELDS_DIR,
 	ICONS_DIR,
 	MESSAGES_DIR,
@@ -14,18 +15,18 @@ import {
 import { SchemaError } from '../../src/lib/errors.js'
 import { parseSvg } from '../../src/lib/parse-svg.js'
 import { isNotFoundError } from '../../src/lib/utils.js'
+import {
+	CategorySchema,
+	CategorySchemaDeprecated,
+} from '../../src/schema/category.js'
 import { DefaultsSchema } from '../../src/schema/defaults.js'
 import { FieldSchema } from '../../src/schema/field.js'
 import { MessagesSchema } from '../../src/schema/messages.js'
 import { MetadataSchemaInput } from '../../src/schema/metadata.js'
-import {
-	PresetSchema,
-	PresetSchemaDeprecated,
-} from '../../src/schema/preset.js'
 import { jsonFiles } from './json-files.js'
 
 /**
- * @import {PresetDeprecatedInput, PresetInput} from '../../src/schema/preset.js'
+ * @import {CategoryDeprecatedInput, CategoryInput} from '../../src/schema/category.js'
  * @import {FieldInput} from '../../src/schema/field.js'
  * @import {DefaultsInput} from '../../src/schema/defaults.js'
  * @import {MetadataInput} from '../../src/schema/metadata.js'
@@ -33,11 +34,11 @@ import { jsonFiles } from './json-files.js'
  */
 
 /**
- * Read the preset, field, defaults, and icon files in a directory and validate them.
+ * Read the category, field, defaults, and icon files in a directory and validate them.
  *
  * @param {string} dir - Directory path
  * @returns {AsyncGenerator<
- *  | { type: 'preset', id: string, value: PresetDeprecatedInput | PresetInput }
+ *  | { type: 'category', id: string, value: CategoryDeprecatedInput | CategoryInput }
  *  | { type: 'field', id: string, value: FieldInput }
  *  | { type: 'defaults', id: 'defaults', value: DefaultsInput }
  *  | { type: 'icon', id: string, value: string }
@@ -46,11 +47,25 @@ import { jsonFiles } from './json-files.js'
  * >} Completes when all files are read and validated
  */
 export async function* readFiles(dir) {
-	for await (const { name, data } of jsonFiles(path.join(dir, PRESETS_DIR))) {
-		assertSchema(v.union([PresetSchema, PresetSchemaDeprecated]), data, {
+	// Try to read from 'categories' directory first, fall back to 'presets' for backwards compatibility
+	let categoryDir = path.join(dir, CATEGORIES_DIR)
+
+	try {
+		await fs.access(categoryDir)
+	} catch (err) {
+		if (isNotFoundError(err)) {
+			// Fall back to presets directory for backwards compatibility
+			categoryDir = path.join(dir, PRESETS_DIR)
+		} else {
+			throw err
+		}
+	}
+
+	for await (const { name, data } of jsonFiles(categoryDir)) {
+		assertSchema(v.union([CategorySchema, CategorySchemaDeprecated]), data, {
 			fileName: name,
 		})
-		yield { type: 'preset', id: nameToId(name), value: data }
+		yield { type: 'category', id: nameToId(name), value: data }
 	}
 
 	for await (const { name, data } of jsonFiles(path.join(dir, FIELDS_DIR))) {

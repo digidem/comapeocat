@@ -3,7 +3,7 @@ import { createWriteStream } from 'node:fs'
 import archiver from 'archiver'
 
 export const fixtures = /** @type {const} */ ({
-	presets: {
+	categories: {
 		tree: {
 			name: 'Tree',
 			geometry: ['point'],
@@ -162,13 +162,13 @@ export const fixtures = /** @type {const} */ ({
 
 	translations: {
 		es: {
-			preset: {
+			category: {
 				tree: { name: 'Árbol' },
 			},
 			field: {},
 		},
 		esComplete: {
-			preset: {
+			category: {
 				tree: { name: 'Árbol', terms: 'tree, plant' },
 			},
 			field: {
@@ -183,7 +183,7 @@ export const fixtures = /** @type {const} */ ({
 			},
 		},
 		fr: {
-			preset: {
+			category: {
 				tree: { name: 'Arbre' },
 			},
 			field: {},

@@ -8,7 +8,7 @@ const DocTranslationSchema = v.record(
 	v.pipe(
 		v.string(),
 		v.minLength(1),
-		v.description('The ID of the preset or field being translated'),
+		v.description('The ID of the category or field being translated'),
 	),
 	v.record(
 		v.pipe(
@@ -24,8 +24,8 @@ const DocTranslationSchema = v.record(
 
 export const TranslationsSchema = v.record(
 	v.pipe(
-		v.union([v.literal('preset'), v.literal('field')]),
-		v.description('The type of documented translated (preset or field)'),
+		v.union([v.literal('category'), v.literal('field')]),
+		v.description('The type of document translated (category or field)'),
 	),
 	DocTranslationSchema,
 )

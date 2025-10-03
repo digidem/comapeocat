@@ -30,10 +30,10 @@ describe('Writer -> Reader roundtrip tests', () => {
 		const filepath = join(TEST_DIR, 'roundtrip-full.comapeocat')
 		const writer = new Writer()
 
-		writer.addPreset('tree', fixtures.presets.treeComplete)
-		writer.addPreset('forest', fixtures.presets.forest)
-		writer.addPreset('river', {
-			...fixtures.presets.river,
+		writer.addCategory('tree', fixtures.categories.treeComplete)
+		writer.addCategory('forest', fixtures.categories.forest)
+		writer.addCategory('river', {
+			...fixtures.categories.river,
 			fields: ['name', 'width'],
 		})
 
@@ -69,12 +69,12 @@ describe('Writer -> Reader roundtrip tests', () => {
 		const reader = new Reader(filepath)
 		await reader.opened()
 
-		// Verify presets
-		const presets = await reader.presets()
-		assert.equal(presets.size, 3)
+		// Verify categories
+		const categories = await reader.categories()
+		assert.equal(categories.size, 3)
 
-		const tree = presets.get('tree')
-		assert.deepEqual(tree, fixtures.presets.treeComplete)
+		const tree = categories.get('tree')
+		assert.deepEqual(tree, fixtures.categories.treeComplete)
 
 		// Verify fields
 		const fields = await reader.fields()
@@ -106,7 +106,10 @@ describe('Writer -> Reader roundtrip tests', () => {
 
 		const esTranslation = translations.find((t) => t.lang === 'es')
 		assert.ok(esTranslation)
-		assert.equal(Object.keys(esTranslation.translations.preset.tree).length, 2)
+		assert.equal(
+			Object.keys(esTranslation.translations.category.tree).length,
+			2,
+		)
 		assert.equal(
 			Object.keys(esTranslation.translations.field.condition).length,
 			4,
@@ -136,7 +139,7 @@ describe('Writer -> Reader roundtrip tests', () => {
 		const filepath = join(TEST_DIR, 'roundtrip-minimal.comapeocat')
 		const writer = createTestWriter()
 
-		writer.addPreset('poi', {
+		writer.addCategory('poi', {
 			name: 'Point of Interest',
 			geometry: ['point'],
 			tags: { poi: 'yes' },
@@ -149,12 +152,12 @@ describe('Writer -> Reader roundtrip tests', () => {
 		await pipeline(writer.outputStream, createWriteStream(filepath))
 
 		const reader = new Reader(filepath)
-		const presets = await reader.presets()
+		const categories = await reader.categories()
 		const fields = await reader.fields()
 		const iconNames = await reader.iconNames()
 		const metadata = await reader.metadata()
 
-		assert.equal(presets.size, 1)
+		assert.equal(categories.size, 1)
 		assert.equal(fields.size, 0)
 		assert.equal(iconNames.size, 0)
 		assert.equal(metadata.name, 'Minimal')
@@ -163,12 +166,12 @@ describe('Writer -> Reader roundtrip tests', () => {
 		await reader.close()
 	})
 
-	test('roundtrip validates preset references', async () => {
+	test('roundtrip validates category references', async () => {
 		const filepath = join(TEST_DIR, 'roundtrip-valid-refs.comapeocat')
 		const writer = createTestWriter()
 
-		writer.addPreset('tree', {
-			...fixtures.presets.tree,
+		writer.addCategory('tree', {
+			...fixtures.categories.tree,
 			fields: ['height'],
 			icon: 'tree_icon',
 		})
@@ -190,7 +193,7 @@ describe('Writer -> Reader roundtrip tests', () => {
 		const filepath = join(TEST_DIR, 'roundtrip-complex-tags.comapeocat')
 		const writer = createTestWriter()
 
-		writer.addPreset('multi_tag', {
+		writer.addCategory('multi_tag', {
 			name: 'Multi Tag',
 			geometry: ['point'],
 			tags: {
@@ -208,13 +211,13 @@ describe('Writer -> Reader roundtrip tests', () => {
 		await pipeline(writer.outputStream, createWriteStream(filepath))
 
 		const reader = new Reader(filepath)
-		const presets = await reader.presets()
-		const preset = presets.get('multi_tag')
+		const categories = await reader.categories()
+		const category = categories.get('multi_tag')
 
-		assert.equal(preset.tags.string, 'value')
-		assert.equal(preset.tags.number, 42)
-		assert.equal(preset.tags.boolean, true)
-		assert.equal(preset.tags.null_value, null)
+		assert.equal(category.tags.string, 'value')
+		assert.equal(category.tags.number, 42)
+		assert.equal(category.tags.boolean, true)
+		assert.equal(category.tags.null_value, null)
 
 		await reader.close()
 	})
@@ -223,7 +226,7 @@ describe('Writer -> Reader roundtrip tests', () => {
 		const filepath = join(TEST_DIR, 'roundtrip-multiline.comapeocat')
 		const writer = createTestWriter()
 
-		writer.addPreset('note', {
+		writer.addCategory('note', {
 			name: 'Note',
 			geometry: ['point'],
 			tags: { note: 'yes' },
@@ -249,7 +252,7 @@ describe('Writer -> Reader roundtrip tests', () => {
 		const filepath = join(TEST_DIR, 'roundtrip-select-multiple.comapeocat')
 		const writer = createTestWriter()
 
-		writer.addPreset('survey', {
+		writer.addCategory('survey', {
 			name: 'Survey',
 			geometry: ['point'],
 			tags: { survey: 'yes' },

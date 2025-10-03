@@ -41,17 +41,17 @@ export function isNonEmptyArray(value) {
 }
 
 /**
- * Add a preset reference to a map of missing references
+ * Add a category reference to a map of missing references
  * @param {Map<string, Set<string>>} map
  * @param {string} refId
- * @param {string} presetId
+ * @param {string} categoryId
  */
-export function addRefToMap(map, refId, presetId) {
+export function addRefToMap(map, refId, categoryId) {
 	const existing = map.get(refId)
 	if (existing) {
-		existing.add(presetId)
+		existing.add(categoryId)
 	} else {
-		map.set(refId, new Set([presetId]))
+		map.set(refId, new Set([categoryId]))
 	}
 }
 

@@ -12,7 +12,7 @@ export const DefaultsSchema = v.pipe(
 			v.pipe(
 				v.array(v.pipe(v.string(), v.minLength(1))),
 				v.description(
-					'List of preset IDs in the order they should be shown to the user by default for this geometry type.',
+					'List of category IDs in the order they should be shown to the user by default for this geometry type.',
 				),
 			),
 		),
@@ -20,6 +20,6 @@ export const DefaultsSchema = v.pipe(
 	v.metadata({
 		title: 'Defaults Schema',
 		description:
-			'Defines the order of categories (presets) and which should be shown to the user by default for each geometry type.',
+			'Defines the order of categories and which should be shown to the user by default for each geometry type.',
 	}),
 )

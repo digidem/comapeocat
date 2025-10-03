@@ -18,7 +18,7 @@
 			"types": "./dist/writer.d.ts",
 			"import": "./src/writer.js"
 		},
-		"./dist/schema/preset.json": "./dist/schema/preset.json",
+		"./dist/schema/category.json": "./dist/schema/category.json",
 		"./dist/schema/defaults.json": "./dist/schema/defaults.json",
 		"./dist/schema/field.json": "./dist/schema/field.json",
 		"./dist/schema/messages.json": "./dist/schema/messages.json"
@@ -33,7 +33,7 @@
 	"keywords": [],
 	"author": "",
 	"license": "MIT",
-	"description": "A JavaScript library for reading and writing CoMapeo Categories files (`.comapeocat`). These files package category definitions (presets), custom fields, icons, and translations for use in [CoMapeo](https://www.comapeo.app) applications.",
+	"description": "A JavaScript library for reading and writing CoMapeo Categories archives (`.comapeocat`). These files package category definitions, custom fields, icons, and translations for use in [CoMapeo](https://www.comapeo.app) applications.",
 	"files": [
 		"dist/",
 		"bin/",

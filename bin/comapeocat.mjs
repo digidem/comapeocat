@@ -5,10 +5,15 @@ const program = new Command()
 
 program
 	.name('comapeocat')
-	.description('A CLI tool for managing categories and presets for Comapeo')
+	.description(
+		'A CLI tool for managing categories, fields and icons for Comapeo',
+	)
 	.version('1.0.0')
-	.command('lint', 'Lint preset and field JSON files')
-	.command('build', 'Build a .comapeocat file from a directory of JSON files')
+	.command('lint', 'Lint category, field and icon files')
+	.command(
+		'build',
+		'Build a .comapeocat archive from a directory of category, field and icon files',
+	)
 	.command('messages', 'Extract messages for translation')
 
 program.parse(process.argv)

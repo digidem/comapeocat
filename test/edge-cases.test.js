@@ -27,11 +27,11 @@ describe('Edge cases and untested spec details', () => {
 	})
 
 	describe('Special characters in IDs', () => {
-		test('handles UTF-8 characters in preset IDs', async () => {
-			const filepath = join(TEST_DIR, 'preset-id-utf8.comapeocat')
+		test('handles UTF-8 characters in category IDs', async () => {
+			const filepath = join(TEST_DIR, 'category-id-utf8.comapeocat')
 			const writer = createTestWriter()
 
-			writer.addPreset('árbol_🌳', {
+			writer.addCategory('árbol_🌳', {
 				name: 'Tree',
 				geometry: ['point'],
 				tags: { natural: 'tree' },
@@ -42,9 +42,9 @@ describe('Edge cases and untested spec details', () => {
 			await pipeline(writer.outputStream, createWriteStream(filepath))
 
 			const reader = new Reader(filepath)
-			const presets = await reader.presets()
+			const categories = await reader.categories()
 
-			assert.ok(presets.has('árbol_🌳'))
+			assert.ok(categories.has('árbol_🌳'))
 
 			await reader.close()
 		})
@@ -53,7 +53,7 @@ describe('Edge cases and untested spec details', () => {
 			const filepath = join(TEST_DIR, 'field-utf8.comapeocat')
 			const writer = createTestWriter()
 
-			writer.addPreset('test', {
+			writer.addCategory('test', {
 				name: 'Test',
 				geometry: ['point'],
 				tags: { test: 'value' },
@@ -88,7 +88,7 @@ describe('Edge cases and untested spec details', () => {
 				filepath,
 				version: '1.0.0',
 				files: {
-					'presets.json': { tree: fixtures.presets.tree },
+					'categories.json': { tree: fixtures.categories.tree },
 					'defaults.json': fixtures.defaults.point,
 					'metadata.json': fixtures.metadata.minimal,
 				},
@@ -107,7 +107,7 @@ describe('Edge cases and untested spec details', () => {
 				filepath,
 				version: '1',
 				files: {
-					'presets.json': { tree: fixtures.presets.tree },
+					'categories.json': { tree: fixtures.categories.tree },
 					'defaults.json': fixtures.defaults.point,
 					'metadata.json': fixtures.metadata.minimal,
 				},
@@ -126,7 +126,7 @@ describe('Edge cases and untested spec details', () => {
 				filepath,
 				version: '',
 				files: {
-					'presets.json': { tree: fixtures.presets.tree },
+					'categories.json': { tree: fixtures.categories.tree },
 					'defaults.json': fixtures.defaults.point,
 					'metadata.json': fixtures.metadata.minimal,
 				},
@@ -143,7 +143,7 @@ describe('Edge cases and untested spec details', () => {
 				filepath,
 				version: '1 . 0',
 				files: {
-					'presets.json': { tree: fixtures.presets.tree },
+					'categories.json': { tree: fixtures.categories.tree },
 					'defaults.json': fixtures.defaults.point,
 					'metadata.json': fixtures.metadata.minimal,
 				},
@@ -158,12 +158,12 @@ describe('Edge cases and untested spec details', () => {
 	})
 
 	describe('Geometry validation', () => {
-		test('rejects preset with empty geometry array', async () => {
+		test('rejects category with empty geometry array', async () => {
 			const writer = new Writer()
 
 			assert.throws(
 				() => {
-					writer.addPreset('invalid', {
+					writer.addCategory('invalid', {
 						name: 'Invalid',
 						geometry: [],
 						tags: { test: 'value' },
@@ -174,12 +174,12 @@ describe('Edge cases and untested spec details', () => {
 			)
 		})
 
-		test('rejects preset with no valid geometry types', async () => {
+		test('rejects category with no valid geometry types', async () => {
 			const writer = new Writer()
 
 			assert.throws(
 				() => {
-					writer.addPreset('invalid', {
+					writer.addCategory('invalid', {
 						name: 'Invalid',
 						geometry: ['invalid_type'],
 						tags: { test: 'value' },
@@ -194,7 +194,7 @@ describe('Edge cases and untested spec details', () => {
 			const filepath = join(TEST_DIR, 'geometry-all-types.comapeocat')
 			const writer = createTestWriter()
 
-			writer.addPreset('multi', {
+			writer.addCategory('multi', {
 				name: 'Multi Geometry',
 				geometry: ['point', 'line', 'area'],
 				tags: { test: 'value' },
@@ -205,9 +205,13 @@ describe('Edge cases and untested spec details', () => {
 			await pipeline(writer.outputStream, createWriteStream(filepath))
 
 			const reader = new Reader(filepath)
-			const presets = await reader.presets()
+			const categories = await reader.categories()
 
-			assert.deepEqual(presets.get('multi').geometry, ['point', 'line', 'area'])
+			assert.deepEqual(categories.get('multi').geometry, [
+				'point',
+				'line',
+				'area',
+			])
 
 			await reader.close()
 		})
@@ -216,7 +220,7 @@ describe('Edge cases and untested spec details', () => {
 			const filepath = join(TEST_DIR, 'geometry-invalid-types.comapeocat')
 			const writer = createTestWriter()
 
-			writer.addPreset('invalid', {
+			writer.addCategory('invalid', {
 				name: 'Invalid',
 				geometry: ['point', 'polygon'],
 				tags: { test: 'value' },
@@ -228,9 +232,9 @@ describe('Edge cases and untested spec details', () => {
 			await pipeline(writer.outputStream, createWriteStream(filepath))
 
 			const reader = new Reader(filepath)
-			const presets = await reader.presets()
+			const categories = await reader.categories()
 
-			assert.deepEqual(presets.get('invalid').geometry, ['point'])
+			assert.deepEqual(categories.get('invalid').geometry, ['point'])
 
 			await reader.close()
 		})
@@ -242,7 +246,7 @@ describe('Edge cases and untested spec details', () => {
 			await createTestZip({
 				filepath,
 				files: {
-					'presets.json': { tree: fixtures.presets.tree },
+					'categories.json': { tree: fixtures.categories.tree },
 					'defaults.json': {
 						point: ['tree', 'nonexistent'],
 						line: [],
@@ -260,13 +264,13 @@ describe('Edge cases and untested spec details', () => {
 			await reader.close()
 		})
 
-		test('allows preset in defaults without matching geometry', async () => {
+		test('allows category in defaults without matching geometry', async () => {
 			const filepath = join(TEST_DIR, 'defaults-wrong-geometry.comapeocat')
 			await createTestZip({
 				filepath,
 				files: {
-					'presets.json': {
-						tree: fixtures.presets.tree, // geometry: ['point']
+					'categories.json': {
+						tree: fixtures.categories.tree, // geometry: ['point']
 					},
 					'defaults.json': {
 						point: [],
@@ -290,7 +294,7 @@ describe('Edge cases and untested spec details', () => {
 			await createTestZip({
 				filepath,
 				files: {
-					'presets.json': { tree: fixtures.presets.tree },
+					'categories.json': { tree: fixtures.categories.tree },
 					'defaults.json': {
 						point: ['tree'],
 						line: [],
@@ -312,7 +316,7 @@ describe('Edge cases and untested spec details', () => {
 			const filepath = join(TEST_DIR, 'color-3-digit.comapeocat')
 			const writer = createTestWriter()
 
-			writer.addPreset('test', {
+			writer.addCategory('test', {
 				name: 'Test',
 				geometry: ['point'],
 				tags: { test: 'value' },
@@ -325,9 +329,9 @@ describe('Edge cases and untested spec details', () => {
 			await pipeline(writer.outputStream, createWriteStream(filepath))
 
 			const reader = new Reader(filepath)
-			const presets = await reader.presets()
+			const categories = await reader.categories()
 
-			assert.equal(presets.get('test').color, '#abc')
+			assert.equal(categories.get('test').color, '#abc')
 
 			await reader.close()
 		})
@@ -336,7 +340,7 @@ describe('Edge cases and untested spec details', () => {
 			const filepath = join(TEST_DIR, 'color-6-digit.comapeocat')
 			const writer = createTestWriter()
 
-			writer.addPreset('test', {
+			writer.addCategory('test', {
 				name: 'Test',
 				geometry: ['point'],
 				tags: { test: 'value' },
@@ -349,9 +353,9 @@ describe('Edge cases and untested spec details', () => {
 			await pipeline(writer.outputStream, createWriteStream(filepath))
 
 			const reader = new Reader(filepath)
-			const presets = await reader.presets()
+			const categories = await reader.categories()
 
-			assert.equal(presets.get('test').color, '#aabbcc')
+			assert.equal(categories.get('test').color, '#aabbcc')
 
 			await reader.close()
 		})
@@ -360,7 +364,7 @@ describe('Edge cases and untested spec details', () => {
 			const filepath = join(TEST_DIR, 'color-8-digit.comapeocat')
 			const writer = createTestWriter()
 
-			writer.addPreset('test', {
+			writer.addCategory('test', {
 				name: 'Test',
 				geometry: ['point'],
 				tags: { test: 'value' },
@@ -373,9 +377,9 @@ describe('Edge cases and untested spec details', () => {
 			await pipeline(writer.outputStream, createWriteStream(filepath))
 
 			const reader = new Reader(filepath)
-			const presets = await reader.presets()
+			const categories = await reader.categories()
 
-			assert.equal(presets.get('test').color, '#aabbccdd')
+			assert.equal(categories.get('test').color, '#aabbccdd')
 
 			await reader.close()
 		})
@@ -384,7 +388,7 @@ describe('Edge cases and untested spec details', () => {
 			const filepath = join(TEST_DIR, 'color-uppercase.comapeocat')
 			const writer = createTestWriter()
 
-			writer.addPreset('test', {
+			writer.addCategory('test', {
 				name: 'Test',
 				geometry: ['point'],
 				tags: { test: 'value' },
@@ -397,9 +401,9 @@ describe('Edge cases and untested spec details', () => {
 			await pipeline(writer.outputStream, createWriteStream(filepath))
 
 			const reader = new Reader(filepath)
-			const presets = await reader.presets()
+			const categories = await reader.categories()
 
-			assert.equal(presets.get('test').color, '#AABBCC')
+			assert.equal(categories.get('test').color, '#AABBCC')
 
 			await reader.close()
 		})
@@ -409,7 +413,7 @@ describe('Edge cases and untested spec details', () => {
 
 			assert.throws(
 				() => {
-					writer.addPreset('test', {
+					writer.addCategory('test', {
 						name: 'Test',
 						geometry: ['point'],
 						tags: { test: 'value' },
@@ -426,7 +430,7 @@ describe('Edge cases and untested spec details', () => {
 
 			assert.throws(
 				() => {
-					writer.addPreset('test', {
+					writer.addCategory('test', {
 						name: 'Test',
 						geometry: ['point'],
 						tags: { test: 'value' },
@@ -443,7 +447,7 @@ describe('Edge cases and untested spec details', () => {
 
 			assert.throws(
 				() => {
-					writer.addPreset('test', {
+					writer.addCategory('test', {
 						name: 'Test',
 						geometry: ['point'],
 						tags: { test: 'value' },
@@ -493,7 +497,7 @@ describe('Edge cases and untested spec details', () => {
 			const filepath = join(TEST_DIR, 'options-mixed-types.comapeocat')
 			const writer = createTestWriter()
 
-			writer.addPreset('test', {
+			writer.addCategory('test', {
 				name: 'Test',
 				geometry: ['point'],
 				tags: { test: 'value' },
@@ -534,7 +538,7 @@ describe('Edge cases and untested spec details', () => {
 			const filepath = join(TEST_DIR, 'metadata-minimal.comapeocat')
 			const writer = createTestWriter()
 
-			writer.addPreset('test', {
+			writer.addCategory('test', {
 				name: 'Test',
 				geometry: ['point'],
 				tags: { test: 'value' },
@@ -583,7 +587,7 @@ describe('Edge cases and untested spec details', () => {
 			const filepath = join(TEST_DIR, 'metadata-version-20.comapeocat')
 			const writer = createTestWriter()
 
-			writer.addPreset('test', {
+			writer.addCategory('test', {
 				name: 'Test',
 				geometry: ['point'],
 				tags: { test: 'value' },
@@ -610,7 +614,7 @@ describe('Edge cases and untested spec details', () => {
 			const filepath = join(TEST_DIR, 'metadata-name-100.comapeocat')
 			const writer = createTestWriter()
 
-			writer.addPreset('test', {
+			writer.addCategory('test', {
 				name: 'Test',
 				geometry: ['point'],
 				tags: { test: 'value' },
@@ -638,7 +642,7 @@ describe('Edge cases and untested spec details', () => {
 			const filepath = join(TEST_DIR, 'translation-bcp47-valid.comapeocat')
 			const writer = createTestWriter()
 
-			writer.addPreset('tree', fixtures.presets.tree)
+			writer.addCategory('tree', fixtures.categories.tree)
 
 			await writer.addTranslations('en', fixtures.translations.es)
 			await writer.addTranslations('en-US', fixtures.translations.es)
@@ -672,11 +676,11 @@ describe('Edge cases and untested spec details', () => {
 			await createTestZip({
 				filepath,
 				files: {
-					'presets.json': { tree: fixtures.presets.tree },
+					'categories.json': { tree: fixtures.categories.tree },
 					'defaults.json': fixtures.defaults.point,
 					'metadata.json': fixtures.metadata.minimal,
 					'translations/es.json': {
-						preset: {
+						category: {
 							nonexistent: { name: 'No existe' },
 						},
 						field: {},
@@ -691,7 +695,7 @@ describe('Edge cases and untested spec details', () => {
 			}
 
 			assert.equal(translations.length, 1)
-			assert.ok(translations[0].translations.preset.nonexistent)
+			assert.ok(translations[0].translations.category.nonexistent)
 
 			await reader.close()
 		})
@@ -704,11 +708,11 @@ describe('Edge cases and untested spec details', () => {
 			await createTestZip({
 				filepath,
 				files: {
-					'presets.json': { tree: fixtures.presets.tree },
+					'categories.json': { tree: fixtures.categories.tree },
 					'defaults.json': fixtures.defaults.point,
 					'metadata.json': fixtures.metadata.minimal,
 					'translations/es.json': {
-						preset: {},
+						category: {},
 						field: {
 							nonexistent: { label: 'No existe' },
 						},
@@ -734,7 +738,7 @@ describe('Edge cases and untested spec details', () => {
 			const filepath = join(TEST_DIR, 'tags-all-types.comapeocat')
 			const writer = createTestWriter()
 
-			writer.addPreset('test', {
+			writer.addCategory('test', {
 				name: 'Test',
 				geometry: ['point'],
 				tags: {
@@ -752,8 +756,8 @@ describe('Edge cases and untested spec details', () => {
 			await pipeline(writer.outputStream, createWriteStream(filepath))
 
 			const reader = new Reader(filepath)
-			const presets = await reader.presets()
-			const tags = presets.get('test').tags
+			const categories = await reader.categories()
+			const tags = categories.get('test').tags
 
 			assert.equal(tags.string_tag, 'value')
 			assert.equal(tags.number_tag, 123)
@@ -769,7 +773,7 @@ describe('Edge cases and untested spec details', () => {
 			const filepath = join(TEST_DIR, 'text-appearance-default.comapeocat')
 			const writer = createTestWriter()
 
-			writer.addPreset('test', {
+			writer.addCategory('test', {
 				name: 'Test',
 				geometry: ['point'],
 				tags: { test: 'value' },
@@ -801,7 +805,7 @@ describe('Edge cases and untested spec details', () => {
 			const filepath = join(TEST_DIR, 'text-appearance-singleline.comapeocat')
 			const writer = createTestWriter()
 
-			writer.addPreset('test', {
+			writer.addCategory('test', {
 				name: 'Test',
 				geometry: ['point'],
 				tags: { test: 'value' },

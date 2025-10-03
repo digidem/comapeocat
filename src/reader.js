@@ -8,15 +8,15 @@ import {
 	InvalidFileVersionError,
 	MissingDefaultsError,
 	MissingMetadataError,
-	MissingPresetsError,
+	MissingCategoriesError,
 	UnsupportedFileVersionError,
 } from './lib/errors.js'
 import { isSupportedBCP47, parse } from './lib/utils.js'
 import { validateReferences } from './lib/validate-references.js'
+import { CategorySchema } from './schema/category.js'
 import { DefaultsSchema } from './schema/defaults.js'
 import { FieldSchema } from './schema/field.js'
 import { MetadataSchemaOutput } from './schema/metadata.js'
-import { PresetSchema } from './schema/preset.js'
 import { TranslationsSchema } from './schema/translations.js'
 
 const SUPPORTED_MAJOR_VERSION = 1
@@ -25,12 +25,12 @@ const SUPPORTED_MAJOR_VERSION = 1
 /** @import { JSONError } from 'parse-json' */
 /** @import {SetOptional} from 'type-fest' */
 /** @import {FieldOutput} from './schema/field.js' */
-/** @import {PresetOutput} from './schema/preset.js' */
+/** @import {CategoryOutput} from './schema/category.js' */
 /** @import {DefaultsOutput} from './schema/defaults.js' */
 /** @import {MetadataOutput} from './schema/metadata.js' */
 /**
  * @typedef {{
- *   presets: Entry,
+ *   categories: Entry,
  *   defaults: Entry,
  *   metadata: Entry,
  *   fields?: Entry,
@@ -39,7 +39,7 @@ const SUPPORTED_MAJOR_VERSION = 1
  * }} ZipEntries
  */
 const FILENAMES = /** @type {const} */ ({
-	'presets.json': 'presets',
+	'categories.json': 'categories',
 	'fields.json': 'fields',
 	'defaults.json': 'defaults',
 	'metadata.json': 'metadata',
@@ -50,7 +50,7 @@ const TRANSLATIONS_REGEX = new RegExp(
 )
 const VERSION_REGEX = /^(\d+)\.(\d+)$/
 
-const PresetMapSchema = v.record(v.string(), PresetSchema)
+const CategoryMapSchema = v.record(v.string(), CategorySchema)
 
 export class Reader {
 	/** @type {Promise<ZipFile>} */
@@ -62,8 +62,8 @@ export class Reader {
 	#cached = {
 		/** @type {Map<string, FieldOutput> | undefined} */
 		fields: undefined,
-		/** @type {Map<string, PresetOutput> | undefined} */
-		presets: undefined,
+		/** @type {Map<string, CategoryOutput> | undefined} */
+		categories: undefined,
 		/** @type {DefaultsOutput | undefined} */
 		defaults: undefined,
 		/** @type {MetadataOutput | undefined} */
@@ -80,7 +80,7 @@ export class Reader {
 				: Promise.resolve(filepathOrZip))
 		zipPromise.catch(noop)
 		this.#entriesPromise = (async () => {
-			/** @type {SetOptional<ZipEntries, 'presets' | 'defaults' | 'metadata'>} */
+			/** @type {SetOptional<ZipEntries, 'categories' | 'defaults' | 'metadata'>} */
 			const entries = {
 				icons: new Map(),
 				translations: new Map(),
@@ -144,13 +144,13 @@ export class Reader {
 	async validate() {
 		await this.#entriesPromise
 
-		const presets = await this.presets()
+		const categories = await this.categories()
 		const defaults = await this.defaults()
 		const fields = await this.fields()
 		const iconNames = await this.iconNames()
 
 		validateReferences({
-			presets,
+			categories,
 			fieldIds: fields,
 			iconIds: iconNames,
 			defaults,
@@ -158,17 +158,17 @@ export class Reader {
 	}
 
 	/**
-	 * @returns {Promise<Map<string, PresetOutput>>} Map of preset ID to preset data
-	 * @throws {SchemaError | JSONError} When the presets.json file in the archive is not valid
+	 * @returns {Promise<Map<string, CategoryOutput>>} Map of category ID to category data
+	 * @throws {SchemaError | JSONError} When the categories.json file in the archive is not valid
 	 * @throws {InvalidFileError} When the file is not a valid comapeocat file
 	 */
-	async presets() {
-		if (this.#cached.presets) return this.#cached.presets
-		const { presets: entry } = await this.#entriesPromise
+	async categories() {
+		if (this.#cached.categories) return this.#cached.categories
+		const { categories: entry } = await this.#entriesPromise
 		const data = await this.#readJsonEntry(entry)
-		const result = parse(PresetMapSchema, data, { fileName: entry.filename })
-		this.#cached.presets = new Map(Object.entries(result))
-		return this.#cached.presets
+		const result = parse(CategoryMapSchema, data, { fileName: entry.filename })
+		this.#cached.categories = new Map(Object.entries(result))
+		return this.#cached.categories
 	}
 
 	/**
@@ -294,12 +294,12 @@ async function concatStream(stream) {
 }
 
 /**
- * @param {import('type-fest').SetOptional<ZipEntries, 'presets' | 'defaults' | 'metadata'>} entries
+ * @param {import('type-fest').SetOptional<ZipEntries, 'categories' | 'defaults' | 'metadata'>} entries
  * @returns {asserts entries is ZipEntries}
  */
 function assertValidEntries(entries) {
-	if (!entries.presets) {
-		throw new MissingPresetsError()
+	if (!entries.categories) {
+		throw new MissingCategoriesError()
 	}
 	if (!entries.defaults) {
 		throw new MissingDefaultsError()

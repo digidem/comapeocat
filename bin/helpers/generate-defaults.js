@@ -1,37 +1,41 @@
 import { typedEntries } from '../../src/lib/utils.js'
 
-/** @import {PresetDeprecatedInput} from '../../src/schema/preset.js' */
+/** @import {CategoryDeprecatedInput} from '../../src/schema/category.js' */
 /** @import {DefaultsInput} from '../../src/schema/defaults.js' */
 /** @import {Entries} from 'type-fest' */
 
-/** @typedef {Pick<PresetDeprecatedInput, 'sort' | 'name'> & { id: string }} PresetForSort */
+/** @typedef {Pick<CategoryDeprecatedInput, 'sort' | 'name'> & { id: string }} CategoryForSort */
 
 /**
- * Generate defaults from presets if no defaults are provided. Sort presets by
+ * Generate defaults from categories if no defaults are provided. Sort categories by
  * sort field first, then by name.
  *
- * @param {Map<string, PresetDeprecatedInput>} presetsMap
+ * @param {Map<string, CategoryDeprecatedInput>} categoriesMap
  * @returns {DefaultsInput}
  */
-export function generateDefaults(presetsMap) {
-	/** @type {Record<keyof DefaultsInput, Array<PresetForSort>>} */
+export function generateDefaults(categoriesMap) {
+	/** @type {Record<keyof DefaultsInput, Array<CategoryForSort>>} */
 	const defaultsForSort = {
 		point: [],
 		line: [],
 		area: [],
 	}
-	for (const [id, preset] of presetsMap) {
-		for (const geom of preset.geometry) {
+	for (const [id, category] of categoriesMap) {
+		for (const geom of category.geometry) {
 			if (!isKeyOf(geom, defaultsForSort)) continue
-			defaultsForSort[geom].push({ id, sort: preset.sort, name: preset.name })
+			defaultsForSort[geom].push({
+				id,
+				sort: category.sort,
+				name: category.name,
+			})
 		}
 	}
 	/** @type {Entries<DefaultsInput>} */
 	const defaultsEntries = []
-	for (const [geom, presetsForSort] of typedEntries(defaultsForSort)) {
+	for (const [geom, categoriesForSort] of typedEntries(defaultsForSort)) {
 		defaultsEntries.push([
 			geom,
-			presetsForSort.sort(sortPresets).map((p) => p.id),
+			categoriesForSort.sort(sortCategories).map((c) => c.id),
 		])
 	}
 	return /** @type {DefaultsInput} */ (Object.fromEntries(defaultsEntries))
@@ -50,11 +54,11 @@ function isKeyOf(key, object) {
 }
 
 /**
- * @param {PresetForSort} a
- * @param {PresetForSort} b
+ * @param {CategoryForSort} a
+ * @param {CategoryForSort} b
  * @returns {number}
  */
-function sortPresets(a, b) {
+function sortCategories(a, b) {
 	if (
 		'sort' in a &&
 		typeof a.sort === 'number' &&

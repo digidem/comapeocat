@@ -10,17 +10,17 @@ import {
 	AddAfterFinishError,
 	MissingDefaultsError,
 	MissingMetadataError,
-	MissingPresetsError,
+	MissingCategoriesError,
 } from './lib/errors.js'
 import { parseSvg } from './lib/parse-svg.js'
 import { validateReferences } from './lib/validate-references.js'
+import { CategorySchema } from './schema/category.js'
 import { DefaultsSchema } from './schema/defaults.js'
 import { FieldSchema } from './schema/field.js'
 import { MetadataSchemaOutput } from './schema/metadata.js'
-import { PresetSchema } from './schema/preset.js'
 import { TranslationsSchema } from './schema/translations.js'
 
-/** @import { PresetInput, PresetOutput } from './schema/preset.js' */
+/** @import { CategoryInput, CategoryOutput } from './schema/category.js' */
 /** @import { FieldInput, FieldOutput } from './schema/field.js' */
 /** @import { DefaultsInput, DefaultsOutput } from './schema/defaults.js' */
 /** @import { MetadataInput, MetadataOutput } from './schema/metadata.js' */
@@ -39,8 +39,8 @@ export class Writer extends EventEmitter {
 		this.#handleError,
 	)
 	#outputStream
-	/** @type {Map<string, PresetOutput>} */
-	#presets = new Map()
+	/** @type {Map<string, CategoryOutput>} */
+	#categories = new Map()
 	/** @type {Map<string, FieldOutput>} */
 	#fields = new Map()
 	/** @type {Set<string>} */
@@ -64,15 +64,15 @@ export class Writer extends EventEmitter {
 	}
 
 	/**
-	 * @param {string} id preset ID (normally the filename without .json)
-	 * @param {PresetInput} preset
-	 * @returns {readonly PresetOutput} The parsed preset that was added (unknown properties are stripped)
+	 * @param {string} id category ID (normally the filename without .json)
+	 * @param {CategoryInput} category
+	 * @returns {readonly CategoryOutput} The parsed category that was added (unknown properties are stripped)
 	 */
-	addPreset(id, preset) {
+	addCategory(id, category) {
 		if (this.#finished) throw new AddAfterFinishError()
-		const parsedPreset = v.parse(PresetSchema, preset)
-		this.#presets.set(id, parsedPreset)
-		return parsedPreset
+		const parsedCategory = v.parse(CategorySchema, category)
+		this.#categories.set(id, parsedCategory)
+		return parsedCategory
 	}
 
 	/**
@@ -158,9 +158,9 @@ export class Writer extends EventEmitter {
 	 * Finalize the archive. This will check for missing references and required data,
 	 * and throw an error if any are missing. After calling this method, no more data
 	 * can be added to the archive.
-	 * @throws {PresetRefError} When there are missing field or icon references
+	 * @throws {CategoryRefError} When there are missing field or icon references
 	 * @throws {MissingMetadataError} When metadata is not set
-	 * @throws {MissingPresetsError} When no presets have been added
+	 * @throws {MissingCategoriesError} When no categories have been added
 	 * @throws {MissingDefaultsError} When defaults are not set
 	 */
 	finish() {
@@ -168,16 +168,16 @@ export class Writer extends EventEmitter {
 		if (!this.#metadata) {
 			throw new MissingMetadataError()
 		}
-		if (this.#presets.size === 0) {
-			throw new MissingPresetsError()
+		if (this.#categories.size === 0) {
+			throw new MissingCategoriesError()
 		}
 		if (!this.#defaults) {
 			throw new MissingDefaultsError()
 		}
 		this.#finished = true
-		const presets = Object.fromEntries(this.#presets)
-		this.#archive.append(JSON.stringify(presets, null, 2), {
-			name: 'presets.json',
+		const categories = Object.fromEntries(this.#categories)
+		this.#archive.append(JSON.stringify(categories, null, 2), {
+			name: 'categories.json',
 		})
 		const fields = Object.fromEntries(this.#fields)
 		this.#archive.append(JSON.stringify(fields, null, 2), {
@@ -200,7 +200,7 @@ export class Writer extends EventEmitter {
 
 	#checkRefs() {
 		validateReferences({
-			presets: this.#presets,
+			categories: this.#categories,
 			fieldIds: this.#fields,
 			iconIds: this.#iconIds,
 		})

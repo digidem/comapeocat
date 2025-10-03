@@ -34,11 +34,11 @@ Seed: 42
 
 The fixtures are used in [../lint-cli.test.js](../lint-cli.test.js) to test the CLI lint command's error handling for:
 
-- Missing field references (`PresetRefError`)
-- Missing icon references (`PresetRefError`)
-- Missing preset references in defaults (`DefaultsRefError`)
+- Missing field references (`CategoryRefError`)
+- Missing icon references (`CategoryRefError`)
+- Missing category references in defaults (`DefaultsRefError`)
 - Invalid geometry types in defaults (`InvalidDefaultsError`)
-- Invalid preset schema (`SchemaError`)
+- Invalid category schema (`SchemaError`)
 - Invalid field schema (`SchemaError`)
 
 ## Build Test Fixtures
@@ -50,7 +50,7 @@ The `build/` directory contains fixtures for testing the `comapeocat build` comm
 ```
 build/
 ├── no-defaults/    # Tests auto-generation of defaults.json when missing
-├── with-sort/      # Tests deprecated sort field handling in presets
+├── with-sort/      # Tests deprecated sort field handling in categories
 └── complete/       # Complete fixture for general build tests
 ```
 
