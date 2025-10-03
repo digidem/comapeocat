@@ -1,0 +1,44 @@
+name: release
+
+on:
+  workflow_dispatch:
+    inputs:
+      semver:
+        description: "The semver to use"
+        required: true
+        default: "auto"
+        type: choice
+        options:
+          - auto
+          - patch
+          - minor
+          - major
+          - prerelease
+          # - prepatch
+          # - preminor
+          # - premajor
+  pull_request:
+    types: [closed]
+    branches: [main]
+
+jobs:
+  release:
+    if: ${{github.event_name != 'pull_request' || github.event.pull_request.merged}}
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      issues: write
+      pull-requests: write
+      id-token: write
+    steps:
+      - uses: nearform-actions/optic-release-automation-action@a2785548e8bdafab7e628c2317b604278e460434 # v4.12.2
+        with:
+          commit-message: "chore: release {version}"
+          sync-semver-tags: false
+          access: "public"
+          semver: ${{ github.event.inputs.semver }}
+          # Don't notify linked issues
+          notify-linked-issues: false
+          publish-mode: oidc
+          build-command: |
+            npm ci
