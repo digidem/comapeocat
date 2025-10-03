@@ -1,4 +1,7 @@
-# CoMapeo Categories
+# CoMapeo Categories File Utilities `comapeocat`
+
+[![npm version](https://img.shields.io/npm/v/comapeocat.svg)](https://www.npmjs.com/package/comapeocat)
+[![Build Status](https://img.shields.io/github/actions/workflow/status/digidem/comapeocat/node.yml?branch=main)](https://github.com/digidem/comapeocat/actions)
 
 A JavaScript library for reading and writing CoMapeo Categories files (`.comapeocat`). These files package category definitions (presets), custom fields, icons, and translations for use in [CoMapeo](https://www.comapeo.app) applications.
 
@@ -206,14 +209,14 @@ await writer.addIcon('tree', '<svg>...</svg>')
 // Add translations (async)
 await writer.addTranslations('es', {
 	preset: {
-		tree: [{ propertyRef: 'name', message: 'Árbol' }],
+		tree: { name: 'Árbol' },
 	},
 	field: {
-		species: [{ propertyRef: 'label', message: 'Especie' }],
+		species: { label: 'Especie' },
 	},
 })
 
-// Set defaults (or omit to auto-generate)
+// Set defaults
 writer.setDefaults({
 	point: ['tree'],
 	line: [],
@@ -359,24 +362,10 @@ Both Reader and Writer perform comprehensive validation:
 
 Error messages include file names and specific issues to help debug problems.
 
-## Testing
-
-```bash
-npm test
-```
-
-Tests use Node.js's built-in test runner and cover:
-
-- Reading all file components
-- Writing and validating files
-- Roundtrip read-write-read consistency
-- Error handling and validation
-- Edge cases
-
 ## License
 
 MIT
 
 ## Contributing
 
-Issues and pull requests welcome at [github.com/digidem/comapeo-categories](https://github.com/digidem/comapeo-categories).
+Issues and pull requests welcome at [github.com/digidem/comapeocat](https://github.com/digidem/comapeocat).
