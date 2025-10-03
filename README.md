@@ -122,6 +122,37 @@ comapeocat messages --output messages/en.json
 
 This creates a `messages/<lang>.json` file with all translatable strings extracted from presets and fields. The filename should be a valid BCP 47 language code (e.g., `en`, `es-PE`, `fr`) and the file should be placed in a `messages` subdirectory of the input directory to be picked up by the `build` command.
 
+## VSCode settings for JSON Schema Validation
+
+To enable JSON schema validation in VSCode for the various JSON files used in a `.comapeocat` project, add the following to your workspace settings (`.vscode/settings.json`):
+
+```json
+{
+	"json.schemas": [
+		{
+			"fileMatch": ["presets/**/*.json"],
+			"url": "./node_modules/comapeocat/dist/schema/preset.json"
+		},
+		{
+			"fileMatch": ["fields/**/*.json"],
+			"url": "./node_modules/comapeocat/dist/schema/field.json"
+		},
+		{
+			"fileMatch": ["messages/*.json"],
+			"url": "./node_modules/comapeocat/dist/schema/messages.json"
+		},
+		{
+			"fileMatch": ["defaults.json"],
+			"url": "./node_modules/comapeocat/dist/schema/defaults.json"
+		},
+		{
+			"fileMatch": ["metadata.json"],
+			"url": "./node_modules/comapeocat/dist/schema/metadata.json"
+		}
+	]
+}
+```
+
 ## API Reference
 
 ### Installation
