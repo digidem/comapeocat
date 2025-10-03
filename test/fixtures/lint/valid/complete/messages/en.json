@@ -1,5 +1,5 @@
 {
-  "preset.preset1.name": {
+  "category.preset1.name": {
     "message": "Kelle",
     "description": "The name of category 'preset1'"
   },

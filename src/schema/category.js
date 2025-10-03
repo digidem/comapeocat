@@ -2,10 +2,10 @@ import * as v from 'valibot'
 
 import { GEOMETRY_TYPES } from '../lib/constants.js'
 
-/** @typedef {v.InferOutput<typeof PresetSchema>} PresetOutput */
-/** @typedef {v.InferInput<typeof PresetSchema>} PresetInput */
-/** @typedef {v.InferOutput<typeof PresetSchemaDeprecated>} PresetDeprecatedOutput */
-/** @typedef {v.InferInput<typeof PresetSchemaDeprecated>} PresetDeprecatedInput */
+/** @typedef {v.InferOutput<typeof CategorySchema>} CategoryOutput */
+/** @typedef {v.InferInput<typeof CategorySchema>} CategoryInput */
+/** @typedef {v.InferOutput<typeof CategorySchemaDeprecated>} CategoryDeprecatedOutput */
+/** @typedef {v.InferInput<typeof CategorySchemaDeprecated>} CategoryDeprecatedInput */
 
 const TagsSchema = v.record(
 	v.string(),
@@ -34,14 +34,14 @@ const GeometrySchema =
 				'Array must contain unique values',
 			),
 			v.description(
-				`Geometry types for the feature - this preset will only match features of this geometry type. Known types: \`${GEOMETRY_TYPES.join('", "')}\`. Unknown types are accepted for forward compatibility.`,
+				`Geometry types for the feature - this category will only match features of this geometry type. Known types: \`${GEOMETRY_TYPES.join('", "')}\`. Unknown types are accepted for forward compatibility.`,
 			),
 		)
 	)
 
 const RefSchema = v.pipe(v.string(), v.minLength(1))
 
-export const PresetSchema = v.pipe(
+export const CategorySchema = v.pipe(
 	v.object({
 		name: v.pipe(
 			v.string(),
@@ -53,14 +53,14 @@ export const PresetSchema = v.pipe(
 			TagsSchema,
 			v.minEntries(1),
 			v.description(
-				'The tags are used to match the preset to existing map entities. You can match based on multiple tags E.g. if you have existing points with the tags `nature:tree` and `species:oak` then you can add both these tags here in order to match only oak trees.',
+				'The tags are used to match the category to existing map entities. You can match based on multiple tags E.g. if you have existing points with the tags `nature:tree` and `species:oak` then you can add both these tags here in order to match only oak trees.',
 			),
 		),
 		addTags: v.optional(
 			v.pipe(
 				TagsSchema,
 				v.description(
-					"Tags that are added when changing to the preset (default is the same value as 'tags')",
+					"Tags that are added when changing to the category (default is the same value as 'tags')",
 				),
 			),
 			{},
@@ -69,19 +69,19 @@ export const PresetSchema = v.pipe(
 			v.pipe(
 				TagsSchema,
 				v.description(
-					"Tags that are removed when changing to another preset (default is the same value as 'addTags' which in turn defaults to 'tags')",
+					"Tags that are removed when changing to another category (default is the same value as 'addTags' which in turn defaults to 'tags')",
 				),
 			),
 			{},
 		),
 		fields: v.pipe(
 			v.array(RefSchema),
-			v.description('Array of field IDs to show for this preset.'),
+			v.description('Array of field IDs to show for this category.'),
 		),
 		icon: v.optional(
 			v.pipe(
 				RefSchema,
-				v.description('ID of the icon to display for this preset.'),
+				v.description('ID of the icon to display for this category.'),
 			),
 		),
 		terms: v.optional(
@@ -100,9 +100,9 @@ export const PresetSchema = v.pipe(
 		),
 	}),
 	v.metadata({
-		title: 'Preset',
+		title: 'Category',
 		description:
-			'Presets define how map entities are displayed to the user. They define the icon used on the map, and the fields / questions shown to the user when they create or edit the entity on the map. The `tags` property of a preset is used to match the preset with observations, nodes, ways and relations. If multiple presets match, the one that matches the most tags is used.',
+			'Categories define how map entities are displayed to the user. They define the icon used on the map, and the fields / questions shown to the user when they create or edit the entity on the map. The `tags` property of a category is used to match the category with observations, nodes, ways and relations. If multiple categories match, the one that matches the most tags is used.',
 	}),
 )
 
@@ -110,9 +110,9 @@ export const PresetSchema = v.pipe(
 // but we do not use this schema in the file format itself - deprecated fields
 // are mapping to equivalents in the file format (e.g. sort is used to determine
 // the order of defaults)
-export const PresetSchemaDeprecated = v.pipe(
+export const CategorySchemaDeprecated = v.pipe(
 	v.object({
-		...PresetSchema.entries,
+		...CategorySchema.entries,
 		sort: v.optional(
 			v.pipe(
 				v.number(),
@@ -123,5 +123,5 @@ export const PresetSchemaDeprecated = v.pipe(
 			),
 		),
 	}),
-	v.metadata(v.getMetadata(PresetSchema)),
+	v.metadata(v.getMetadata(CategorySchema)),
 )

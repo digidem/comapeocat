@@ -8,7 +8,7 @@ import * as v from 'valibot'
 import { isParseError } from '../src/lib/errors.js'
 import { assertValidBCP47 } from '../src/lib/utils.js'
 import { MetadataSchemaInput } from '../src/schema/metadata.js'
-import { PresetSchema } from '../src/schema/preset.js'
+import { CategorySchema } from '../src/schema/category.js'
 import { Writer } from '../src/writer.js'
 import { generateDefaults } from './helpers/generate-defaults.js'
 import { lint } from './helpers/lint.js'
@@ -24,7 +24,7 @@ program
 	.option('--version <version>', 'version of the category set')
 	.argument(
 		'[inputDir]',
-		'directory containing presets, fields, defaults and icons',
+		'directory containing categories, fields, defaults and icons',
 		process.cwd(),
 	)
 	.action(async (dir, { output, ...metadata }) => {
@@ -35,8 +35,8 @@ program
 			handleError,
 		)
 		writer.on('error', handleError)
-		/** @type {Map<string, import('../src/schema/preset.js').PresetDeprecatedInput>} */
-		const presetsMap = new Map()
+		/** @type {Map<string, import('../src/schema/category.js').CategoryDeprecatedInput>} */
+		const categoriesMap = new Map()
 		/** @type {import('../src/schema/metadata.js').MetadataInput | undefined} */
 		let fileMetadata
 		/** @type {import('../src/schema/defaults.js').DefaultsInput | undefined} */
@@ -44,13 +44,13 @@ program
 		try {
 			for await (const { type, id, value } of readFiles(dir)) {
 				switch (type) {
-					case 'preset': {
+					case 'category': {
 						// We use the deprecated schema here to generate defaults.json if it's missing
-						presetsMap.set(id, value)
+						categoriesMap.set(id, value)
 						// Currently parsing will migrate, because all that needs done is
 						// removing the `sort` field (v.parse removes unknown fields)
-						const migratedPreset = v.parse(PresetSchema, value)
-						writer.addPreset(id, migratedPreset)
+						const migratedCategory = v.parse(CategorySchema, value)
+						writer.addCategory(id, migratedCategory)
 						break
 					}
 					case 'field':
@@ -84,7 +84,7 @@ program
 			writer.setMetadata(mergedMetadata)
 
 			if (!defaults) {
-				defaults = generateDefaults(presetsMap)
+				defaults = generateDefaults(categoriesMap)
 			}
 			writer.setDefaults(defaults)
 

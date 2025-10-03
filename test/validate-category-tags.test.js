@@ -2,12 +2,12 @@
 import assert from 'node:assert/strict'
 import { describe, test } from 'node:test'
 
-import { validatePresetTags } from '../bin/helpers/validate-preset-tags.js'
+import { validateCategoryTags } from '../bin/helpers/validate-category-tags.js'
 import { DuplicateTagsError } from '../src/lib/errors.js'
 
-describe('validatePresetTags', () => {
-	test('accepts presets with unique tags', () => {
-		const presetsMap = new Map([
+describe('validateCategoryTags', () => {
+	test('accepts categories with unique tags', () => {
+		const categoriesMap = new Map([
 			[
 				'tree',
 				{
@@ -37,11 +37,11 @@ describe('validatePresetTags', () => {
 			],
 		])
 
-		assert.doesNotThrow(() => validatePresetTags(presetsMap))
+		assert.doesNotThrow(() => validateCategoryTags(categoriesMap))
 	})
 
-	test('rejects two presets with identical tags', () => {
-		const presetsMap = new Map([
+	test('rejects two categories with identical tags', () => {
+		const categoriesMap = new Map([
 			[
 				'tree1',
 				{
@@ -62,11 +62,11 @@ describe('validatePresetTags', () => {
 			],
 		])
 
-		assert.throws(() => validatePresetTags(presetsMap), DuplicateTagsError)
+		assert.throws(() => validateCategoryTags(categoriesMap), DuplicateTagsError)
 	})
 
-	test('rejects three presets with identical tags', () => {
-		const presetsMap = new Map([
+	test('rejects three categories with identical tags', () => {
+		const categoriesMap = new Map([
 			[
 				'tree1',
 				{
@@ -96,11 +96,11 @@ describe('validatePresetTags', () => {
 			],
 		])
 
-		assert.throws(() => validatePresetTags(presetsMap), DuplicateTagsError)
+		assert.throws(() => validateCategoryTags(categoriesMap), DuplicateTagsError)
 	})
 
 	test('reports multiple duplicate groups', () => {
-		const presetsMap = new Map([
+		const categoriesMap = new Map([
 			[
 				'tree1',
 				{
@@ -139,11 +139,11 @@ describe('validatePresetTags', () => {
 			],
 		])
 
-		assert.throws(() => validatePresetTags(presetsMap), DuplicateTagsError)
+		assert.throws(() => validateCategoryTags(categoriesMap), DuplicateTagsError)
 	})
 
 	test('detects duplicates regardless of tag key order', () => {
-		const presetsMap = new Map([
+		const categoriesMap = new Map([
 			[
 				'preset1',
 				{
@@ -164,11 +164,11 @@ describe('validatePresetTags', () => {
 			],
 		])
 
-		assert.throws(() => validatePresetTags(presetsMap), DuplicateTagsError)
+		assert.throws(() => validateCategoryTags(categoriesMap), DuplicateTagsError)
 	})
 
 	test('accepts tags with different values', () => {
-		const presetsMap = new Map([
+		const categoriesMap = new Map([
 			[
 				'oak',
 				{
@@ -189,11 +189,11 @@ describe('validatePresetTags', () => {
 			],
 		])
 
-		assert.doesNotThrow(() => validatePresetTags(presetsMap))
+		assert.doesNotThrow(() => validateCategoryTags(categoriesMap))
 	})
 
 	test('handles tags with different types of values', () => {
-		const presetsMap = new Map([
+		const categoriesMap = new Map([
 			[
 				'preset1',
 				{
@@ -214,16 +214,16 @@ describe('validatePresetTags', () => {
 			],
 		])
 
-		assert.throws(() => validatePresetTags(presetsMap), DuplicateTagsError)
+		assert.throws(() => validateCategoryTags(categoriesMap), DuplicateTagsError)
 	})
 
-	test('accepts empty presets map', () => {
-		const presetsMap = new Map()
-		assert.doesNotThrow(() => validatePresetTags(presetsMap))
+	test('accepts empty categories map', () => {
+		const categoriesMap = new Map()
+		assert.doesNotThrow(() => validateCategoryTags(categoriesMap))
 	})
 
-	test('accepts single preset', () => {
-		const presetsMap = new Map([
+	test('accepts single category', () => {
+		const categoriesMap = new Map([
 			[
 				'tree',
 				{
@@ -235,6 +235,6 @@ describe('validatePresetTags', () => {
 			],
 		])
 
-		assert.doesNotThrow(() => validatePresetTags(presetsMap))
+		assert.doesNotThrow(() => validateCategoryTags(categoriesMap))
 	})
 })

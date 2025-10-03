@@ -3,11 +3,11 @@
 [![npm version](https://img.shields.io/npm/v/comapeocat.svg)](https://www.npmjs.com/package/comapeocat)
 [![Build Status](https://img.shields.io/github/actions/workflow/status/digidem/comapeocat/node.yml?branch=main)](https://github.com/digidem/comapeocat/actions)
 
-A JavaScript library for reading and writing CoMapeo Categories files (`.comapeocat`). These files package category definitions (presets), custom fields, icons, and translations for use in [CoMapeo](https://www.comapeo.app) applications.
+A JavaScript library for reading and writing CoMapeo Categories files (`.comapeocat`). These files package category definitions, custom fields, icons, and translations for use in [CoMapeo](https://www.comapeo.app) applications.
 
 ## Features
 
-- **Read** `.comapeocat` files and access presets, fields, icons, and translations
+- **Read** `.comapeocat` files and access categories, fields, icons, and translations
 - **Write** `.comapeocat` files with full validation
 - **Validate** category files against the specification
 - **CLI tool** for creating and inspecting category files
@@ -46,7 +46,7 @@ Build a `.comapeocat` file from a directory containing JSON files and icons.
 
 **Arguments:**
 
-- `[inputDir]` - Directory containing presets, fields, defaults, icons, and messages (default: current directory)
+- `[inputDir]` - Directory containing categories, fields, defaults, icons, and messages (default: current directory)
 
 **Options:**
 
@@ -58,7 +58,7 @@ Build a `.comapeocat` file from a directory containing JSON files and icons.
 
 ```
 inputDir/
-├── presets/
+├── categories/
 │   ├── tree.json
 │   └── river.json
 ├── fields/
@@ -81,7 +81,7 @@ inputDir/
 npx comapeocat build
 
 # Build to a specific file
-npx comapeocat build ./categories --output output.comapeocat
+npx comapeocat build ./my_categories --output output.comapeocat
 
 # Override metadata
 npx comapeocat build --name "My Categories" --version "1.0.0" --output output.comapeocat
@@ -89,11 +89,11 @@ npx comapeocat build --name "My Categories" --version "1.0.0" --output output.co
 
 #### `npx comapeocat lint [inputDir]`
 
-Lint preset and field JSON files to validate against schemas and check references.
+Lint category and field JSON files to validate against schemas and check references.
 
 **Arguments:**
 
-- `[inputDir]` - Directory containing presets and fields (default: current directory)
+- `[inputDir]` - Directory containing categories and fields (default: current directory)
 
 **Example:**
 
@@ -104,11 +104,11 @@ npx comapeocat lint
 
 #### `npx comapeocat messages [inputDir]`
 
-Extract translatable messages from presets and fields for a given language.
+Extract translatable messages from categories and fields for a given language.
 
 **Arguments:**
 
-- `[inputDir]` - Directory containing presets and fields (default: current directory)
+- `[inputDir]` - Directory containing categories and fields (default: current directory)
 
 **Options:**
 
@@ -120,7 +120,7 @@ Extract translatable messages from presets and fields for a given language.
 comapeocat messages --output messages/en.json
 ```
 
-This creates a `messages/<lang>.json` file with all translatable strings extracted from presets and fields. The filename should be a valid BCP 47 language code (e.g., `en`, `es-PE`, `fr`) and the file should be placed in a `messages` subdirectory of the input directory to be picked up by the `build` command.
+This creates a `messages/<lang>.json` file with all translatable strings extracted from categories and fields. The filename should be a valid BCP 47 language code (e.g., `en`, `es-PE`, `fr`) and the file should be placed in a `messages` subdirectory of the input directory to be picked up by the `build` command.
 
 ## VSCode settings for JSON Schema Validation
 
@@ -130,8 +130,8 @@ To enable JSON schema validation in VSCode for the various JSON files used in a 
 {
 	"json.schemas": [
 		{
-			"fileMatch": ["presets/**/*.json"],
-			"url": "./node_modules/comapeocat/dist/schema/preset.json"
+			"fileMatch": ["categories/**/*.json", "presets/**/*.json"],
+			"url": "./node_modules/comapeocat/dist/schema/category.json"
 		},
 		{
 			"fileMatch": ["fields/**/*.json"],
@@ -173,10 +173,10 @@ const reader = new Reader('path/to/categories.comapeocat')
 // Wait for the file to be opened
 await reader.opened()
 
-// Read presets
-const presets = await reader.presets()
-for (const [id, preset] of presets) {
-	console.log(id, preset.name, preset.geometry)
+// Read categories
+const categories = await reader.categories()
+for (const [id, category] of categories) {
+	console.log(id, category.name, category.geometry)
 }
 
 // Read fields
@@ -210,8 +210,8 @@ import { pipeline } from 'stream/promises'
 
 const writer = new Writer()
 
-// Add presets
-writer.addPreset('tree', {
+// Add categories
+writer.addCategory('tree', {
 	name: 'Tree',
 	geometry: ['point'],
 	tags: { natural: 'tree' },
@@ -239,7 +239,7 @@ await writer.addIcon('tree', '<svg>...</svg>')
 
 // Add translations (async)
 await writer.addTranslations('es', {
-	preset: {
+	category: {
 		tree: { name: 'Árbol' },
 	},
 	field: {
@@ -277,9 +277,9 @@ Creates a new reader for a `.comapeocat` file.
 
 Returns a promise that resolves when the file has been successfully opened and validated.
 
-#### `async reader.presets()`
+#### `async reader.categories()`
 
-Returns a `Promise<Map<string, Preset>>` of all presets in the file.
+Returns a `Promise<Map<string, Category>>` of all categories in the file.
 
 #### `async reader.fields()`
 
@@ -287,7 +287,7 @@ Returns a `Promise<Map<string, Field>>` of all fields in the file.
 
 #### `async reader.defaults()`
 
-Returns a `Promise<Defaults>` - the defaults object mapping geometry types to preset IDs.
+Returns a `Promise<Defaults>` - the defaults object mapping geometry types to category IDs.
 
 #### `async reader.metadata()`
 
@@ -347,9 +347,9 @@ Creates a new writer.
 
 - **options.highWaterMark**: `number` - Stream high water mark (default: 1MB)
 
-#### `writer.addPreset(id, preset)` _(synchronous)_
+#### `writer.addCategory(id, category)` _(synchronous)_
 
-Adds a preset definition. Throws if called after `finish()`.
+Adds a category definition. Throws if called after `finish()`.
 
 #### `writer.addField(id, field)` _(synchronous)_
 
@@ -365,7 +365,7 @@ Adds translations for a language. Returns a promise that resolves when translati
 
 #### `writer.setDefaults(defaults)` _(synchronous)_
 
-Sets the defaults object. If not called, defaults are auto-generated based on preset sort order and name. Throws if called after `finish()`.
+Sets the defaults object mapping geometry types to category IDs. Throws if called after `finish()`.
 
 #### `writer.setMetadata(metadata)` _(synchronous)_
 
@@ -386,8 +386,8 @@ The `.comapeocat` file format is a ZIP archive containing JSON configuration fil
 ### Required Files
 
 - `VERSION` - Format version (e.g., "1.0")
-- `presets.json` - Preset definitions
-- `defaults.json` - Default presets for each geometry type
+- `categories.json` - Category definitions
+- `defaults.json` - Default categories for each geometry type
 - `metadata.json` - Package metadata
 
 ### Optional Files

@@ -30,7 +30,7 @@ describe('Writer', () => {
 		const filepath = join(TEST_DIR, 'writer-minimal.comapeocat')
 		const writer = new Writer()
 
-		writer.addPreset('tree', fixtures.presets.tree)
+		writer.addCategory('tree', fixtures.categories.tree)
 		writer.setDefaults(fixtures.defaults.point)
 		writer.setMetadata({ name: 'Test Categories' })
 		writer.finish()
@@ -40,9 +40,9 @@ describe('Writer', () => {
 		const reader = new Reader(filepath)
 		await reader.opened()
 
-		const presets = await reader.presets()
-		assert.equal(presets.size, 1)
-		assert.equal(presets.get('tree').name, 'Tree')
+		const categories = await reader.categories()
+		assert.equal(categories.size, 1)
+		assert.equal(categories.get('tree').name, 'Tree')
 
 		const metadata = await reader.metadata()
 		assert.equal(metadata.name, 'Test Categories')
@@ -55,8 +55,8 @@ describe('Writer', () => {
 		const filepath = join(TEST_DIR, 'writer-full.comapeocat')
 		const writer = new Writer()
 
-		writer.addPreset('tree', fixtures.presets.treeWithFields)
-		writer.addPreset('river', fixtures.presets.riverWithFields)
+		writer.addCategory('tree', fixtures.categories.treeWithFields)
+		writer.addCategory('river', fixtures.categories.riverWithFields)
 
 		writer.addField('species', fixtures.fields.species)
 		writer.addField('height', fixtures.fields.height)
@@ -83,10 +83,10 @@ describe('Writer', () => {
 		const reader = new Reader(filepath)
 		await reader.opened()
 
-		const presets = await reader.presets()
-		assert.equal(presets.size, 2)
-		assert.equal(presets.get('tree').icon, 'tree')
-		assert.equal(presets.get('tree').color, '#228B22')
+		const categories = await reader.categories()
+		assert.equal(categories.size, 2)
+		assert.equal(categories.get('tree').icon, 'tree')
+		assert.equal(categories.get('tree').color, '#228B22')
 
 		const fields = await reader.fields()
 		assert.equal(fields.size, 3)
@@ -111,7 +111,7 @@ describe('Writer', () => {
 	test('throws when no defaults set', async () => {
 		const writer = new Writer()
 
-		writer.addPreset('tree', fixtures.presets.tree)
+		writer.addCategory('tree', fixtures.categories.tree)
 		writer.setMetadata({ name: 'Test' })
 		assert.throws(() => writer.finish(), { name: 'MissingDefaultsError' })
 	})
@@ -119,52 +119,55 @@ describe('Writer', () => {
 	test('throws when adding after finish', async () => {
 		const writer = createTestWriter()
 
-		writer.addPreset('tree', fixtures.presets.tree)
+		writer.addCategory('tree', fixtures.categories.tree)
 		writer.finish()
 
-		assert.throws(() => writer.addPreset('river', fixtures.presets.river), {
-			name: 'AddAfterFinishError',
-		})
+		assert.throws(
+			() => writer.addCategory('river', fixtures.categories.river),
+			{
+				name: 'AddAfterFinishError',
+			},
+		)
 	})
 
 	test('throws when missing metadata', async () => {
 		const writer = new Writer()
-		writer.addPreset('tree', fixtures.presets.tree)
+		writer.addCategory('tree', fixtures.categories.tree)
 
 		assert.throws(() => writer.finish(), { name: 'MissingMetadataError' })
 	})
 
-	test('throws when no presets added', async () => {
+	test('throws when no categories added', async () => {
 		const writer = new Writer()
 		writer.setMetadata({ name: 'Test' })
 
-		assert.throws(() => writer.finish(), { name: 'MissingPresetsError' })
+		assert.throws(() => writer.finish(), { name: 'MissingCategoriesError' })
 	})
 
-	test('validates preset references to fields', async () => {
+	test('validates category references to fields', async () => {
 		const writer = new Writer()
 
-		writer.addPreset('tree', {
-			...fixtures.presets.tree,
+		writer.addCategory('tree', {
+			...fixtures.categories.tree,
 			fields: ['nonexistent'],
 		})
 
 		writer.setMetadata({ name: 'Test' })
 
-		assert.throws(() => writer.finish(), { name: 'PresetRefError' })
+		assert.throws(() => writer.finish(), { name: 'CategoryRefError' })
 	})
 
-	test('validates preset references to icons', async () => {
+	test('validates category references to icons', async () => {
 		const writer = new Writer()
 
-		writer.addPreset('tree', {
-			...fixtures.presets.tree,
+		writer.addCategory('tree', {
+			...fixtures.categories.tree,
 			icon: 'nonexistent',
 		})
 
 		writer.setMetadata({ name: 'Test' })
 
-		assert.throws(() => writer.finish(), { name: 'PresetRefError' })
+		assert.throws(() => writer.finish(), { name: 'CategoryRefError' })
 	})
 
 	test('validates field schema', async () => {
@@ -182,12 +185,12 @@ describe('Writer', () => {
 		)
 	})
 
-	test('validates preset schema', async () => {
+	test('validates category schema', async () => {
 		const writer = new Writer()
 
 		assert.throws(
 			() => {
-				writer.addPreset('invalid', { name: 'Test' })
+				writer.addCategory('invalid', { name: 'Test' })
 			},
 			{ name: 'ValiError' },
 		)
@@ -208,7 +211,7 @@ describe('Writer', () => {
 		const filepath = join(TEST_DIR, 'writer-svg.comapeocat')
 		const writer = createTestWriter()
 
-		writer.addPreset('tree', { ...fixtures.presets.tree, icon: 'tree' })
+		writer.addCategory('tree', { ...fixtures.categories.tree, icon: 'tree' })
 		await writer.addIcon('tree', fixtures.icons.complex)
 		writer.finish()
 
@@ -232,7 +235,7 @@ describe('Writer', () => {
 		await assert.rejects(
 			async () => {
 				await writer.addTranslations('es', {
-					preset: {
+					category: {
 						tree: [{ propertyRef: 'name' }], // Missing message
 					},
 					field: {},
@@ -271,17 +274,17 @@ describe('Writer', () => {
 		const filepath = join(TEST_DIR, 'writer-multi-geom.comapeocat')
 		const writer = createTestWriter()
 
-		writer.addPreset('water', fixtures.presets.multiGeometry)
+		writer.addCategory('water', fixtures.categories.multiGeometry)
 		writer.finish()
 
 		await pipeline(writer.outputStream, createWriteStream(filepath))
 
 		const reader = new Reader(filepath)
-		const presets = await reader.presets()
+		const categories = await reader.categories()
 
-		assert.ok(presets.get('water')?.geometry.includes('point'))
-		assert.ok(presets.get('water')?.geometry.includes('line'))
-		assert.ok(presets.get('water')?.geometry.includes('area'))
+		assert.ok(categories.get('water')?.geometry.includes('point'))
+		assert.ok(categories.get('water')?.geometry.includes('line'))
+		assert.ok(categories.get('water')?.geometry.includes('area'))
 
 		await reader.close()
 	})
@@ -290,8 +293,8 @@ describe('Writer', () => {
 		const filepath = join(TEST_DIR, 'writer-select.comapeocat')
 		const writer = createTestWriter()
 
-		writer.addPreset('tree', {
-			...fixtures.presets.tree,
+		writer.addCategory('tree', {
+			...fixtures.categories.tree,
 			fields: ['condition'],
 		})
 

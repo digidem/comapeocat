@@ -1,24 +1,29 @@
 import {
-	PresetRefError,
+	CategoryRefError,
 	InvalidDefaultsError,
 	DefaultsRefError,
 } from './errors.js'
 import { addRefToMap, typedEntries } from './utils.js'
 
 /**
- * Validate preset references to fields, icons, and defaults geometry types.
+ * Validate category references to fields, icons, and defaults geometry types.
  * Throws errors if any invalid references are found.
  *
  * @param {object} params
- * @param {Map<string, {fields: string[], icon?: string, geometry: string[]}>} params.presets - Map of preset ID to preset data
+ * @param {Map<string, {fields: string[], icon?: string, geometry: string[]}>} params.categories - Map of category ID to category data
  * @param {Set<string> | Map<string, unknown>} params.fieldIds - Set of field IDs or Map with field IDs as keys
  * @param {Set<string>} params.iconIds - Set of icon IDs
- * @param {Record<string, string[]>} [params.defaults] - Optional defaults object mapping geometry types to preset IDs
- * @throws {import('./errors.js').PresetRefError} When field or icon references are missing
- * @throws {import('./errors.js').InvalidDefaultsError} When presets in defaults don't support the geometry type
+ * @param {Record<string, string[]>} [params.defaults] - Optional defaults object mapping geometry types to category IDs
+ * @throws {CategoryRefError} When field or icon references are missing
+ * @throws {import('./errors.js').InvalidDefaultsError} When categories in defaults don't support the geometry type
  */
 
-export function validateReferences({ presets, fieldIds, iconIds, defaults }) {
+export function validateReferences({
+	categories,
+	fieldIds,
+	iconIds,
+	defaults,
+}) {
 	/** @type {Map<string, Set<string>>} */
 	const missingIconRefs = new Map()
 	/** @type {Map<string, Set<string>>} */
@@ -28,26 +33,26 @@ export function validateReferences({ presets, fieldIds, iconIds, defaults }) {
 	const fieldIdSet =
 		fieldIds instanceof Map ? new Set(fieldIds.keys()) : fieldIds
 
-	// Check field and icon references in presets
-	for (const [presetId, preset] of presets.entries()) {
-		for (const fieldId of preset.fields) {
+	// Check field and icon references in categories
+	for (const [categoryId, category] of categories.entries()) {
+		for (const fieldId of category.fields) {
 			if (!fieldIdSet.has(fieldId)) {
-				addRefToMap(missingFieldRefs, fieldId, presetId)
+				addRefToMap(missingFieldRefs, fieldId, categoryId)
 			}
 		}
-		if (preset.icon && !iconIds.has(preset.icon)) {
-			addRefToMap(missingIconRefs, preset.icon, presetId)
+		if (category.icon && !iconIds.has(category.icon)) {
+			addRefToMap(missingIconRefs, category.icon, categoryId)
 		}
 	}
 
 	if (missingFieldRefs.size > 0) {
-		throw new PresetRefError({
+		throw new CategoryRefError({
 			missingRefs: missingFieldRefs,
 			property: 'field',
 		})
 	}
 	if (missingIconRefs.size > 0) {
-		throw new PresetRefError({
+		throw new CategoryRefError({
 			missingRefs: missingIconRefs,
 			property: 'icon',
 		})
@@ -58,14 +63,14 @@ export function validateReferences({ presets, fieldIds, iconIds, defaults }) {
 		/** @type {Map<string, Set<string>>} */
 		const invalidGeometryRefs = new Map()
 
-		for (const [geometryType, presetIds] of typedEntries(defaults)) {
-			for (const presetId of presetIds) {
-				const preset = presets.get(presetId)
-				if (!preset) {
-					throw new DefaultsRefError({ presetId, geometryType })
+		for (const [geometryType, categoryIds] of typedEntries(defaults)) {
+			for (const categoryId of categoryIds) {
+				const category = categories.get(categoryId)
+				if (!category) {
+					throw new DefaultsRefError({ categoryId, geometryType })
 				}
-				if (preset && !preset.geometry.includes(geometryType)) {
-					addRefToMap(invalidGeometryRefs, geometryType, presetId)
+				if (category && !category.geometry.includes(geometryType)) {
+					addRefToMap(invalidGeometryRefs, geometryType, categoryId)
 				}
 			}
 		}

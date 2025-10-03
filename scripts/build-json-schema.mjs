@@ -3,17 +3,17 @@ import fs from 'node:fs'
 
 import { toJsonSchema } from '@valibot/to-json-schema'
 
+import { CategorySchemaDeprecated } from '../src/schema/category.js'
 import { DefaultsSchema } from '../src/schema/defaults.js'
 import { FieldSchema } from '../src/schema/field.js'
 import { MessagesSchema } from '../src/schema/messages.js'
-import { PresetSchemaDeprecated } from '../src/schema/preset.js'
 
 const outDir = new URL('../dist/schema/', import.meta.url)
 
 fs.rmSync(outDir, { recursive: true, force: true })
 fs.mkdirSync(outDir, { recursive: true })
 
-const presetSchemaJson = toJsonSchema(PresetSchemaDeprecated, {
+const categorySchemaJson = toJsonSchema(CategorySchemaDeprecated, {
 	typeMode: 'input',
 	ignoreActions: ['check'],
 	overrideAction({ valibotAction, jsonSchema }) {
@@ -44,8 +44,8 @@ const messagesSchemaJson = toJsonSchema(MessagesSchema, {
 })
 
 fs.writeFileSync(
-	new URL('preset.json', outDir),
-	JSON.stringify(presetSchemaJson, null, 2),
+	new URL('category.json', outDir),
+	JSON.stringify(categorySchemaJson, null, 2),
 )
 fs.writeFileSync(
 	new URL('field.json', outDir),

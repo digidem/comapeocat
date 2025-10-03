@@ -5,8 +5,8 @@ import { fileURLToPath } from 'node:url'
 import { faker } from '@faker-js/faker'
 import { Valimock } from 'valimock'
 
+import { CategorySchemaDeprecated } from '../../src/schema/category.js'
 import { FieldSchema } from '../../src/schema/field.js'
-import { PresetSchemaDeprecated } from '../../src/schema/preset.js'
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
 
@@ -37,30 +37,30 @@ const field2 = valimock.mock(FieldSchema)
 writeJSON(join(noDefaultsDir, 'fields'), 'field1.json', field1)
 writeJSON(join(noDefaultsDir, 'fields'), 'field2.json', field2)
 
-const preset1 = valimock.mock(PresetSchemaDeprecated)
+const preset1 = valimock.mock(CategorySchemaDeprecated)
 preset1.fields = ['field1']
 // @ts-expect-error
 preset1.geometry = ['point']
 delete preset1.icon
 delete preset1.sort
 
-const preset2 = valimock.mock(PresetSchemaDeprecated)
+const preset2 = valimock.mock(CategorySchemaDeprecated)
 preset2.fields = ['field2']
 // @ts-expect-error
 preset2.geometry = ['line']
 delete preset2.icon
 delete preset2.sort
 
-const preset3 = valimock.mock(PresetSchemaDeprecated)
+const preset3 = valimock.mock(CategorySchemaDeprecated)
 preset3.fields = ['field1', 'field2']
 // @ts-expect-error
 preset3.geometry = ['area']
 delete preset3.icon
 delete preset3.sort
 
-writeJSON(join(noDefaultsDir, 'presets'), 'preset1.json', preset1)
-writeJSON(join(noDefaultsDir, 'presets'), 'preset2.json', preset2)
-writeJSON(join(noDefaultsDir, 'presets'), 'preset3.json', preset3)
+writeJSON(join(noDefaultsDir, 'categories'), 'preset1.json', preset1)
+writeJSON(join(noDefaultsDir, 'categories'), 'preset2.json', preset2)
+writeJSON(join(noDefaultsDir, 'categories'), 'preset3.json', preset3)
 
 writeJSON(noDefaultsDir, 'metadata.json', {
 	name: 'No Defaults Test',
@@ -74,30 +74,30 @@ const sortField1 = valimock.mock(FieldSchema)
 writeJSON(join(withSortDir, 'fields'), 'field1.json', sortField1)
 
 // Create presets with sort field in specific order
-const sortPreset1 = valimock.mock(PresetSchemaDeprecated)
+const sortPreset1 = valimock.mock(CategorySchemaDeprecated)
 sortPreset1.fields = ['field1']
 // @ts-expect-error
 sortPreset1.geometry = ['point']
 sortPreset1.sort = 3 // Should appear third
 delete sortPreset1.icon
 
-const sortPreset2 = valimock.mock(PresetSchemaDeprecated)
+const sortPreset2 = valimock.mock(CategorySchemaDeprecated)
 sortPreset2.fields = ['field1']
 // @ts-expect-error
 sortPreset2.geometry = ['point']
 sortPreset2.sort = 1 // Should appear first
 delete sortPreset2.icon
 
-const sortPreset3 = valimock.mock(PresetSchemaDeprecated)
+const sortPreset3 = valimock.mock(CategorySchemaDeprecated)
 sortPreset3.fields = ['field1']
 // @ts-expect-error
 sortPreset3.geometry = ['point']
 sortPreset3.sort = 2 // Should appear second
 delete sortPreset3.icon
 
-writeJSON(join(withSortDir, 'presets'), 'preset1.json', sortPreset1)
-writeJSON(join(withSortDir, 'presets'), 'preset2.json', sortPreset2)
-writeJSON(join(withSortDir, 'presets'), 'preset3.json', sortPreset3)
+writeJSON(join(withSortDir, 'categories'), 'preset1.json', sortPreset1)
+writeJSON(join(withSortDir, 'categories'), 'preset2.json', sortPreset2)
+writeJSON(join(withSortDir, 'categories'), 'preset3.json', sortPreset3)
 
 writeJSON(withSortDir, 'metadata.json', {
 	name: 'With Sort Test',
@@ -113,20 +113,20 @@ const completeField2 = valimock.mock(FieldSchema)
 writeJSON(join(completeDir, 'fields'), 'field1.json', completeField1)
 writeJSON(join(completeDir, 'fields'), 'field2.json', completeField2)
 
-const completePreset1 = valimock.mock(PresetSchemaDeprecated)
+const completePreset1 = valimock.mock(CategorySchemaDeprecated)
 completePreset1.fields = ['field1', 'field2']
 completePreset1.icon = 'icon1'
 // @ts-expect-error
 completePreset1.geometry = ['point']
 
-const completePreset2 = valimock.mock(PresetSchemaDeprecated)
+const completePreset2 = valimock.mock(CategorySchemaDeprecated)
 completePreset2.fields = ['field2']
 completePreset2.icon = 'icon2'
 // @ts-expect-error
 completePreset2.geometry = ['line']
 
-writeJSON(join(completeDir, 'presets'), 'preset1.json', completePreset1)
-writeJSON(join(completeDir, 'presets'), 'preset2.json', completePreset2)
+writeJSON(join(completeDir, 'categories'), 'preset1.json', completePreset1)
+writeJSON(join(completeDir, 'categories'), 'preset2.json', completePreset2)
 
 mkdirSync(join(completeDir, 'icons'), { recursive: true })
 writeFileSync(
@@ -150,7 +150,7 @@ writeJSON(completeDir, 'metadata.json', {
 })
 
 writeJSON(join(completeDir, 'messages'), 'en.json', {
-	'preset.preset1.name': {
+	'category.preset1.name': {
 		message: completePreset1.name,
 		description: "The name of category 'preset1'",
 	},

@@ -4,8 +4,8 @@ import { unEscapePath } from '../../src/lib/utils.js'
 
 /**
  * @typedef {object} ParsedMessageId
- * @property {string} docType - 'preset' or 'field'
- * @property {string} docId - The ID of the preset or field
+ * @property {string} docType - 'category' or 'field'
+ * @property {string} docId - The ID of the category or field
  * @property {string} propertyRef - The property reference in dot-prop notation (e.g. 'name', 'options.0.label')
  */
 
@@ -20,13 +20,13 @@ const UNESCAPED_DOTS_REGEX = /(?<!\\)\./g
  */
 export function messagesToTranslations(messages) {
 	/** @type {Required<TranslationsOutput>} */
-	const translations = { preset: {}, field: {} }
+	const translations = { category: {}, field: {} }
 
 	for (const [messageId, value] of Object.entries(messages)) {
 		if (!value?.message) continue
 		const { docType, docId, propertyRef } = parseMessageId(messageId)
 
-		if (docType === 'preset' || docType === 'field') {
+		if (docType === 'category' || docType === 'field') {
 			translations[docType][docId] = {
 				...translations[docType][docId],
 				[propertyRef]: value.message,

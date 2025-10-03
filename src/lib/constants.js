@@ -1,4 +1,5 @@
-export const PRESETS_DIR = 'presets'
+export const CATEGORIES_DIR = 'categories'
+export const PRESETS_DIR = 'presets' // Deprecated: for backwards compatibility
 export const FIELDS_DIR = 'fields'
 export const ICONS_DIR = 'icons'
 export const MESSAGES_DIR = 'messages'

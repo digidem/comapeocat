@@ -50,7 +50,7 @@ describe('CLI lint command', () => {
 			)
 		})
 
-		test('should throw DefaultsRefError for missing preset in defaults', async () => {
+		test('should throw DefaultsRefError for missing category in defaults', async () => {
 			const fixturePath = join(
 				FIXTURES_DIR,
 				'invalid',
@@ -60,7 +60,7 @@ describe('CLI lint command', () => {
 				() => execa('node', [CLI_PATH, fixturePath]),
 				(error) => {
 					assert.equal(error.exitCode, 1)
-					assert.match(error.stderr, /Preset "nonexistent_preset"/)
+					assert.match(error.stderr, /Category "nonexistent_preset"/)
 					return true
 				},
 			)

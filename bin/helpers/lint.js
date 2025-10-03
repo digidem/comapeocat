@@ -4,11 +4,11 @@ import { addRefToMap } from '../../src/lib/utils.js'
 import { validateReferences } from '../../src/lib/validate-references.js'
 import { parseMessageId } from './messages-to-translations.js'
 import { readFiles } from './read-files.js'
-import { validatePresetTags } from './validate-preset-tags.js'
+import { validateCategoryTags } from './validate-category-tags.js'
 
 /** @import {DefaultsInput} from '../../src/schema/defaults.js' */
 /** @import {MetadataInput} from '../../src/schema/metadata.js' */
-/** @import {PresetInput, PresetDeprecatedInput} from '../../src/schema/preset.js' */
+/** @import {CategoryInput, CategoryDeprecatedInput} from '../../src/schema/category.js' */
 /** @import {FieldInput} from '../../src/schema/field.js' */
 /** @import {Entries} from 'type-fest' */
 /**
@@ -24,8 +24,8 @@ export async function lint(dir) {
 	const fields = new Map()
 	/** @type {Set<string>} */
 	const iconIds = new Set()
-	/** @type {Map<string, PresetInput | PresetDeprecatedInput>} */
-	const presets = new Map()
+	/** @type {Map<string, CategoryInput | CategoryDeprecatedInput>} */
+	const categories = new Map()
 	/** @type {DefaultsInput | undefined} */
 	let defaults = undefined
 	/** @type {Set<import('../../src/schema/messages.js').MessagesInput>} */
@@ -38,7 +38,7 @@ export async function lint(dir) {
 	const successes = []
 
 	const counts = {
-		preset: 0,
+		category: 0,
 		field: 0,
 		icon: 0,
 		messages: 0,
@@ -55,8 +55,8 @@ export async function lint(dir) {
 			case 'icon':
 				iconIds.add(id)
 				break
-			case 'preset':
-				presets.set(id, value)
+			case 'category':
+				categories.set(id, value)
 				for (const fieldRef of value.fields) {
 					addRefToMap(fieldRefs, fieldRef, id)
 				}
@@ -89,10 +89,10 @@ export async function lint(dir) {
 	for (const msgs of messages) {
 		for (const msgId of Object.keys(msgs)) {
 			const { docType, docId, propertyRef } = parseMessageId(msgId)
-			/** @type {PresetInput | FieldInput | undefined} */
+			/** @type {CategoryInput | FieldInput | undefined} */
 			let doc
-			if (docType === 'preset') {
-				doc = presets.get(docId)
+			if (docType === 'category') {
+				doc = categories.get(docId)
 			} else if (docType === 'field') {
 				doc = fields.get(docId)
 			}
@@ -117,14 +117,16 @@ export async function lint(dir) {
 		warnings.push(...messagesWarnings)
 	}
 
-	validatePresetTags(presets)
-	successes.push(`✓ All presets have tags which are unique`)
+	validateCategoryTags(categories)
+	successes.push(`✓ All categories have tags which are unique`)
 	const fieldIds = new Set(fields.keys())
-	validateReferences({ presets, fieldIds, iconIds, defaults })
-	successes.push(`✓ All presets reference existing fields and icons`)
+	validateReferences({ categories, fieldIds, iconIds, defaults })
+	successes.push(`✓ All categories reference existing fields and icons`)
 	if (defaults) {
-		successes.push(`✓ Defaults file references existing presets`)
-		successes.push(`✓ Defaults file references presets with matching geometry`)
+		successes.push(`✓ Defaults file references existing categories`)
+		successes.push(
+			`✓ Defaults file references categories with matching geometry`,
+		)
 	}
 
 	// Currently validateReferences does not report warnings, so lint does that below:
@@ -139,14 +141,14 @@ export async function lint(dir) {
 	if (fieldIds.size > 0) {
 		extraFieldWarning = `⚠️ Warning: ${fieldIds.size} field file${
 			fieldIds.size > 1 ? 's' : ''
-		} found with no presets referencing them:\n${[...fieldIds]
+		} found with no categories referencing them:\n${[...fieldIds]
 			.map((id) => `  - ${id}`)
 			.join('\n')}`
 	}
 	if (extraFieldWarning) {
 		warnings.push(extraFieldWarning)
 	} else {
-		successes.push(`✓ All field files are referenced by at least one preset`)
+		successes.push(`✓ All field files are referenced by at least one category`)
 	}
 
 	for (const iconId of iconIds) {
@@ -159,14 +161,14 @@ export async function lint(dir) {
 	if (iconIds.size > 0) {
 		extraIconWarning = `⚠️ Warning: ${iconIds.size} icon file${
 			iconIds.size > 1 ? 's' : ''
-		} found with no presets referencing them:\n${[...iconIds]
+		} found with no categories referencing them:\n${[...iconIds]
 			.map((id) => `  - ${id}`)
 			.join('\n')}`
 	}
 	if (extraIconWarning) {
 		warnings.push(extraIconWarning)
 	} else {
-		successes.push(`✓ All icon files are referenced by at least one preset`)
+		successes.push(`✓ All icon files are referenced by at least one category`)
 	}
 
 	// Write to stderr, because stdout could be used for piping output
