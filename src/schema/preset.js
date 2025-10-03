@@ -45,6 +45,7 @@ export const PresetSchema = v.pipe(
 	v.object({
 		name: v.pipe(
 			v.string(),
+			v.minLength(1),
 			v.description('Name for the feature in default language.'),
 		),
 		geometry: GeometrySchema,

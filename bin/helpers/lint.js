@@ -1,9 +1,15 @@
+import { hasProperty } from 'dot-prop'
+
 import { addRefToMap } from '../../src/lib/utils.js'
 import { validateReferences } from '../../src/lib/validate-references.js'
+import { parseMessageId } from './messages-to-translations.js'
 import { readFiles } from './read-files.js'
 import { validatePresetTags } from './validate-preset-tags.js'
 
-/** @import {DefaultsOutput} from '../../src/schema/defaults.js' */
+/** @import {DefaultsInput} from '../../src/schema/defaults.js' */
+/** @import {MetadataInput} from '../../src/schema/metadata.js' */
+/** @import {PresetInput, PresetDeprecatedInput} from '../../src/schema/preset.js' */
+/** @import {FieldInput} from '../../src/schema/field.js' */
 /** @import {Entries} from 'type-fest' */
 /**
  * Lint and validate categories in a folder
@@ -14,16 +20,22 @@ export async function lint(dir) {
 	const fieldRefs = new Map()
 	/** @type {Map<string, Set<string>>} */
 	const iconRefs = new Map()
-	/** @type {Set<string>} */
-	const fieldIds = new Set()
+	/** @type {Map<string, FieldInput>} */
+	const fields = new Map()
 	/** @type {Set<string>} */
 	const iconIds = new Set()
-	/** @type {Map<string, import('../../src/schema/preset.js').PresetDeprecatedInput>} */
+	/** @type {Map<string, PresetInput | PresetDeprecatedInput>} */
 	const presets = new Map()
-	/** @type {DefaultsOutput | undefined} */
+	/** @type {DefaultsInput | undefined} */
 	let defaults = undefined
+	/** @type {Set<import('../../src/schema/messages.js').MessagesInput>} */
+	const messages = new Set()
+	/** @type {string[]} */
+	const messagesWarnings = []
 	/** @type {string[]} */
 	const warnings = []
+	/** @type {string[]} */
+	const successes = []
 
 	const counts = {
 		preset: 0,
@@ -38,7 +50,7 @@ export async function lint(dir) {
 		counts[type]++
 		switch (type) {
 			case 'field':
-				fieldIds.add(id)
+				fields.set(id, value)
 				break
 			case 'icon':
 				iconIds.add(id)
@@ -55,11 +67,65 @@ export async function lint(dir) {
 			case 'defaults':
 				defaults = value
 				break
+			case 'messages':
+				messages.add(value)
+				break
 		}
 	}
 
+	for (const [type, count] of Object.entries(counts)) {
+		if (['metadata', 'defaults'].includes(type) && count === 0) {
+			warnings.push(`⚠️ Warning: No ${type}.json file found`)
+			continue
+		}
+		if (count) {
+			successes.push(`✓ ${count} valid ${type} file${count > 1 ? 's' : ''}`)
+		} else {
+			warnings.push(`⚠️ Warning: No ${type} file found`)
+		}
+	}
+
+	// Validate messages
+	for (const msgs of messages) {
+		for (const msgId of Object.keys(msgs)) {
+			const { docType, docId, propertyRef } = parseMessageId(msgId)
+			/** @type {PresetInput | FieldInput | undefined} */
+			let doc
+			if (docType === 'preset') {
+				doc = presets.get(docId)
+			} else if (docType === 'field') {
+				doc = fields.get(docId)
+			}
+			if (!doc) {
+				messagesWarnings.push(
+					`⚠️ Warning: Message ID "${msgId}" references non-existent ${docType} "${docId}"`,
+				)
+				continue
+			}
+			if (!hasProperty(doc, propertyRef)) {
+				messagesWarnings.push(
+					`⚠️ Warning: Message ID "${msgId}" references non-existent property "${propertyRef}" in ${docType} "${docId}"`,
+				)
+			}
+		}
+	}
+	if (!messagesWarnings.length && messages.size > 0) {
+		successes.push(
+			`✓ All ${messages.size} message${messages.size > 1 ? 's' : ''} files valid`,
+		)
+	} else {
+		warnings.push(...messagesWarnings)
+	}
+
 	validatePresetTags(presets)
+	successes.push(`✓ All presets have tags which are unique`)
+	const fieldIds = new Set(fields.keys())
 	validateReferences({ presets, fieldIds, iconIds, defaults })
+	successes.push(`✓ All presets reference existing fields and icons`)
+	if (defaults) {
+		successes.push(`✓ Defaults file references existing presets`)
+		successes.push(`✓ Defaults file references presets with matching geometry`)
+	}
 
 	// Currently validateReferences does not report warnings, so lint does that below:
 
@@ -69,13 +135,18 @@ export async function lint(dir) {
 		}
 	}
 
+	let extraFieldWarning = ''
 	if (fieldIds.size > 0) {
-		const warning = `⚠️ Warning: ${fieldIds.size} field file${
+		extraFieldWarning = `⚠️ Warning: ${fieldIds.size} field file${
 			fieldIds.size > 1 ? 's' : ''
 		} found with no presets referencing them:\n${[...fieldIds]
 			.map((id) => `  - ${id}`)
 			.join('\n')}`
-		warnings.push(warning)
+	}
+	if (extraFieldWarning) {
+		warnings.push(extraFieldWarning)
+	} else {
+		successes.push(`✓ All field files are referenced by at least one preset`)
 	}
 
 	for (const iconId of iconIds) {
@@ -84,27 +155,23 @@ export async function lint(dir) {
 		}
 	}
 
+	let extraIconWarning = ''
 	if (iconIds.size > 0) {
-		const warning = `⚠️ Warning: ${iconIds.size} icon file${
+		extraIconWarning = `⚠️ Warning: ${iconIds.size} icon file${
 			iconIds.size > 1 ? 's' : ''
 		} found with no presets referencing them:\n${[...iconIds]
 			.map((id) => `  - ${id}`)
 			.join('\n')}`
-		warnings.push(warning)
 	}
-
-	let successMessage = ''
-	for (const [type, count] of Object.entries(counts)) {
-		if (['metadata', 'defaults'].includes(type) && count === 0) {
-			warnings.push(`⚠️ Warning: No ${type}.json file found`)
-			continue
-		}
-		successMessage += `✓ ${count} valid ${type} file${count > 1 ? 's' : ''}\n`
+	if (extraIconWarning) {
+		warnings.push(extraIconWarning)
+	} else {
+		successes.push(`✓ All icon files are referenced by at least one preset`)
 	}
 
 	// Write to stderr, because stdout could be used for piping output
-	console.warn(successMessage)
+	console.warn(successes.join('\n'))
 	if (warnings.length > 0) {
-		console.warn(warnings.join('\n'))
+		console.warn('\n' + warnings.join('\n'))
 	}
 }

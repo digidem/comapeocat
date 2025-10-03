@@ -18,11 +18,14 @@ import { DefaultsSchema } from '../../src/schema/defaults.js'
 import { FieldSchema } from '../../src/schema/field.js'
 import { MessagesSchema } from '../../src/schema/messages.js'
 import { MetadataSchemaInput } from '../../src/schema/metadata.js'
-import { PresetSchemaDeprecated } from '../../src/schema/preset.js'
+import {
+	PresetSchema,
+	PresetSchemaDeprecated,
+} from '../../src/schema/preset.js'
 import { jsonFiles } from './json-files.js'
 
 /**
- * @import {PresetDeprecatedInput} from '../../src/schema/preset.js'
+ * @import {PresetDeprecatedInput, PresetInput} from '../../src/schema/preset.js'
  * @import {FieldInput} from '../../src/schema/field.js'
  * @import {DefaultsInput} from '../../src/schema/defaults.js'
  * @import {MetadataInput} from '../../src/schema/metadata.js'
@@ -34,7 +37,7 @@ import { jsonFiles } from './json-files.js'
  *
  * @param {string} dir - Directory path
  * @returns {AsyncGenerator<
- *  | { type: 'preset', id: string, value: PresetDeprecatedInput }
+ *  | { type: 'preset', id: string, value: PresetDeprecatedInput | PresetInput }
  *  | { type: 'field', id: string, value: FieldInput }
  *  | { type: 'defaults', id: 'defaults', value: DefaultsInput }
  *  | { type: 'icon', id: string, value: string }
@@ -44,7 +47,9 @@ import { jsonFiles } from './json-files.js'
  */
 export async function* readFiles(dir) {
 	for await (const { name, data } of jsonFiles(path.join(dir, PRESETS_DIR))) {
-		assertSchema(PresetSchemaDeprecated, data, { fileName: name })
+		assertSchema(v.union([PresetSchema, PresetSchemaDeprecated]), data, {
+			fileName: name,
+		})
 		yield { type: 'preset', id: nameToId(name), value: data }
 	}
 

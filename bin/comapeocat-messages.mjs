@@ -37,17 +37,21 @@ program
 				case 'field':
 					messages[`field.${escapedId}.label`] = {
 						description: `Label for field '${id}'`,
-						message: value.label || '',
+						message: value.label,
 					}
 
-					messages[`field.${escapedId}.helperText`] = {
-						description: `Descriptive text shown under the label for field '${id}'`,
-						message: value.helperText || '',
+					if (value.helperText) {
+						messages[`field.${escapedId}.helperText`] = {
+							description: `Descriptive text shown under the label for field '${id}'`,
+							message: value.helperText,
+						}
 					}
 
-					messages[`field.${escapedId}.placeholder`] = {
-						description: `Example input for field '${id}' (only visible for text and number fields)`,
-						message: value.placeholder || '',
+					if (value.placeholder) {
+						messages[`field.${escapedId}.placeholder`] = {
+							description: `Example input for field '${id}' (only visible for text and number fields)`,
+							message: value.placeholder,
+						}
 					}
 
 					if ('options' in value && Array.isArray(value.options)) {
