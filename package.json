@@ -37,8 +37,7 @@
 	"files": [
 		"dist/",
 		"bin/",
-		"src/",
-		"test/"
+		"src/"
 	],
 	"dependencies": {
 		"@commander-js/extra-typings": "^14.0.0",
