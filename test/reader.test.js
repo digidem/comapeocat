@@ -30,7 +30,7 @@ describe('Reader', () => {
 				version: '1.0',
 				files: {
 					'categories.json': { tree: fixtures.categories.tree },
-					'defaults.json': fixtures.defaults.point,
+					'categorySelection.json': fixtures.categorySelection.point,
 					'metadata.json': fixtures.metadata.minimal,
 				},
 			})
@@ -47,7 +47,7 @@ describe('Reader', () => {
 				version: '1.5',
 				files: {
 					'categories.json': { tree: fixtures.categories.tree },
-					'defaults.json': fixtures.defaults.point,
+					'categorySelection.json': fixtures.categorySelection.point,
 					'metadata.json': fixtures.metadata.minimal,
 				},
 			})
@@ -64,7 +64,7 @@ describe('Reader', () => {
 				version: '2.0',
 				files: {
 					'categories.json': { tree: fixtures.categories.tree },
-					'defaults.json': fixtures.defaults.point,
+					'categorySelection.json': fixtures.categorySelection.point,
 					'metadata.json': fixtures.metadata.minimal,
 				},
 			})
@@ -83,7 +83,7 @@ describe('Reader', () => {
 				version: 'invalid',
 				files: {
 					'categories.json': { tree: fixtures.categories.tree },
-					'defaults.json': fixtures.defaults.point,
+					'categorySelection.json': fixtures.categorySelection.point,
 					'metadata.json': fixtures.metadata.minimal,
 				},
 			})
@@ -102,7 +102,7 @@ describe('Reader', () => {
 				version: null,
 				files: {
 					'categories.json': { tree: fixtures.categories.tree },
-					'defaults.json': fixtures.defaults.point,
+					'categorySelection.json': fixtures.categorySelection.point,
 					'metadata.json': fixtures.metadata.minimal,
 				},
 			})
@@ -119,7 +119,7 @@ describe('Reader', () => {
 			await createTestZip({
 				filepath,
 				files: {
-					'defaults.json': { point: [], line: [], area: [] },
+					'categorySelection.json': { point: [], line: [], area: [] },
 					'metadata.json': fixtures.metadata.minimal,
 				},
 			})
@@ -131,8 +131,8 @@ describe('Reader', () => {
 			await reader.close()
 		})
 
-		test('rejects missing defaults.json', async () => {
-			const filepath = join(TEST_DIR, 'no-defaults.comapeocat')
+		test('rejects missing categorySelection.json', async () => {
+			const filepath = join(TEST_DIR, 'no-categorySelection.comapeocat')
 			await createTestZip({
 				filepath,
 				files: {
@@ -143,7 +143,7 @@ describe('Reader', () => {
 
 			const reader = new Reader(filepath)
 			await assert.rejects(() => reader.opened(), {
-				name: 'MissingDefaultsError',
+				name: 'MissingCategorySelectionError',
 			})
 			await reader.close()
 		})
@@ -154,7 +154,7 @@ describe('Reader', () => {
 				filepath,
 				files: {
 					'categories.json': { tree: fixtures.categories.tree },
-					'defaults.json': fixtures.defaults.point,
+					'categorySelection.json': fixtures.categorySelection.point,
 				},
 			})
 
@@ -176,7 +176,11 @@ describe('Reader', () => {
 						tree: fixtures.categories.tree,
 						water: fixtures.categories.water,
 					},
-					'defaults.json': { point: ['tree'], line: [], area: ['water'] },
+					'categorySelection.json': {
+						point: ['tree'],
+						line: [],
+						area: ['water'],
+					},
 					'metadata.json': fixtures.metadata.minimal,
 				},
 			})
@@ -204,7 +208,7 @@ describe('Reader', () => {
 						},
 					},
 					'fields.json': { species: fixtures.fields.species },
-					'defaults.json': fixtures.defaults.point,
+					'categorySelection.json': fixtures.categorySelection.point,
 					'metadata.json': fixtures.metadata.minimal,
 				},
 			})
@@ -225,7 +229,7 @@ describe('Reader', () => {
 				filepath,
 				files: {
 					'categories.json': { tree: fixtures.categories.tree },
-					'defaults.json': fixtures.defaults.point,
+					'categorySelection.json': fixtures.categorySelection.point,
 					'metadata.json': fixtures.metadata.minimal,
 				},
 			})
@@ -237,8 +241,8 @@ describe('Reader', () => {
 			await reader.close()
 		})
 
-		test('reads defaults', async () => {
-			const filepath = join(TEST_DIR, 'read-defaults.comapeocat')
+		test('reads categorySelection', async () => {
+			const filepath = join(TEST_DIR, 'read-categorySelection.comapeocat')
 			await createTestZip({
 				filepath,
 				files: {
@@ -246,17 +250,21 @@ describe('Reader', () => {
 						tree: fixtures.categories.tree,
 						river: fixtures.categories.river,
 					},
-					'defaults.json': { point: ['tree'], line: ['river'], area: [] },
+					'categorySelection.json': {
+						point: ['tree'],
+						line: ['river'],
+						area: [],
+					},
 					'metadata.json': fixtures.metadata.minimal,
 				},
 			})
 
 			const reader = new Reader(filepath)
-			const defaults = await reader.defaults()
+			const categorySelection = await reader.categorySelection()
 
-			assert.deepEqual(defaults.point, ['tree'])
-			assert.deepEqual(defaults.line, ['river'])
-			assert.deepEqual(defaults.area, [])
+			assert.deepEqual(categorySelection.point, ['tree'])
+			assert.deepEqual(categorySelection.line, ['river'])
+			assert.deepEqual(categorySelection.area, [])
 
 			await reader.close()
 		})
@@ -267,7 +275,7 @@ describe('Reader', () => {
 				filepath,
 				files: {
 					'categories.json': { tree: fixtures.categories.tree },
-					'defaults.json': fixtures.defaults.point,
+					'categorySelection.json': fixtures.categorySelection.point,
 					'metadata.json': fixtures.metadata.complete,
 				},
 			})
@@ -290,7 +298,7 @@ describe('Reader', () => {
 					'categories.json': {
 						tree: { ...fixtures.categories.tree, icon: 'tree' },
 					},
-					'defaults.json': fixtures.defaults.point,
+					'categorySelection.json': fixtures.categorySelection.point,
 					'metadata.json': fixtures.metadata.minimal,
 					'icons/tree.svg': fixtures.icons.tree,
 					'icons/water.svg': fixtures.icons.simple,
@@ -313,7 +321,7 @@ describe('Reader', () => {
 				filepath,
 				files: {
 					'categories.json': { tree: fixtures.categories.tree },
-					'defaults.json': fixtures.defaults.point,
+					'categorySelection.json': fixtures.categorySelection.point,
 					'metadata.json': fixtures.metadata.minimal,
 					'icons/tree.svg': fixtures.icons.tree,
 				},
@@ -340,7 +348,7 @@ describe('Reader', () => {
 					'categories.json': {
 						tree: { ...fixtures.categories.tree, icon: 'tree' },
 					},
-					'defaults.json': fixtures.defaults.point,
+					'categorySelection.json': fixtures.categorySelection.point,
 					'metadata.json': fixtures.metadata.minimal,
 					'icons/tree.svg': fixtures.icons.tree,
 					'icons/water.svg': fixtures.icons.simple,
@@ -366,7 +374,7 @@ describe('Reader', () => {
 				filepath,
 				files: {
 					'categories.json': { tree: fixtures.categories.tree },
-					'defaults.json': fixtures.defaults.point,
+					'categorySelection.json': fixtures.categorySelection.point,
 					'metadata.json': fixtures.metadata.minimal,
 					'icons/tree.svg': fixtures.icons.tree,
 				},
@@ -386,7 +394,7 @@ describe('Reader', () => {
 				filepath,
 				files: {
 					'categories.json': { tree: fixtures.categories.tree },
-					'defaults.json': fixtures.defaults.point,
+					'categorySelection.json': fixtures.categorySelection.point,
 					'metadata.json': fixtures.metadata.minimal,
 					'translations/es.json': fixtures.translations.es,
 					'translations/fr.json': fixtures.translations.fr,
@@ -412,7 +420,7 @@ describe('Reader', () => {
 				filepath,
 				files: {
 					'categories.json': { tree: fixtures.categories.tree },
-					'defaults.json': fixtures.defaults.point,
+					'categorySelection.json': fixtures.categorySelection.point,
 					'metadata.json': fixtures.metadata.minimal,
 					'translations/es.json': fixtures.translations.es,
 					'translations/invalid!!.json': {
@@ -448,7 +456,7 @@ describe('Reader', () => {
 						species: fixtures.fields.species,
 						height: fixtures.fields.height,
 					},
-					'defaults.json': fixtures.defaults.point,
+					'categorySelection.json': fixtures.categorySelection.point,
 					'metadata.json': fixtures.metadata.minimal,
 					'icons/tree.svg': fixtures.icons.tree,
 				},
@@ -470,7 +478,7 @@ describe('Reader', () => {
 							fields: ['nonexistent'],
 						},
 					},
-					'defaults.json': fixtures.defaults.point,
+					'categorySelection.json': fixtures.categorySelection.point,
 					'metadata.json': fixtures.metadata.minimal,
 				},
 			})
@@ -493,7 +501,7 @@ describe('Reader', () => {
 							icon: 'nonexistent',
 						},
 					},
-					'defaults.json': fixtures.defaults.point,
+					'categorySelection.json': fixtures.categorySelection.point,
 					'metadata.json': fixtures.metadata.minimal,
 				},
 			})
@@ -513,7 +521,7 @@ describe('Reader', () => {
 				filepath,
 				files: {
 					'categories.json': { tree: fixtures.categories.tree },
-					'defaults.json': fixtures.defaults.point,
+					'categorySelection.json': fixtures.categorySelection.point,
 					'metadata.json': fixtures.metadata.minimal,
 				},
 			})
@@ -538,7 +546,7 @@ describe('Reader', () => {
 						},
 					},
 					'fields.json': { species: fixtures.fields.species },
-					'defaults.json': fixtures.defaults.point,
+					'categorySelection.json': fixtures.categorySelection.point,
 					'metadata.json': fixtures.metadata.minimal,
 				},
 			})
@@ -561,7 +569,7 @@ describe('Reader', () => {
 					'categories.json': {
 						tree: { name: 'Tree' }, // Missing required fields
 					},
-					'defaults.json': fixtures.defaults.point,
+					'categorySelection.json': fixtures.categorySelection.point,
 					'metadata.json': fixtures.metadata.minimal,
 				},
 			})
@@ -577,7 +585,7 @@ describe('Reader', () => {
 				filepath,
 				files: {
 					'categories.json': { tree: fixtures.categories.tree },
-					'defaults.json': fixtures.defaults.point,
+					'categorySelection.json': fixtures.categorySelection.point,
 					'metadata.json': {
 						name: 'A'.repeat(101),
 						buildDateValue: 1000000,
@@ -596,7 +604,7 @@ describe('Reader', () => {
 				filepath,
 				files: {
 					'categories.json': '{ invalid json }',
-					'defaults.json': { point: [], line: [], area: [] },
+					'categorySelection.json': { point: [], line: [], area: [] },
 					'metadata.json': fixtures.metadata.minimal,
 				},
 			})

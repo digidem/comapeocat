@@ -6,7 +6,7 @@ import { CATEGORIES_DIR } from './constants.js'
 
 /** @import { ValiError, BaseSchema, BaseSchemaAsync, BaseIssue } from 'valibot' */
 /** @import { JSONError } from 'parse-json' */
-/** @typedef { InvalidFileVersionError | UnsupportedFileVersionError | MissingDefaultsError | MissingCategoriesError } InvalidFileErrors */
+/** @typedef { InvalidFileVersionError | UnsupportedFileVersionError | MissingCategorySelectionError | MissingCategoriesError } InvalidFileErrors */
 
 /**
  * A typeguard to check if an error is due to issues parsing input JSON
@@ -15,7 +15,7 @@ import { CATEGORIES_DIR } from './constants.js'
  * @template {SchemaError<BaseSchema<unknown, unknown, BaseIssue<unknown>>
  *   | BaseSchemaAsync<unknown, unknown, BaseIssue<unknown>>>} TSchemaError
  * @param {unknown | TSchemaError} err - The error to check
- * @returns {err is JSONError | TSchemaError | CategoryRefError | InvalidDefaultsError} True if the error is a parse or schema error
+ * @returns {err is JSONError | TSchemaError | CategoryRefError | InvalidCategorySelectionError} True if the error is a parse or schema error
  */
 export function isParseError(err) {
 	return (
@@ -23,7 +23,7 @@ export function isParseError(err) {
 		(err.name === 'JSONError' ||
 			err.name === 'SchemaError' ||
 			err.name === 'CategoryRefError' ||
-			err.name === 'InvalidDefaultsError')
+			err.name === 'InvalidCategorySelectionError')
 	)
 }
 
@@ -38,7 +38,7 @@ export function isInvalidFileError(err) {
 		err instanceof Error &&
 		(err.name === 'InvalidFileVersionError' ||
 			err.name === 'UnsupportedFileVersionError' ||
-			err.name === 'MissingDefaultsError' ||
+			err.name === 'MissingCategorySelectionError' ||
 			err.name === 'MissingCategoriesError')
 	)
 }
@@ -94,23 +94,23 @@ export class CategoryRefError extends Error {
 	}
 }
 
-export class InvalidDefaultsError extends Error {
-	name = 'InvalidDefaultsError'
+export class InvalidCategorySelectionError extends Error {
+	name = 'InvalidCategorySelectionError'
 
 	/**
 	 * @param {object} params
 	 * @param {Map<string, Set<string>>} params.invalidRefs - Map of geometry type to category IDs that don't support that geometry
 	 */
 	constructor({ invalidRefs }) {
-		let message = `× Categories in defaults.json do not support the referenced geometry type:\n`
+		let message = `× Categories in categorySelection.json do not support the referenced geometry type:\n`
 		for (const [geometryType, categoryIds] of invalidRefs) {
 			for (const categoryId of categoryIds) {
-				message += `  → Category "${categoryId}" in defaults.${geometryType} does not include "${geometryType}" in its geometry array\n`
+				message += `  → Category "${categoryId}" in categorySelection.${geometryType} does not include "${geometryType}" in its geometry array\n`
 			}
 		}
 		super(message)
 
-		Error.captureStackTrace?.(this, InvalidDefaultsError)
+		Error.captureStackTrace?.(this, InvalidCategorySelectionError)
 	}
 }
 
@@ -197,9 +197,9 @@ export const MissingCategoriesError = createSimpleError(
 	'Missing required categories definitions.',
 )
 
-export const MissingDefaultsError = createSimpleError(
-	'MissingDefaultsError',
-	'Missing required defaults definitions.',
+export const MissingCategorySelectionError = createSimpleError(
+	'MissingCategorySelectionError',
+	'Missing required category selection definitions.',
 )
 
 export const MissingMetadataError = createSimpleError(
@@ -242,8 +242,8 @@ export class DuplicateTagsError extends Error {
 		Error.captureStackTrace?.(this, DuplicateTagsError)
 	}
 }
-export class DefaultsRefError extends Error {
-	name = 'DefaultsRefError'
+export class CategorySelectionRefError extends Error {
+	name = 'CategorySelectionRefError'
 
 	/**
 	 * @param {object} params
@@ -251,9 +251,9 @@ export class DefaultsRefError extends Error {
 	 * @param {string} params.geometryType - The geometry type where the category is referenced
 	 */
 	constructor({ categoryId, geometryType }) {
-		const message = `× Category "${categoryId}" referenced by "defaults.${geometryType}" is missing.`
+		const message = `× Category "${categoryId}" referenced by "categorySelection.${geometryType}" is missing.`
 		super(message)
 
-		Error.captureStackTrace?.(this, DefaultsRefError)
+		Error.captureStackTrace?.(this, CategorySelectionRefError)
 	}
 }

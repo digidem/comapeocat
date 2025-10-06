@@ -19,7 +19,7 @@ import {
 	CategorySchema,
 	CategorySchemaDeprecated,
 } from '../../src/schema/category.js'
-import { DefaultsSchema } from '../../src/schema/defaults.js'
+import { CategorySelectionSchema } from '../../src/schema/categorySelection.js'
 import { FieldSchema } from '../../src/schema/field.js'
 import { MessagesSchema } from '../../src/schema/messages.js'
 import { MetadataSchemaInput } from '../../src/schema/metadata.js'
@@ -28,19 +28,19 @@ import { jsonFiles } from './json-files.js'
 /**
  * @import {CategoryDeprecatedInput, CategoryInput} from '../../src/schema/category.js'
  * @import {FieldInput} from '../../src/schema/field.js'
- * @import {DefaultsInput} from '../../src/schema/defaults.js'
+ * @import {CategorySelectionInput} from '../../src/schema/categorySelection.js'
  * @import {MetadataInput} from '../../src/schema/metadata.js'
  * @import {MessagesInput} from '../../src/schema/messages.js'
  */
 
 /**
- * Read the category, field, defaults, and icon files in a directory and validate them.
+ * Read the category, field, categorySelection, and icon files in a directory and validate them.
  *
  * @param {string} dir - Directory path
  * @returns {AsyncGenerator<
  *  | { type: 'category', id: string, value: CategoryDeprecatedInput | CategoryInput }
  *  | { type: 'field', id: string, value: FieldInput }
- *  | { type: 'defaults', id: 'defaults', value: DefaultsInput }
+ *  | { type: 'categorySelection', id: 'categorySelection', value: CategorySelectionInput }
  *  | { type: 'icon', id: string, value: string }
  *  | { type: 'metadata', id: 'metadata', value: MetadataInput }
  *  | { type: 'messages', id: string, value: MessagesInput 	}
@@ -115,19 +115,26 @@ export async function* readFiles(dir) {
 	}
 
 	/** @type {string | undefined} */
-	let defaultsJson
+	let categorySelectionJson
 	try {
-		defaultsJson = await fs.readFile(path.join(dir, 'defaults.json'), 'utf-8')
+		categorySelectionJson = await fs.readFile(
+			path.join(dir, 'categorySelection.json'),
+			'utf-8',
+		)
 	} catch (err) {
-		// defaults.json is optional
+		// categorySelection.json is optional
 		if (!isNotFoundError(err)) throw err
 	}
-	if (defaultsJson) {
-		const data = parseJson(defaultsJson, undefined, 'defaults.json')
-		assertSchema(DefaultsSchema, data, {
-			fileName: 'defaults.json',
+	if (categorySelectionJson) {
+		const data = parseJson(
+			categorySelectionJson,
+			undefined,
+			'categorySelection.json',
+		)
+		assertSchema(CategorySelectionSchema, data, {
+			fileName: 'categorySelection.json',
 		})
-		yield { type: 'defaults', id: 'defaults', value: data }
+		yield { type: 'categorySelection', id: 'categorySelection', value: data }
 	}
 }
 

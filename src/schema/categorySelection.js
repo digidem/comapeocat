@@ -2,10 +2,10 @@ import * as v from 'valibot'
 
 import { GEOMETRY_TYPES } from '../lib/constants.js'
 
-/** @typedef {v.InferOutput<typeof DefaultsSchema>} DefaultsOutput */
-/** @typedef {v.InferInput<typeof DefaultsSchema>} DefaultsInput */
+/** @typedef {v.InferOutput<typeof CategorySelectionSchema>} CategorySelectionOutput */
+/** @typedef {v.InferInput<typeof CategorySelectionSchema>} CategorySelectionInput */
 
-export const DefaultsSchema = v.pipe(
+export const CategorySelectionSchema = v.pipe(
 	v.object(
 		v.entriesFromList(
 			GEOMETRY_TYPES,
@@ -18,7 +18,7 @@ export const DefaultsSchema = v.pipe(
 		),
 	),
 	v.metadata({
-		title: 'Defaults Schema',
+		title: 'Category Selection Schema',
 		description:
 			'Defines the order of categories and which should be shown to the user by default for each geometry type.',
 	}),

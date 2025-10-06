@@ -54,10 +54,10 @@ describe('CLI build command', () => {
 		const iconNames = await reader.iconNames()
 		assert.equal(iconNames.size, 2)
 
-		const defaults = await reader.defaults()
-		assert.equal(defaults.point.length, 1)
-		assert.equal(defaults.line.length, 1)
-		assert.equal(defaults.area.length, 0)
+		const categorySelection = await reader.categorySelection()
+		assert.equal(categorySelection.point.length, 1)
+		assert.equal(categorySelection.line.length, 1)
+		assert.equal(categorySelection.area.length, 0)
 
 		const metadata = await reader.metadata()
 		assert.equal(metadata.name, 'Complete Build Test')
@@ -65,9 +65,9 @@ describe('CLI build command', () => {
 		await reader.close()
 	})
 
-	test('should auto-generate defaults.json when missing', async () => {
-		const fixturePath = join(FIXTURES_DIR, 'no-defaults')
-		const outputPath = join(TEST_DIR, 'no-defaults.comapeocat')
+	test('should auto-generate categorySelection.json when missing', async () => {
+		const fixturePath = join(FIXTURES_DIR, 'no-categorySelection')
+		const outputPath = join(TEST_DIR, 'no-categorySelection.comapeocat')
 
 		const { exitCode } = await execa('node', [
 			CLI_PATH,
@@ -77,33 +77,33 @@ describe('CLI build command', () => {
 		])
 		assert.equal(exitCode, 0)
 
-		// Verify defaults were auto-generated
+		// Verify categorySelection was auto-generated
 		const reader = new Reader(outputPath)
 		await reader.opened()
 
-		const defaults = await reader.defaults()
+		const categorySelection = await reader.categorySelection()
 		const categories = await reader.categories()
 
-		// Check that defaults exist for each geometry type
-		assert.ok(Array.isArray(defaults.point))
-		assert.ok(Array.isArray(defaults.line))
-		assert.ok(Array.isArray(defaults.area))
+		// Check that categorySelection exists for each geometry type
+		assert.ok(Array.isArray(categorySelection.point))
+		assert.ok(Array.isArray(categorySelection.line))
+		assert.ok(Array.isArray(categorySelection.area))
 
-		// Verify that the generated defaults reference existing categories
-		for (const categoryId of defaults.point) {
+		// Verify that the generated categorySelection reference existing categories
+		for (const categoryId of categorySelection.point) {
 			assert.ok(categories.has(categoryId))
 		}
-		for (const categoryId of defaults.line) {
+		for (const categoryId of categorySelection.line) {
 			assert.ok(categories.has(categoryId))
 		}
-		for (const categoryId of defaults.area) {
+		for (const categoryId of categorySelection.area) {
 			assert.ok(categories.has(categoryId))
 		}
 
 		await reader.close()
 	})
 
-	test('should use deprecated sort field to determine defaults order', async () => {
+	test('should use deprecated sort field to determine categorySelection order', async () => {
 		const fixturePath = join(FIXTURES_DIR, 'with-sort')
 		const outputPath = join(TEST_DIR, 'with-sort.comapeocat')
 
@@ -115,18 +115,18 @@ describe('CLI build command', () => {
 		])
 		assert.equal(exitCode, 0)
 
-		// Verify that defaults are ordered by sort field
+		// Verify that categorySelection is ordered by sort field
 		const reader = new Reader(outputPath)
 		await reader.opened()
 
-		const defaults = await reader.defaults()
+		const categorySelection = await reader.categorySelection()
 
 		// All three presets have geometry: ['point'] and sort values 1, 2, 3
-		// So defaults.point should be ordered by sort: preset2, preset3, preset1
-		assert.equal(defaults.point.length, 3)
-		assert.equal(defaults.point[0], 'preset2') // sort: 1
-		assert.equal(defaults.point[1], 'preset3') // sort: 2
-		assert.equal(defaults.point[2], 'preset1') // sort: 3
+		// So categorySelection.point should be ordered by sort: preset2, preset3, preset1
+		assert.equal(categorySelection.point.length, 3)
+		assert.equal(categorySelection.point[0], 'preset2') // sort: 1
+		assert.equal(categorySelection.point[1], 'preset3') // sort: 2
+		assert.equal(categorySelection.point[2], 'preset1') // sort: 3
 
 		await reader.close()
 	})

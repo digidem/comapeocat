@@ -1,28 +1,28 @@
 import {
 	CategoryRefError,
-	InvalidDefaultsError,
-	DefaultsRefError,
+	InvalidCategorySelectionError,
+	CategorySelectionRefError,
 } from './errors.js'
 import { addRefToMap, typedEntries } from './utils.js'
 
 /**
- * Validate category references to fields, icons, and defaults geometry types.
+ * Validate category references to fields, icons, and category selection geometry types.
  * Throws errors if any invalid references are found.
  *
  * @param {object} params
  * @param {Map<string, {fields: string[], icon?: string, geometry: string[]}>} params.categories - Map of category ID to category data
  * @param {Set<string> | Map<string, unknown>} params.fieldIds - Set of field IDs or Map with field IDs as keys
  * @param {Set<string>} params.iconIds - Set of icon IDs
- * @param {Record<string, string[]>} [params.defaults] - Optional defaults object mapping geometry types to category IDs
+ * @param {Record<string, string[]>} [params.categorySelection] - Optional category selection object mapping geometry types to category IDs
  * @throws {CategoryRefError} When field or icon references are missing
- * @throws {import('./errors.js').InvalidDefaultsError} When categories in defaults don't support the geometry type
+ * @throws {import('./errors.js').InvalidCategorySelectionError} When categories in category selection don't support the geometry type
  */
 
 export function validateReferences({
 	categories,
 	fieldIds,
 	iconIds,
-	defaults,
+	categorySelection,
 }) {
 	/** @type {Map<string, Set<string>>} */
 	const missingIconRefs = new Map()
@@ -58,16 +58,16 @@ export function validateReferences({
 		})
 	}
 
-	// Check defaults geometry types if provided
-	if (defaults) {
+	// Check category selection geometry types if provided
+	if (categorySelection) {
 		/** @type {Map<string, Set<string>>} */
 		const invalidGeometryRefs = new Map()
 
-		for (const [geometryType, categoryIds] of typedEntries(defaults)) {
+		for (const [geometryType, categoryIds] of typedEntries(categorySelection)) {
 			for (const categoryId of categoryIds) {
 				const category = categories.get(categoryId)
 				if (!category) {
-					throw new DefaultsRefError({ categoryId, geometryType })
+					throw new CategorySelectionRefError({ categoryId, geometryType })
 				}
 				if (category && !category.geometry.includes(geometryType)) {
 					addRefToMap(invalidGeometryRefs, geometryType, categoryId)
@@ -76,7 +76,9 @@ export function validateReferences({
 		}
 
 		if (invalidGeometryRefs.size > 0) {
-			throw new InvalidDefaultsError({ invalidRefs: invalidGeometryRefs })
+			throw new InvalidCategorySelectionError({
+				invalidRefs: invalidGeometryRefs,
+			})
 		}
 	}
 }

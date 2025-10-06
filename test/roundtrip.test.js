@@ -50,7 +50,7 @@ describe('Writer -> Reader roundtrip tests', () => {
 		await writer.addTranslations('es', fixtures.translations.esComplete)
 		await writer.addTranslations('fr', fixtures.translations.fr)
 
-		writer.setDefaults({
+		writer.setCategorySelection({
 			point: ['tree'],
 			line: ['river'],
 			area: ['forest'],
@@ -115,9 +115,9 @@ describe('Writer -> Reader roundtrip tests', () => {
 			4,
 		)
 
-		// Verify defaults
-		const defaults = await reader.defaults()
-		assert.deepEqual(defaults, {
+		// Verify categorySelection
+		const categorySelection = await reader.categorySelection()
+		assert.deepEqual(categorySelection, {
 			point: ['tree'],
 			line: ['river'],
 			area: ['forest'],

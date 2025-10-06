@@ -4,13 +4,12 @@ import fs from 'node:fs'
 import { toJsonSchema } from '@valibot/to-json-schema'
 
 import { CategorySchemaDeprecated } from '../src/schema/category.js'
-import { DefaultsSchema } from '../src/schema/defaults.js'
+import { CategorySelectionSchema } from '../src/schema/categorySelection.js'
 import { FieldSchema } from '../src/schema/field.js'
 import { MessagesSchema } from '../src/schema/messages.js'
 
 const outDir = new URL('../dist/schema/', import.meta.url)
 
-fs.rmSync(outDir, { recursive: true, force: true })
 fs.mkdirSync(outDir, { recursive: true })
 
 const categorySchemaJson = toJsonSchema(CategorySchemaDeprecated, {
@@ -36,7 +35,7 @@ const fieldSchemaJson = toJsonSchema(FieldSchema, {
 	typeMode: 'input',
 	ignoreActions: ['check'],
 })
-const defaultsSchemaJson = toJsonSchema(DefaultsSchema, {
+const categorySelectionSchemaJson = toJsonSchema(CategorySelectionSchema, {
 	typeMode: 'input',
 })
 const messagesSchemaJson = toJsonSchema(MessagesSchema, {
@@ -52,8 +51,8 @@ fs.writeFileSync(
 	JSON.stringify(fieldSchemaJson, null, 2),
 )
 fs.writeFileSync(
-	new URL('defaults.json', outDir),
-	JSON.stringify(defaultsSchemaJson, null, 2),
+	new URL('categorySelection.json', outDir),
+	JSON.stringify(categorySelectionSchemaJson, null, 2),
 )
 fs.writeFileSync(
 	new URL('messages.json', outDir),

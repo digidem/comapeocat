@@ -30,7 +30,7 @@ function writeJSON(dirPath, filename, content) {
 
 // Generate valid fixtures using valimock
 
-// Minimal valid fixture - no fields, no icons, no defaults, no metadata
+// Minimal valid fixture - no fields, no icons, no categorySelection, no metadata
 const minimalDir = join(FIXTURES_DIR, 'valid', 'minimal')
 const minimalPreset = valimock.mock(CategorySchema)
 // Override to ensure no field/icon references and valid geometry
@@ -40,7 +40,7 @@ minimalPreset.geometry = ['point']
 delete minimalPreset.icon
 writeJSON(join(minimalDir, 'categories'), 'preset1.json', minimalPreset)
 
-// Complete valid fixture - with fields, icons, defaults, and metadata
+// Complete valid fixture - with fields, icons, categorySelection, and metadata
 const completeDir = join(FIXTURES_DIR, 'valid', 'complete')
 
 // Generate fields first
@@ -90,8 +90,8 @@ writeFileSync(
 	'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><polygon points="50,10 90,90 10,90"/></svg>',
 )
 
-// Generate defaults
-writeJSON(completeDir, 'defaults.json', {
+// Generate categorySelection
+writeJSON(completeDir, 'categorySelection.json', {
 	point: ['preset1'],
 	line: ['preset2'],
 	area: ['preset3'],
@@ -117,5 +117,9 @@ writeJSON(join(completeDir, 'messages'), 'en.json', {
 
 console.log(`Generated lint fixtures at ${FIXTURES_DIR}`)
 console.log('Valid fixtures:')
-console.log('  - valid/minimal (no fields, icons, defaults, or metadata)')
-console.log('  - valid/complete (with fields, icons, defaults, and metadata)')
+console.log(
+	'  - valid/minimal (no fields, icons, categorySelection, or metadata)',
+)
+console.log(
+	'  - valid/complete (with fields, icons, categorySelection, and metadata)',
+)

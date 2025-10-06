@@ -8,21 +8,21 @@ import * as v from 'valibot'
 import { ICONS_DIR, TRANSLATIONS_DIR, VERSION_FILE } from './lib/constants.js'
 import {
 	AddAfterFinishError,
-	MissingDefaultsError,
+	MissingCategorySelectionError,
 	MissingMetadataError,
 	MissingCategoriesError,
 } from './lib/errors.js'
 import { parseSvg } from './lib/parse-svg.js'
 import { validateReferences } from './lib/validate-references.js'
 import { CategorySchema } from './schema/category.js'
-import { DefaultsSchema } from './schema/defaults.js'
+import { CategorySelectionSchema } from './schema/categorySelection.js'
 import { FieldSchema } from './schema/field.js'
 import { MetadataSchemaOutput } from './schema/metadata.js'
 import { TranslationsSchema } from './schema/translations.js'
 
 /** @import { CategoryInput, CategoryOutput } from './schema/category.js' */
 /** @import { FieldInput, FieldOutput } from './schema/field.js' */
-/** @import { DefaultsInput, DefaultsOutput } from './schema/defaults.js' */
+/** @import { CategorySelectionInput, CategorySelectionOutput } from './schema/categorySelection.js' */
 /** @import { MetadataInput, MetadataOutput } from './schema/metadata.js' */
 /** @import { Entries } from 'type-fest'*/
 
@@ -45,8 +45,8 @@ export class Writer extends EventEmitter {
 	#fields = new Map()
 	/** @type {Set<string>} */
 	#iconIds = new Set()
-	/** @type {DefaultsOutput | undefined} */
-	#defaults = undefined
+	/** @type {CategorySelectionOutput | undefined} */
+	#categorySelection = undefined
 	/** @type {MetadataOutput | undefined} */
 	#metadata = undefined
 	#finished = false
@@ -76,13 +76,16 @@ export class Writer extends EventEmitter {
 	}
 
 	/**
-	 * @param {DefaultsInput} defaults
-	 * @returns {readonly DefaultsOutput} The parsed defaults that were set (unknown properties are stripped)
+	 * @param {CategorySelectionInput} categorySelection
+	 * @returns {readonly CategorySelectionOutput} The parsed categorySelection that was set (unknown properties are stripped)
 	 */
-	setDefaults(defaults) {
+	setCategorySelection(categorySelection) {
 		if (this.#finished) throw new AddAfterFinishError()
-		this.#defaults = v.parse(DefaultsSchema, defaults)
-		return this.#defaults
+		this.#categorySelection = v.parse(
+			CategorySelectionSchema,
+			categorySelection,
+		)
+		return this.#categorySelection
 	}
 
 	/**
@@ -161,7 +164,7 @@ export class Writer extends EventEmitter {
 	 * @throws {CategoryRefError} When there are missing field or icon references
 	 * @throws {MissingMetadataError} When metadata is not set
 	 * @throws {MissingCategoriesError} When no categories have been added
-	 * @throws {MissingDefaultsError} When defaults are not set
+	 * @throws {MissingCategorySelectionError} When categorySelection is not set
 	 */
 	finish() {
 		this.#checkRefs()
@@ -171,8 +174,8 @@ export class Writer extends EventEmitter {
 		if (this.#categories.size === 0) {
 			throw new MissingCategoriesError()
 		}
-		if (!this.#defaults) {
-			throw new MissingDefaultsError()
+		if (!this.#categorySelection) {
+			throw new MissingCategorySelectionError()
 		}
 		this.#finished = true
 		const categories = Object.fromEntries(this.#categories)
@@ -183,8 +186,8 @@ export class Writer extends EventEmitter {
 		this.#archive.append(JSON.stringify(fields, null, 2), {
 			name: 'fields.json',
 		})
-		this.#archive.append(JSON.stringify(this.#defaults, null, 2), {
-			name: 'defaults.json',
+		this.#archive.append(JSON.stringify(this.#categorySelection, null, 2), {
+			name: 'categorySelection.json',
 		})
 		/** @type {MetadataOutput} */
 		const metadata = {
