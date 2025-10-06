@@ -1,6 +1,6 @@
 # Test Fixtures
 
-This directory contains test fixtures for the comapeocat CLI and library tests. These fixtures are generated using valimock with fixed seeds for reproducibility.
+This directory contains test fixtures for the comapeocat CLI and library tests. These fixtures are generated using valimock with fixed seeds.
 
 ## Lint Test Fixtures
 

@@ -10,9 +10,7 @@ A JavaScript library for reading and writing CoMapeo Categories files (`.comapeo
 - **Read** `.comapeocat` files and access categories, fields, icons, and translations
 - **Write** `.comapeocat` files with full validation
 - **Validate** category files against the specification
-- **CLI tool** for creating and inspecting category files
-- Full TypeScript type definitions
-- Comprehensive validation with helpful error messages
+- **CLI tool** for creating and linting category files
 
 ## Quick Start
 
