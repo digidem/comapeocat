@@ -1,7 +1,7 @@
 {
   "name": "Leon Crist",
-  "geometry": [
-    "point"
+  "appliesTo": [
+    "observation"
   ],
   "tags": {
     "territo": false

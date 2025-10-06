@@ -1,7 +1,7 @@
 {
   "name": "Nicholas Keeling-Swaniawski",
-  "geometry": [
-    "point"
+  "appliesTo": [
+    "observation"
   ],
   "tags": {
     "solvo": 2.0931342949001297

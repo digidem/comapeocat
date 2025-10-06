@@ -174,7 +174,7 @@ await reader.opened()
 // Read categories
 const categories = await reader.categories()
 for (const [id, category] of categories) {
-	console.log(id, category.name, category.geometry)
+	console.log(id, category.name, category.appliesTo)
 }
 
 // Read fields
@@ -211,7 +211,7 @@ const writer = new Writer()
 // Add categories
 writer.addCategory('tree', {
 	name: 'Tree',
-	geometry: ['point'],
+	appliesTo: ['observation'],
 	tags: { natural: 'tree' },
 	fields: ['species', 'height'],
 	icon: 'tree',
@@ -247,9 +247,8 @@ await writer.addTranslations('es', {
 
 // Set category selection
 writer.setCategorySelection({
-	point: ['tree'],
-	line: [],
-	area: [],
+	observation: ['tree'],
+	track: [],
 })
 
 // Set metadata
@@ -285,7 +284,7 @@ Returns a `Promise<Map<string, Field>>` of all fields in the file.
 
 #### `async reader.categorySelection()`
 
-Returns a `Promise<CategorySelection>` - the category selection object mapping geometry types to category IDs.
+Returns a `Promise<CategorySelection>` - the category selection object mapping document types to category IDs.
 
 #### `async reader.metadata()`
 
@@ -363,7 +362,7 @@ Adds translations for a language. Returns a promise that resolves when translati
 
 #### `writer.setCategorySelection(categorySelection)` _(synchronous)_
 
-Sets the category selection object mapping geometry types to category IDs. Throws if called after `finish()`.
+Sets the category selection object mapping document types to category IDs. Throws if called after `finish()`.
 
 #### `writer.setMetadata(metadata)` _(synchronous)_
 
@@ -385,7 +384,7 @@ The `.comapeocat` file format is a ZIP archive containing JSON configuration fil
 
 - `VERSION` - Format version (e.g., "1.0")
 - `categories.json` - Category definitions
-- `categorySelection.json` - Category selection for each geometry type
+- `categorySelection.json` - Category selection for each document type
 - `metadata.json` - Package metadata
 
 ### Optional Files

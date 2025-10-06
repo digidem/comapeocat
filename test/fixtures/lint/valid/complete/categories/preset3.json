@@ -1,7 +1,7 @@
 {
   "name": "Grace Treutel DDS",
-  "geometry": [
-    "area"
+  "appliesTo": [
+    "track"
   ],
   "tags": {
     "capio": 3.732457025590121

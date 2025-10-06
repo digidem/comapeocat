@@ -16,14 +16,13 @@ import { typedEntries } from '../../src/lib/utils.js'
 export function generateCategorySelection(categoriesMap) {
 	/** @type {Record<keyof CategorySelectionInput, Array<CategoryForSort>>} */
 	const categorySelectionForSort = {
-		point: [],
-		line: [],
-		area: [],
+		observation: [],
+		track: [],
 	}
 	for (const [id, category] of categoriesMap) {
-		for (const geom of category.geometry) {
-			if (!isKeyOf(geom, categorySelectionForSort)) continue
-			categorySelectionForSort[geom].push({
+		for (const docType of category.appliesTo) {
+			if (!isKeyOf(docType, categorySelectionForSort)) continue
+			categorySelectionForSort[docType].push({
 				id,
 				sort: category.sort,
 				name: category.name,
@@ -32,11 +31,11 @@ export function generateCategorySelection(categoriesMap) {
 	}
 	/** @type {Entries<CategorySelectionInput>} */
 	const categorySelectionEntries = []
-	for (const [geom, categoriesForSort] of typedEntries(
+	for (const [docType, categoriesForSort] of typedEntries(
 		categorySelectionForSort,
 	)) {
 		categorySelectionEntries.push([
-			geom,
+			docType,
 			categoriesForSort.sort(sortCategories).map((c) => c.id),
 		])
 	}

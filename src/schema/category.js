@@ -1,6 +1,6 @@
 import * as v from 'valibot'
 
-import { GEOMETRY_TYPES } from '../lib/constants.js'
+import { DOCUMENT_TYPES } from '../lib/constants.js'
 
 /** @typedef {v.InferOutput<typeof CategorySchema>} CategoryOutput */
 /** @typedef {v.InferInput<typeof CategorySchema>} CategoryInput */
@@ -13,28 +13,28 @@ const TagsSchema = v.record(
 )
 
 /**
- * Check if a geometry type is valid
+ * Check if a document type is valid
  * @param {string} type
- * @returns {type is typeof GEOMETRY_TYPES[number]} True if the type is valid
+ * @returns {type is typeof DOCUMENT_TYPES[number]} True if the type is valid
  */
-function isValidGeometryType(type) {
+function isValidDocumentType(type) {
 	// @ts-expect-error
-	return GEOMETRY_TYPES.includes(type)
+	return DOCUMENT_TYPES.includes(type)
 }
 
-// This is strictly typed, but we allow unknown geometry types as input for forward compatibility, but filter them out for current code.
-const GeometrySchema =
-	/** @type {v.GenericSchema<Array<typeof GEOMETRY_TYPES[number] | string>, Array<typeof GEOMETRY_TYPES[number]>>} */ (
+// This is strictly typed, but we allow unknown document types as input for forward compatibility, but filter them out for current code.
+const AppliesToSchema =
+	/** @type {v.GenericSchema<Array<typeof DOCUMENT_TYPES[number] | string>, Array<typeof DOCUMENT_TYPES[number]>>} */ (
 		v.pipe(
 			v.array(v.string()),
-			v.filterItems((item) => isValidGeometryType(item)),
+			v.filterItems((item) => isValidDocumentType(item)),
 			v.minLength(1),
 			v.check(
 				(arr) => arr.length === new Set(arr).size,
 				'Array must contain unique values',
 			),
 			v.description(
-				`Geometry types for the feature - this category will only match features of this geometry type. Known types: \`${GEOMETRY_TYPES.join('", "')}\`. Unknown types are accepted for forward compatibility.`,
+				`Document types that this category applies to. Known types: \`${DOCUMENT_TYPES.join('", "')}\`. Unknown types are accepted for forward compatibility.`,
 			),
 		)
 	)
@@ -48,7 +48,7 @@ export const CategorySchema = v.pipe(
 			v.minLength(1),
 			v.description('Name for the feature in default language.'),
 		),
-		geometry: GeometrySchema,
+		appliesTo: AppliesToSchema,
 		tags: v.pipe(
 			TagsSchema,
 			v.minEntries(1),

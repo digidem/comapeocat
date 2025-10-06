@@ -125,7 +125,7 @@ export async function lint(dir) {
 	if (categorySelection) {
 		successes.push(`✓ CategorySelection file references existing categories`)
 		successes.push(
-			`✓ CategorySelection file references categories with matching geometry`,
+			`✓ CategorySelection file references categories with matching document types`,
 		)
 	}
 

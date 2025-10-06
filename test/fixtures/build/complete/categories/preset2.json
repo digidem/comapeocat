@@ -1,7 +1,7 @@
 {
   "name": "Derek Heller",
-  "geometry": [
-    "line"
+  "appliesTo": [
+    "track"
   ],
   "tags": {
     "veniam": true

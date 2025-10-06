@@ -1,9 +1,8 @@
 {
-  "point": [
+  "observation": [
     "preset1"
   ],
-  "line": [
+  "track": [
     "preset2"
-  ],
-  "area": []
+  ]
 }

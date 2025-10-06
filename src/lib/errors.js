@@ -99,13 +99,13 @@ export class InvalidCategorySelectionError extends Error {
 
 	/**
 	 * @param {object} params
-	 * @param {Map<string, Set<string>>} params.invalidRefs - Map of geometry type to category IDs that don't support that geometry
+	 * @param {Map<string, Set<string>>} params.invalidRefs - Map of document type to category IDs that don't support that document type
 	 */
 	constructor({ invalidRefs }) {
-		let message = `× Categories in categorySelection.json do not support the referenced geometry type:\n`
-		for (const [geometryType, categoryIds] of invalidRefs) {
+		let message = `× Categories in categorySelection.json do not support the referenced document type:\n`
+		for (const [documentType, categoryIds] of invalidRefs) {
 			for (const categoryId of categoryIds) {
-				message += `  → Category "${categoryId}" in categorySelection.${geometryType} does not include "${geometryType}" in its geometry array\n`
+				message += `  → Category "${categoryId}" in categorySelection.${documentType} does not include "${documentType}" in its appliesTo array\n`
 			}
 		}
 		super(message)
@@ -248,10 +248,10 @@ export class CategorySelectionRefError extends Error {
 	/**
 	 * @param {object} params
 	 * @param {string} params.categoryId - The missing category ID
-	 * @param {string} params.geometryType - The geometry type where the category is referenced
+	 * @param {string} params.documentType - The document type where the category is referenced
 	 */
-	constructor({ categoryId, geometryType }) {
-		const message = `× Category "${categoryId}" referenced by "categorySelection.${geometryType}" is missing.`
+	constructor({ categoryId, documentType }) {
+		const message = `× Category "${categoryId}" referenced by "categorySelection.${documentType}" is missing.`
 		super(message)
 
 		Error.captureStackTrace?.(this, CategorySelectionRefError)

@@ -1,7 +1,7 @@
 {
   "name": "Miss Florence D'Amore",
-  "geometry": [
-    "line"
+  "appliesTo": [
+    "track"
   ],
   "tags": {
     "magni": null

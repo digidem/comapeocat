@@ -33,7 +33,7 @@ describe('Edge cases and untested spec details', () => {
 
 			writer.addCategory('árbol_🌳', {
 				name: 'Tree',
-				geometry: ['point'],
+				appliesTo: ['observation'],
 				tags: { natural: 'tree' },
 				fields: [],
 			})
@@ -55,7 +55,7 @@ describe('Edge cases and untested spec details', () => {
 
 			writer.addCategory('test', {
 				name: 'Test',
-				geometry: ['point'],
+				appliesTo: ['observation'],
 				tags: { test: 'value' },
 				fields: ['espèce'],
 			})
@@ -89,7 +89,7 @@ describe('Edge cases and untested spec details', () => {
 				version: '1.0.0',
 				files: {
 					'categories.json': { tree: fixtures.categories.tree },
-					'categorySelection.json': fixtures.categorySelection.point,
+					'categorySelection.json': fixtures.categorySelection.observation,
 					'metadata.json': fixtures.metadata.minimal,
 				},
 			})
@@ -108,7 +108,7 @@ describe('Edge cases and untested spec details', () => {
 				version: '1',
 				files: {
 					'categories.json': { tree: fixtures.categories.tree },
-					'categorySelection.json': fixtures.categorySelection.point,
+					'categorySelection.json': fixtures.categorySelection.observation,
 					'metadata.json': fixtures.metadata.minimal,
 				},
 			})
@@ -127,7 +127,7 @@ describe('Edge cases and untested spec details', () => {
 				version: '',
 				files: {
 					'categories.json': { tree: fixtures.categories.tree },
-					'categorySelection.json': fixtures.categorySelection.point,
+					'categorySelection.json': fixtures.categorySelection.observation,
 					'metadata.json': fixtures.metadata.minimal,
 				},
 			})
@@ -144,7 +144,7 @@ describe('Edge cases and untested spec details', () => {
 				version: '1 . 0',
 				files: {
 					'categories.json': { tree: fixtures.categories.tree },
-					'categorySelection.json': fixtures.categorySelection.point,
+					'categorySelection.json': fixtures.categorySelection.observation,
 					'metadata.json': fixtures.metadata.minimal,
 				},
 			})
@@ -157,15 +157,15 @@ describe('Edge cases and untested spec details', () => {
 		})
 	})
 
-	describe('Geometry validation', () => {
-		test('rejects category with empty geometry array', async () => {
+	describe('Document type validation', () => {
+		test('rejects category with empty appliesTo array', async () => {
 			const writer = new Writer()
 
 			assert.throws(
 				() => {
 					writer.addCategory('invalid', {
 						name: 'Invalid',
-						geometry: [],
+						appliesTo: [],
 						tags: { test: 'value' },
 						fields: [],
 					})
@@ -174,14 +174,14 @@ describe('Edge cases and untested spec details', () => {
 			)
 		})
 
-		test('rejects category with no valid geometry types', async () => {
+		test('filters out invalid document types', async () => {
 			const writer = new Writer()
 
 			assert.throws(
 				() => {
 					writer.addCategory('invalid', {
 						name: 'Invalid',
-						geometry: ['invalid_type'],
+						appliesTo: ['invalid_type'],
 						tags: { test: 'value' },
 						fields: [],
 					})
@@ -190,13 +190,13 @@ describe('Edge cases and untested spec details', () => {
 			)
 		})
 
-		test('accepts geometry with all three types', async () => {
-			const filepath = join(TEST_DIR, 'geometry-all-types.comapeocat')
+		test('accepts category with both document types', async () => {
+			const filepath = join(TEST_DIR, 'both-doc-types.comapeocat')
 			const writer = createTestWriter()
 
 			writer.addCategory('multi', {
-				name: 'Multi Geometry',
-				geometry: ['point', 'line', 'area'],
+				name: 'Multi Type',
+				appliesTo: ['observation', 'track'],
 				tags: { test: 'value' },
 				fields: [],
 			})
@@ -207,22 +207,21 @@ describe('Edge cases and untested spec details', () => {
 			const reader = new Reader(filepath)
 			const categories = await reader.categories()
 
-			assert.deepEqual(categories.get('multi').geometry, [
-				'point',
-				'line',
-				'area',
+			assert.deepEqual(categories.get('multi').appliesTo, [
+				'observation',
+				'track',
 			])
 
 			await reader.close()
 		})
 
-		test('ignores and removes invalid geometry types', async () => {
-			const filepath = join(TEST_DIR, 'geometry-invalid-types.comapeocat')
+		test('filters out invalid document types', async () => {
+			const filepath = join(TEST_DIR, 'invalid-doc-types.comapeocat')
 			const writer = createTestWriter()
 
-			writer.addCategory('invalid', {
-				name: 'Invalid',
-				geometry: ['point', 'polygon'],
+			writer.addCategory('filtered', {
+				name: 'Filtered',
+				appliesTo: ['observation', 'invalid_type'],
 				tags: { test: 'value' },
 				fields: [],
 			})
@@ -234,14 +233,14 @@ describe('Edge cases and untested spec details', () => {
 			const reader = new Reader(filepath)
 			const categories = await reader.categories()
 
-			assert.deepEqual(categories.get('invalid').geometry, ['point'])
+			assert.deepEqual(categories.get('filtered').appliesTo, ['observation'])
 
 			await reader.close()
 		})
 	})
 
 	describe('CategorySelection validation', () => {
-		test('allows categorySelection with non-existent preset IDs', async () => {
+		test('allows categorySelection with non-existent category IDs', async () => {
 			const filepath = join(
 				TEST_DIR,
 				'categorySelection-nonexistent.comapeocat',
@@ -251,9 +250,8 @@ describe('Edge cases and untested spec details', () => {
 				files: {
 					'categories.json': { tree: fixtures.categories.tree },
 					'categorySelection.json': {
-						point: ['tree', 'nonexistent'],
-						line: [],
-						area: [],
+						observation: ['tree', 'nonexistent'],
+						track: [],
 					},
 					'metadata.json': fixtures.metadata.minimal,
 				},
@@ -262,26 +260,25 @@ describe('Edge cases and untested spec details', () => {
 			const reader = new Reader(filepath)
 			const categorySelection = await reader.categorySelection()
 
-			assert.deepEqual(categorySelection.point, ['tree', 'nonexistent'])
+			assert.deepEqual(categorySelection.observation, ['tree', 'nonexistent'])
 
 			await reader.close()
 		})
 
-		test('allows category in categorySelection without matching geometry', async () => {
+		test('allows category in categorySelection without matching document type', async () => {
 			const filepath = join(
 				TEST_DIR,
-				'categorySelection-wrong-geometry.comapeocat',
+				'categorySelection-wrong-doc-type.comapeocat',
 			)
 			await createTestZip({
 				filepath,
 				files: {
 					'categories.json': {
-						tree: fixtures.categories.tree, // geometry: ['point']
+						tree: fixtures.categories.tree, // appliesTo: ['observation']
 					},
 					'categorySelection.json': {
-						point: [],
-						line: ['tree'], // tree is point, not line
-						area: [],
+						observation: [],
+						track: ['tree'], // tree is observation, not track
 					},
 					'metadata.json': fixtures.metadata.minimal,
 				},
@@ -290,12 +287,12 @@ describe('Edge cases and untested spec details', () => {
 			const reader = new Reader(filepath)
 			const categorySelection = await reader.categorySelection()
 
-			assert.deepEqual(categorySelection.line, ['tree'])
+			assert.deepEqual(categorySelection.track, ['tree'])
 
 			await reader.close()
 		})
 
-		test('rejects categorySelection missing required geometry types', async () => {
+		test('rejects categorySelection missing required document types', async () => {
 			const filepath = join(
 				TEST_DIR,
 				'categorySelection-missing-type.comapeocat',
@@ -305,9 +302,8 @@ describe('Edge cases and untested spec details', () => {
 				files: {
 					'categories.json': { tree: fixtures.categories.tree },
 					'categorySelection.json': {
-						point: ['tree'],
-						line: [],
-						// Missing area
+						observation: ['tree'],
+						// Missing track
 					},
 					'metadata.json': fixtures.metadata.minimal,
 				},
@@ -327,7 +323,7 @@ describe('Edge cases and untested spec details', () => {
 
 			writer.addCategory('test', {
 				name: 'Test',
-				geometry: ['point'],
+				appliesTo: ['observation'],
 				tags: { test: 'value' },
 				fields: [],
 				color: '#abc',
@@ -351,7 +347,7 @@ describe('Edge cases and untested spec details', () => {
 
 			writer.addCategory('test', {
 				name: 'Test',
-				geometry: ['point'],
+				appliesTo: ['observation'],
 				tags: { test: 'value' },
 				fields: [],
 				color: '#aabbcc',
@@ -375,7 +371,7 @@ describe('Edge cases and untested spec details', () => {
 
 			writer.addCategory('test', {
 				name: 'Test',
-				geometry: ['point'],
+				appliesTo: ['observation'],
 				tags: { test: 'value' },
 				fields: [],
 				color: '#aabbccdd',
@@ -399,7 +395,7 @@ describe('Edge cases and untested spec details', () => {
 
 			writer.addCategory('test', {
 				name: 'Test',
-				geometry: ['point'],
+				appliesTo: ['observation'],
 				tags: { test: 'value' },
 				fields: [],
 				color: '#AABBCC',
@@ -424,7 +420,7 @@ describe('Edge cases and untested spec details', () => {
 				() => {
 					writer.addCategory('test', {
 						name: 'Test',
-						geometry: ['point'],
+						appliesTo: ['observation'],
 						tags: { test: 'value' },
 						fields: [],
 						color: 'red',
@@ -441,7 +437,7 @@ describe('Edge cases and untested spec details', () => {
 				() => {
 					writer.addCategory('test', {
 						name: 'Test',
-						geometry: ['point'],
+						appliesTo: ['observation'],
 						tags: { test: 'value' },
 						fields: [],
 						color: 'aabbcc',
@@ -458,7 +454,7 @@ describe('Edge cases and untested spec details', () => {
 				() => {
 					writer.addCategory('test', {
 						name: 'Test',
-						geometry: ['point'],
+						appliesTo: ['observation'],
 						tags: { test: 'value' },
 						fields: [],
 						color: '#gghhii',
@@ -508,7 +504,7 @@ describe('Edge cases and untested spec details', () => {
 
 			writer.addCategory('test', {
 				name: 'Test',
-				geometry: ['point'],
+				appliesTo: ['observation'],
 				tags: { test: 'value' },
 				fields: ['mixed'],
 			})
@@ -549,7 +545,7 @@ describe('Edge cases and untested spec details', () => {
 
 			writer.addCategory('test', {
 				name: 'Test',
-				geometry: ['point'],
+				appliesTo: ['observation'],
 				tags: { test: 'value' },
 				fields: [],
 			})
@@ -598,7 +594,7 @@ describe('Edge cases and untested spec details', () => {
 
 			writer.addCategory('test', {
 				name: 'Test',
-				geometry: ['point'],
+				appliesTo: ['observation'],
 				tags: { test: 'value' },
 				fields: [],
 			})
@@ -625,7 +621,7 @@ describe('Edge cases and untested spec details', () => {
 
 			writer.addCategory('test', {
 				name: 'Test',
-				geometry: ['point'],
+				appliesTo: ['observation'],
 				tags: { test: 'value' },
 				fields: [],
 			})
@@ -686,7 +682,7 @@ describe('Edge cases and untested spec details', () => {
 				filepath,
 				files: {
 					'categories.json': { tree: fixtures.categories.tree },
-					'categorySelection.json': fixtures.categorySelection.point,
+					'categorySelection.json': fixtures.categorySelection.observation,
 					'metadata.json': fixtures.metadata.minimal,
 					'translations/es.json': {
 						category: {
@@ -718,7 +714,7 @@ describe('Edge cases and untested spec details', () => {
 				filepath,
 				files: {
 					'categories.json': { tree: fixtures.categories.tree },
-					'categorySelection.json': fixtures.categorySelection.point,
+					'categorySelection.json': fixtures.categorySelection.observation,
 					'metadata.json': fixtures.metadata.minimal,
 					'translations/es.json': {
 						category: {},
@@ -749,7 +745,7 @@ describe('Edge cases and untested spec details', () => {
 
 			writer.addCategory('test', {
 				name: 'Test',
-				geometry: ['point'],
+				appliesTo: ['observation'],
 				tags: {
 					string_tag: 'value',
 					number_tag: 123,
@@ -784,7 +780,7 @@ describe('Edge cases and untested spec details', () => {
 
 			writer.addCategory('test', {
 				name: 'Test',
-				geometry: ['point'],
+				appliesTo: ['observation'],
 				tags: { test: 'value' },
 				fields: ['notes'],
 			})
@@ -816,7 +812,7 @@ describe('Edge cases and untested spec details', () => {
 
 			writer.addCategory('test', {
 				name: 'Test',
-				geometry: ['point'],
+				appliesTo: ['observation'],
 				tags: { test: 'value' },
 				fields: ['name'],
 			})

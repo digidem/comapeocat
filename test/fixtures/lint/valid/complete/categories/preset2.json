@@ -1,7 +1,7 @@
 {
   "name": "Dr. Der",
-  "geometry": [
-    "line"
+  "appliesTo": [
+    "track"
   ],
   "tags": {
     "doloremque": false

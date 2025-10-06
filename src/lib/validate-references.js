@@ -6,16 +6,16 @@ import {
 import { addRefToMap, typedEntries } from './utils.js'
 
 /**
- * Validate category references to fields, icons, and category selection geometry types.
+ * Validate category references to fields, icons, and category selection document types.
  * Throws errors if any invalid references are found.
  *
  * @param {object} params
- * @param {Map<string, {fields: string[], icon?: string, geometry: string[]}>} params.categories - Map of category ID to category data
+ * @param {Map<string, {fields: string[], icon?: string, appliesTo: string[]}>} params.categories - Map of category ID to category data
  * @param {Set<string> | Map<string, unknown>} params.fieldIds - Set of field IDs or Map with field IDs as keys
  * @param {Set<string>} params.iconIds - Set of icon IDs
- * @param {Record<string, string[]>} [params.categorySelection] - Optional category selection object mapping geometry types to category IDs
+ * @param {Record<string, string[]>} [params.categorySelection] - Optional category selection object mapping document types to category IDs
  * @throws {CategoryRefError} When field or icon references are missing
- * @throws {import('./errors.js').InvalidCategorySelectionError} When categories in category selection don't support the geometry type
+ * @throws {import('./errors.js').InvalidCategorySelectionError} When categories in category selection don't support the document type
  */
 
 export function validateReferences({
@@ -58,26 +58,26 @@ export function validateReferences({
 		})
 	}
 
-	// Check category selection geometry types if provided
+	// Check category selection document types if provided
 	if (categorySelection) {
 		/** @type {Map<string, Set<string>>} */
-		const invalidGeometryRefs = new Map()
+		const invalidDocTypeRefs = new Map()
 
-		for (const [geometryType, categoryIds] of typedEntries(categorySelection)) {
+		for (const [documentType, categoryIds] of typedEntries(categorySelection)) {
 			for (const categoryId of categoryIds) {
 				const category = categories.get(categoryId)
 				if (!category) {
-					throw new CategorySelectionRefError({ categoryId, geometryType })
+					throw new CategorySelectionRefError({ categoryId, documentType })
 				}
-				if (category && !category.geometry.includes(geometryType)) {
-					addRefToMap(invalidGeometryRefs, geometryType, categoryId)
+				if (category && !category.appliesTo.includes(documentType)) {
+					addRefToMap(invalidDocTypeRefs, documentType, categoryId)
 				}
 			}
 		}
 
-		if (invalidGeometryRefs.size > 0) {
+		if (invalidDocTypeRefs.size > 0) {
 			throw new InvalidCategorySelectionError({
-				invalidRefs: invalidGeometryRefs,
+				invalidRefs: invalidDocTypeRefs,
 			})
 		}
 	}

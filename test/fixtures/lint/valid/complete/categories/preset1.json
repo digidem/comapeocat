@@ -1,7 +1,7 @@
 {
   "name": "Kelle",
-  "geometry": [
-    "point"
+  "appliesTo": [
+    "observation"
   ],
   "tags": {
     "cometes": true

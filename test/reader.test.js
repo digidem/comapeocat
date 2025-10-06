@@ -30,7 +30,7 @@ describe('Reader', () => {
 				version: '1.0',
 				files: {
 					'categories.json': { tree: fixtures.categories.tree },
-					'categorySelection.json': fixtures.categorySelection.point,
+					'categorySelection.json': fixtures.categorySelection.observation,
 					'metadata.json': fixtures.metadata.minimal,
 				},
 			})
@@ -47,7 +47,7 @@ describe('Reader', () => {
 				version: '1.5',
 				files: {
 					'categories.json': { tree: fixtures.categories.tree },
-					'categorySelection.json': fixtures.categorySelection.point,
+					'categorySelection.json': fixtures.categorySelection.observation,
 					'metadata.json': fixtures.metadata.minimal,
 				},
 			})
@@ -64,7 +64,7 @@ describe('Reader', () => {
 				version: '2.0',
 				files: {
 					'categories.json': { tree: fixtures.categories.tree },
-					'categorySelection.json': fixtures.categorySelection.point,
+					'categorySelection.json': fixtures.categorySelection.observation,
 					'metadata.json': fixtures.metadata.minimal,
 				},
 			})
@@ -83,7 +83,7 @@ describe('Reader', () => {
 				version: 'invalid',
 				files: {
 					'categories.json': { tree: fixtures.categories.tree },
-					'categorySelection.json': fixtures.categorySelection.point,
+					'categorySelection.json': fixtures.categorySelection.observation,
 					'metadata.json': fixtures.metadata.minimal,
 				},
 			})
@@ -102,7 +102,7 @@ describe('Reader', () => {
 				version: null,
 				files: {
 					'categories.json': { tree: fixtures.categories.tree },
-					'categorySelection.json': fixtures.categorySelection.point,
+					'categorySelection.json': fixtures.categorySelection.observation,
 					'metadata.json': fixtures.metadata.minimal,
 				},
 			})
@@ -119,7 +119,7 @@ describe('Reader', () => {
 			await createTestZip({
 				filepath,
 				files: {
-					'categorySelection.json': { point: [], line: [], area: [] },
+					'categorySelection.json': { observation: [], track: [] },
 					'metadata.json': fixtures.metadata.minimal,
 				},
 			})
@@ -154,7 +154,7 @@ describe('Reader', () => {
 				filepath,
 				files: {
 					'categories.json': { tree: fixtures.categories.tree },
-					'categorySelection.json': fixtures.categorySelection.point,
+					'categorySelection.json': fixtures.categorySelection.observation,
 				},
 			})
 
@@ -177,9 +177,8 @@ describe('Reader', () => {
 						water: fixtures.categories.water,
 					},
 					'categorySelection.json': {
-						point: ['tree'],
-						line: [],
-						area: ['water'],
+						observation: ['tree'],
+						track: ['water'],
 					},
 					'metadata.json': fixtures.metadata.minimal,
 				},
@@ -190,7 +189,7 @@ describe('Reader', () => {
 
 			assert.equal(categories.size, 2)
 			assert.equal(categories.get('tree')?.name, 'Tree')
-			assert.deepEqual(categories.get('tree')?.geometry, ['point'])
+			assert.deepEqual(categories.get('tree')?.appliesTo, ['observation'])
 			assert.equal(categories.get('water')?.name, 'Water')
 
 			await reader.close()
@@ -208,7 +207,7 @@ describe('Reader', () => {
 						},
 					},
 					'fields.json': { species: fixtures.fields.species },
-					'categorySelection.json': fixtures.categorySelection.point,
+					'categorySelection.json': fixtures.categorySelection.observation,
 					'metadata.json': fixtures.metadata.minimal,
 				},
 			})
@@ -229,7 +228,7 @@ describe('Reader', () => {
 				filepath,
 				files: {
 					'categories.json': { tree: fixtures.categories.tree },
-					'categorySelection.json': fixtures.categorySelection.point,
+					'categorySelection.json': fixtures.categorySelection.observation,
 					'metadata.json': fixtures.metadata.minimal,
 				},
 			})
@@ -251,9 +250,8 @@ describe('Reader', () => {
 						river: fixtures.categories.river,
 					},
 					'categorySelection.json': {
-						point: ['tree'],
-						line: ['river'],
-						area: [],
+						observation: ['tree'],
+						track: ['river'],
 					},
 					'metadata.json': fixtures.metadata.minimal,
 				},
@@ -262,9 +260,8 @@ describe('Reader', () => {
 			const reader = new Reader(filepath)
 			const categorySelection = await reader.categorySelection()
 
-			assert.deepEqual(categorySelection.point, ['tree'])
-			assert.deepEqual(categorySelection.line, ['river'])
-			assert.deepEqual(categorySelection.area, [])
+			assert.deepEqual(categorySelection.observation, ['tree'])
+			assert.deepEqual(categorySelection.track, ['river'])
 
 			await reader.close()
 		})
@@ -275,7 +272,7 @@ describe('Reader', () => {
 				filepath,
 				files: {
 					'categories.json': { tree: fixtures.categories.tree },
-					'categorySelection.json': fixtures.categorySelection.point,
+					'categorySelection.json': fixtures.categorySelection.observation,
 					'metadata.json': fixtures.metadata.complete,
 				},
 			})
@@ -298,7 +295,7 @@ describe('Reader', () => {
 					'categories.json': {
 						tree: { ...fixtures.categories.tree, icon: 'tree' },
 					},
-					'categorySelection.json': fixtures.categorySelection.point,
+					'categorySelection.json': fixtures.categorySelection.observation,
 					'metadata.json': fixtures.metadata.minimal,
 					'icons/tree.svg': fixtures.icons.tree,
 					'icons/water.svg': fixtures.icons.simple,
@@ -321,7 +318,7 @@ describe('Reader', () => {
 				filepath,
 				files: {
 					'categories.json': { tree: fixtures.categories.tree },
-					'categorySelection.json': fixtures.categorySelection.point,
+					'categorySelection.json': fixtures.categorySelection.observation,
 					'metadata.json': fixtures.metadata.minimal,
 					'icons/tree.svg': fixtures.icons.tree,
 				},
@@ -348,7 +345,7 @@ describe('Reader', () => {
 					'categories.json': {
 						tree: { ...fixtures.categories.tree, icon: 'tree' },
 					},
-					'categorySelection.json': fixtures.categorySelection.point,
+					'categorySelection.json': fixtures.categorySelection.observation,
 					'metadata.json': fixtures.metadata.minimal,
 					'icons/tree.svg': fixtures.icons.tree,
 					'icons/water.svg': fixtures.icons.simple,
@@ -374,7 +371,7 @@ describe('Reader', () => {
 				filepath,
 				files: {
 					'categories.json': { tree: fixtures.categories.tree },
-					'categorySelection.json': fixtures.categorySelection.point,
+					'categorySelection.json': fixtures.categorySelection.observation,
 					'metadata.json': fixtures.metadata.minimal,
 					'icons/tree.svg': fixtures.icons.tree,
 				},
@@ -394,7 +391,7 @@ describe('Reader', () => {
 				filepath,
 				files: {
 					'categories.json': { tree: fixtures.categories.tree },
-					'categorySelection.json': fixtures.categorySelection.point,
+					'categorySelection.json': fixtures.categorySelection.observation,
 					'metadata.json': fixtures.metadata.minimal,
 					'translations/es.json': fixtures.translations.es,
 					'translations/fr.json': fixtures.translations.fr,
@@ -420,7 +417,7 @@ describe('Reader', () => {
 				filepath,
 				files: {
 					'categories.json': { tree: fixtures.categories.tree },
-					'categorySelection.json': fixtures.categorySelection.point,
+					'categorySelection.json': fixtures.categorySelection.observation,
 					'metadata.json': fixtures.metadata.minimal,
 					'translations/es.json': fixtures.translations.es,
 					'translations/invalid!!.json': {
@@ -456,7 +453,7 @@ describe('Reader', () => {
 						species: fixtures.fields.species,
 						height: fixtures.fields.height,
 					},
-					'categorySelection.json': fixtures.categorySelection.point,
+					'categorySelection.json': fixtures.categorySelection.observation,
 					'metadata.json': fixtures.metadata.minimal,
 					'icons/tree.svg': fixtures.icons.tree,
 				},
@@ -478,7 +475,7 @@ describe('Reader', () => {
 							fields: ['nonexistent'],
 						},
 					},
-					'categorySelection.json': fixtures.categorySelection.point,
+					'categorySelection.json': fixtures.categorySelection.observation,
 					'metadata.json': fixtures.metadata.minimal,
 				},
 			})
@@ -501,7 +498,7 @@ describe('Reader', () => {
 							icon: 'nonexistent',
 						},
 					},
-					'categorySelection.json': fixtures.categorySelection.point,
+					'categorySelection.json': fixtures.categorySelection.observation,
 					'metadata.json': fixtures.metadata.minimal,
 				},
 			})
@@ -521,7 +518,7 @@ describe('Reader', () => {
 				filepath,
 				files: {
 					'categories.json': { tree: fixtures.categories.tree },
-					'categorySelection.json': fixtures.categorySelection.point,
+					'categorySelection.json': fixtures.categorySelection.observation,
 					'metadata.json': fixtures.metadata.minimal,
 				},
 			})
@@ -546,7 +543,7 @@ describe('Reader', () => {
 						},
 					},
 					'fields.json': { species: fixtures.fields.species },
-					'categorySelection.json': fixtures.categorySelection.point,
+					'categorySelection.json': fixtures.categorySelection.observation,
 					'metadata.json': fixtures.metadata.minimal,
 				},
 			})
@@ -569,7 +566,7 @@ describe('Reader', () => {
 					'categories.json': {
 						tree: { name: 'Tree' }, // Missing required fields
 					},
-					'categorySelection.json': fixtures.categorySelection.point,
+					'categorySelection.json': fixtures.categorySelection.observation,
 					'metadata.json': fixtures.metadata.minimal,
 				},
 			})
@@ -585,7 +582,7 @@ describe('Reader', () => {
 				filepath,
 				files: {
 					'categories.json': { tree: fixtures.categories.tree },
-					'categorySelection.json': fixtures.categorySelection.point,
+					'categorySelection.json': fixtures.categorySelection.observation,
 					'metadata.json': {
 						name: 'A'.repeat(101),
 						buildDateValue: 1000000,
@@ -604,7 +601,7 @@ describe('Reader', () => {
 				filepath,
 				files: {
 					'categories.json': '{ invalid json }',
-					'categorySelection.json': { point: [], line: [], area: [] },
+					'categorySelection.json': { observation: [], track: [] },
 					'metadata.json': fixtures.metadata.minimal,
 				},
 			})

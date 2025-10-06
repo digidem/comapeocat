@@ -1,7 +1,6 @@
 {
-  "point": [
+  "observation": [
     "tree"
   ],
-  "line": [],
-  "area": []
+  "track": []
 }

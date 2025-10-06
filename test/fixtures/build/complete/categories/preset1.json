@@ -1,7 +1,7 @@
 {
   "name": "Shawna Gulgowski DDS",
-  "geometry": [
-    "point"
+  "appliesTo": [
+    "observation"
   ],
   "tags": {
     "cernuus": 0.9244301551265433

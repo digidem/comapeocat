@@ -1,7 +1,7 @@
 {
   "name": "Frankie Goodwin",
-  "geometry": [
-    "point"
+  "appliesTo": [
+    "observation"
   ],
   "tags": {
     "coerceo": true

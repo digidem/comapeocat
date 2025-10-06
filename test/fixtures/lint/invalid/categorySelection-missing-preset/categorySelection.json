@@ -1,8 +1,7 @@
 {
-  "point": [
+  "observation": [
     "tree",
     "nonexistent_preset"
   ],
-  "line": [],
-  "area": []
+  "track": []
 }

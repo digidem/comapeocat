@@ -6,13 +6,13 @@ export const fixtures = /** @type {const} */ ({
 	categories: {
 		tree: {
 			name: 'Tree',
-			geometry: ['point'],
+			appliesTo: ['observation'],
 			tags: { natural: 'tree' },
 			fields: [],
 		},
 		treeWithFields: {
 			name: 'Tree',
-			geometry: ['point'],
+			appliesTo: ['observation'],
 			tags: { natural: 'tree' },
 			fields: ['species', 'height'],
 			icon: 'tree',
@@ -20,7 +20,7 @@ export const fixtures = /** @type {const} */ ({
 		},
 		treeComplete: {
 			name: 'Tree',
-			geometry: ['point'],
+			appliesTo: ['observation'],
 			tags: { natural: 'tree' },
 			addTags: { natural: 'tree', source: 'survey' },
 			removeTags: { natural: 'tree', source: 'survey' },
@@ -31,25 +31,25 @@ export const fixtures = /** @type {const} */ ({
 		},
 		river: {
 			name: 'River',
-			geometry: ['line'],
+			appliesTo: ['track'],
 			tags: { natural: 'water', water: 'river' },
 			fields: [],
 		},
 		riverWithFields: {
 			name: 'River',
-			geometry: ['line'],
+			appliesTo: ['track'],
 			tags: { natural: 'water', water: 'river' },
 			fields: ['name'],
 		},
 		water: {
 			name: 'Water',
-			geometry: ['area'],
+			appliesTo: ['track'],
 			tags: { natural: 'water' },
 			fields: [],
 		},
 		forest: {
 			name: 'Forest',
-			geometry: ['area'],
+			appliesTo: ['track'],
 			tags: { natural: 'wood', wood: 'forest' },
 			fields: ['name', 'area_size'],
 			icon: 'forest',
@@ -57,7 +57,7 @@ export const fixtures = /** @type {const} */ ({
 		},
 		multiGeometry: {
 			name: 'Water',
-			geometry: ['point', 'line', 'area'],
+			appliesTo: ['observation', 'track'],
 			tags: { natural: 'water' },
 			fields: [],
 		},
@@ -127,15 +127,13 @@ export const fixtures = /** @type {const} */ ({
 	},
 
 	categorySelection: {
-		point: {
-			point: ['tree'],
-			line: [],
-			area: [],
+		observation: {
+			observation: ['tree'],
+			track: [],
 		},
 		all: {
-			point: ['tree'],
-			line: ['river'],
-			area: ['water'],
+			observation: ['tree'],
+			track: ['river', 'water'],
 		},
 	},
 

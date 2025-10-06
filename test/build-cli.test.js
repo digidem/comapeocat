@@ -55,9 +55,8 @@ describe('CLI build command', () => {
 		assert.equal(iconNames.size, 2)
 
 		const categorySelection = await reader.categorySelection()
-		assert.equal(categorySelection.point.length, 1)
-		assert.equal(categorySelection.line.length, 1)
-		assert.equal(categorySelection.area.length, 0)
+		assert.equal(categorySelection.observation.length, 1)
+		assert.equal(categorySelection.track.length, 1)
 
 		const metadata = await reader.metadata()
 		assert.equal(metadata.name, 'Complete Build Test')
@@ -84,19 +83,15 @@ describe('CLI build command', () => {
 		const categorySelection = await reader.categorySelection()
 		const categories = await reader.categories()
 
-		// Check that categorySelection exists for each geometry type
-		assert.ok(Array.isArray(categorySelection.point))
-		assert.ok(Array.isArray(categorySelection.line))
-		assert.ok(Array.isArray(categorySelection.area))
+		// Check that categorySelection exists for each document type
+		assert.ok(Array.isArray(categorySelection.observation))
+		assert.ok(Array.isArray(categorySelection.track))
 
 		// Verify that the generated categorySelection reference existing categories
-		for (const categoryId of categorySelection.point) {
+		for (const categoryId of categorySelection.observation) {
 			assert.ok(categories.has(categoryId))
 		}
-		for (const categoryId of categorySelection.line) {
-			assert.ok(categories.has(categoryId))
-		}
-		for (const categoryId of categorySelection.area) {
+		for (const categoryId of categorySelection.track) {
 			assert.ok(categories.has(categoryId))
 		}
 
@@ -121,12 +116,12 @@ describe('CLI build command', () => {
 
 		const categorySelection = await reader.categorySelection()
 
-		// All three presets have geometry: ['point'] and sort values 1, 2, 3
-		// So categorySelection.point should be ordered by sort: preset2, preset3, preset1
-		assert.equal(categorySelection.point.length, 3)
-		assert.equal(categorySelection.point[0], 'preset2') // sort: 1
-		assert.equal(categorySelection.point[1], 'preset3') // sort: 2
-		assert.equal(categorySelection.point[2], 'preset1') // sort: 3
+		// All three presets have appliesTo: ['observation'] and sort values 1, 2, 3
+		// So categorySelection.observation should be ordered by sort: preset2, preset3, preset1
+		assert.equal(categorySelection.observation.length, 3)
+		assert.equal(categorySelection.observation[0], 'preset2') // sort: 1
+		assert.equal(categorySelection.observation[1], 'preset3') // sort: 2
+		assert.equal(categorySelection.observation[2], 'preset1') // sort: 3
 
 		await reader.close()
 	})

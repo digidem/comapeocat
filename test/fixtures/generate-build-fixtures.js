@@ -39,22 +39,19 @@ writeJSON(join(noCategorySelectionDir, 'fields'), 'field2.json', field2)
 
 const preset1 = valimock.mock(CategorySchemaDeprecated)
 preset1.fields = ['field1']
-// @ts-expect-error
-preset1.geometry = ['point']
+preset1.appliesTo = ['observation']
 delete preset1.icon
 delete preset1.sort
 
 const preset2 = valimock.mock(CategorySchemaDeprecated)
 preset2.fields = ['field2']
-// @ts-expect-error
-preset2.geometry = ['line']
+preset2.appliesTo = ['track']
 delete preset2.icon
 delete preset2.sort
 
 const preset3 = valimock.mock(CategorySchemaDeprecated)
 preset3.fields = ['field1', 'field2']
-// @ts-expect-error
-preset3.geometry = ['area']
+preset3.appliesTo = ['track']
 delete preset3.icon
 delete preset3.sort
 
@@ -76,22 +73,19 @@ writeJSON(join(withSortDir, 'fields'), 'field1.json', sortField1)
 // Create presets with sort field in specific order
 const sortPreset1 = valimock.mock(CategorySchemaDeprecated)
 sortPreset1.fields = ['field1']
-// @ts-expect-error
-sortPreset1.geometry = ['point']
+sortPreset1.appliesTo = ['observation']
 sortPreset1.sort = 3 // Should appear third
 delete sortPreset1.icon
 
 const sortPreset2 = valimock.mock(CategorySchemaDeprecated)
 sortPreset2.fields = ['field1']
-// @ts-expect-error
-sortPreset2.geometry = ['point']
+sortPreset2.appliesTo = ['observation']
 sortPreset2.sort = 1 // Should appear first
 delete sortPreset2.icon
 
 const sortPreset3 = valimock.mock(CategorySchemaDeprecated)
 sortPreset3.fields = ['field1']
-// @ts-expect-error
-sortPreset3.geometry = ['point']
+sortPreset3.appliesTo = ['observation']
 sortPreset3.sort = 2 // Should appear second
 delete sortPreset3.icon
 
@@ -116,14 +110,12 @@ writeJSON(join(completeDir, 'fields'), 'field2.json', completeField2)
 const completePreset1 = valimock.mock(CategorySchemaDeprecated)
 completePreset1.fields = ['field1', 'field2']
 completePreset1.icon = 'icon1'
-// @ts-expect-error
-completePreset1.geometry = ['point']
+completePreset1.appliesTo = ['observation']
 
 const completePreset2 = valimock.mock(CategorySchemaDeprecated)
 completePreset2.fields = ['field2']
 completePreset2.icon = 'icon2'
-// @ts-expect-error
-completePreset2.geometry = ['line']
+completePreset2.appliesTo = ['track']
 
 writeJSON(join(completeDir, 'categories'), 'preset1.json', completePreset1)
 writeJSON(join(completeDir, 'categories'), 'preset2.json', completePreset2)
@@ -139,9 +131,8 @@ writeFileSync(
 )
 
 writeJSON(completeDir, 'categorySelection.json', {
-	point: ['preset1'],
-	line: ['preset2'],
-	area: [],
+	observation: ['preset1'],
+	track: ['preset2'],
 })
 
 writeJSON(completeDir, 'metadata.json', {

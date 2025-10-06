@@ -12,7 +12,7 @@ describe('validateCategoryTags', () => {
 				'tree',
 				{
 					name: 'Tree',
-					geometry: ['point'],
+					appliesTo: ['observation'],
 					tags: { natural: 'tree' },
 					fields: [],
 				},
@@ -21,7 +21,7 @@ describe('validateCategoryTags', () => {
 				'water',
 				{
 					name: 'Water',
-					geometry: ['area'],
+					appliesTo: ['track'],
 					tags: { natural: 'water' },
 					fields: [],
 				},
@@ -30,7 +30,7 @@ describe('validateCategoryTags', () => {
 				'building',
 				{
 					name: 'Building',
-					geometry: ['area'],
+					appliesTo: ['track'],
 					tags: { building: 'yes' },
 					fields: [],
 				},
@@ -46,7 +46,7 @@ describe('validateCategoryTags', () => {
 				'tree1',
 				{
 					name: 'Tree 1',
-					geometry: ['point'],
+					appliesTo: ['observation'],
 					tags: { natural: 'tree' },
 					fields: [],
 				},
@@ -55,7 +55,7 @@ describe('validateCategoryTags', () => {
 				'tree2',
 				{
 					name: 'Tree 2',
-					geometry: ['point'],
+					appliesTo: ['observation'],
 					tags: { natural: 'tree' },
 					fields: [],
 				},
@@ -71,7 +71,7 @@ describe('validateCategoryTags', () => {
 				'tree1',
 				{
 					name: 'Tree 1',
-					geometry: ['point'],
+					appliesTo: ['observation'],
 					tags: { natural: 'tree' },
 					fields: [],
 				},
@@ -80,7 +80,7 @@ describe('validateCategoryTags', () => {
 				'tree2',
 				{
 					name: 'Tree 2',
-					geometry: ['point'],
+					appliesTo: ['observation'],
 					tags: { natural: 'tree' },
 					fields: [],
 				},
@@ -89,7 +89,7 @@ describe('validateCategoryTags', () => {
 				'tree3',
 				{
 					name: 'Tree 3',
-					geometry: ['point'],
+					appliesTo: ['observation'],
 					tags: { natural: 'tree' },
 					fields: [],
 				},
@@ -105,7 +105,7 @@ describe('validateCategoryTags', () => {
 				'tree1',
 				{
 					name: 'Tree 1',
-					geometry: ['point'],
+					appliesTo: ['observation'],
 					tags: { natural: 'tree' },
 					fields: [],
 				},
@@ -114,7 +114,7 @@ describe('validateCategoryTags', () => {
 				'tree2',
 				{
 					name: 'Tree 2',
-					geometry: ['point'],
+					appliesTo: ['observation'],
 					tags: { natural: 'tree' },
 					fields: [],
 				},
@@ -123,7 +123,7 @@ describe('validateCategoryTags', () => {
 				'water1',
 				{
 					name: 'Water 1',
-					geometry: ['area'],
+					appliesTo: ['track'],
 					tags: { natural: 'water' },
 					fields: [],
 				},
@@ -132,7 +132,7 @@ describe('validateCategoryTags', () => {
 				'water2',
 				{
 					name: 'Water 2',
-					geometry: ['area'],
+					appliesTo: ['track'],
 					tags: { natural: 'water' },
 					fields: [],
 				},
@@ -148,7 +148,7 @@ describe('validateCategoryTags', () => {
 				'preset1',
 				{
 					name: 'Preset 1',
-					geometry: ['point'],
+					appliesTo: ['observation'],
 					tags: { natural: 'tree', type: 'oak' },
 					fields: [],
 				},
@@ -157,7 +157,7 @@ describe('validateCategoryTags', () => {
 				'preset2',
 				{
 					name: 'Preset 2',
-					geometry: ['point'],
+					appliesTo: ['observation'],
 					tags: { type: 'oak', natural: 'tree' },
 					fields: [],
 				},
@@ -173,7 +173,7 @@ describe('validateCategoryTags', () => {
 				'oak',
 				{
 					name: 'Oak',
-					geometry: ['point'],
+					appliesTo: ['observation'],
 					tags: { natural: 'tree', type: 'oak' },
 					fields: [],
 				},
@@ -182,7 +182,7 @@ describe('validateCategoryTags', () => {
 				'pine',
 				{
 					name: 'Pine',
-					geometry: ['point'],
+					appliesTo: ['observation'],
 					tags: { natural: 'tree', type: 'pine' },
 					fields: [],
 				},
@@ -198,7 +198,7 @@ describe('validateCategoryTags', () => {
 				'preset1',
 				{
 					name: 'Preset 1',
-					geometry: ['point'],
+					appliesTo: ['observation'],
 					tags: { string: 'value', number: 42, boolean: true, null_val: null },
 					fields: [],
 				},
@@ -207,7 +207,7 @@ describe('validateCategoryTags', () => {
 				'preset2',
 				{
 					name: 'Preset 2',
-					geometry: ['point'],
+					appliesTo: ['observation'],
 					tags: { string: 'value', number: 42, boolean: true, null_val: null },
 					fields: [],
 				},
@@ -228,7 +228,7 @@ describe('validateCategoryTags', () => {
 				'tree',
 				{
 					name: 'Tree',
-					geometry: ['point'],
+					appliesTo: ['observation'],
 					tags: { natural: 'tree' },
 					fields: [],
 				},
