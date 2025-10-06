@@ -1,7 +1,6 @@
 {
-  "tagKey": "absconditus",
-  "label": "vinco",
-  "placeholder": "contra",
-  "helperText": "tutis",
+  "tagKey": "temeritas",
+  "label": "viduo",
+  "placeholder": "rem",
   "type": "number"
 }

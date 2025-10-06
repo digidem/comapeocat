@@ -17,7 +17,8 @@ import { parseSvg } from '../../src/lib/parse-svg.js'
 import { isNotFoundError } from '../../src/lib/utils.js'
 import {
 	CategorySchema,
-	CategorySchemaDeprecated,
+	CategorySchemaDeprecatedSort,
+	CategorySchemaDeprecatedGeometry,
 } from '../../src/schema/category.js'
 import { CategorySelectionSchema } from '../../src/schema/categorySelection.js'
 import { FieldSchema } from '../../src/schema/field.js'
@@ -26,7 +27,7 @@ import { MetadataSchemaInput } from '../../src/schema/metadata.js'
 import { jsonFiles } from './json-files.js'
 
 /**
- * @import {CategoryDeprecatedInput, CategoryInput} from '../../src/schema/category.js'
+ * @import {CategoryDeprecatedSortInput, CategoryDeprecatedGeometryInput, CategoryInput} from '../../src/schema/category.js'
  * @import {FieldInput} from '../../src/schema/field.js'
  * @import {CategorySelectionInput} from '../../src/schema/categorySelection.js'
  * @import {MetadataInput} from '../../src/schema/metadata.js'
@@ -38,7 +39,7 @@ import { jsonFiles } from './json-files.js'
  *
  * @param {string} dir - Directory path
  * @returns {AsyncGenerator<
- *  | { type: 'category', id: string, value: CategoryDeprecatedInput | CategoryInput }
+ *  | { type: 'category', id: string, value: CategoryDeprecatedSortInput | CategoryDeprecatedGeometryInput | CategoryInput }
  *  | { type: 'field', id: string, value: FieldInput }
  *  | { type: 'categorySelection', id: 'categorySelection', value: CategorySelectionInput }
  *  | { type: 'icon', id: string, value: string }
@@ -62,9 +63,17 @@ export async function* readFiles(dir) {
 	}
 
 	for await (const { name, data } of jsonFiles(categoryDir)) {
-		assertSchema(v.union([CategorySchema, CategorySchemaDeprecated]), data, {
-			fileName: name,
-		})
+		assertSchema(
+			v.union([
+				CategorySchema,
+				CategorySchemaDeprecatedSort,
+				CategorySchemaDeprecatedGeometry,
+			]),
+			data,
+			{
+				fileName: name,
+			},
+		)
 		yield { type: 'category', id: nameToId(name), value: data }
 	}
 

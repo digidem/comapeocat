@@ -1,16 +1,16 @@
 import { typedEntries } from '../../src/lib/utils.js'
 
-/** @import {CategoryDeprecatedInput} from '../../src/schema/category.js' */
+/** @import {CategoryDeprecatedSortInput} from '../../src/schema/category.js' */
 /** @import {CategorySelectionInput} from '../../src/schema/categorySelection.js' */
 /** @import {Entries} from 'type-fest' */
 
-/** @typedef {Pick<CategoryDeprecatedInput, 'sort' | 'name'> & { id: string }} CategoryForSort */
+/** @typedef {Pick<CategoryDeprecatedSortInput, 'sort' | 'name'> & { id: string }} CategoryForSort */
 
 /**
  * Generate category selection from categories if no category selection is provided. Sort categories by
  * sort field first, then by name.
  *
- * @param {Map<string, CategoryDeprecatedInput>} categoriesMap
+ * @param {Map<string, CategoryDeprecatedSortInput>} categoriesMap
  * @returns {CategorySelectionInput}
  */
 export function generateCategorySelection(categoriesMap) {

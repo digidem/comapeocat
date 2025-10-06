@@ -1,10 +1,10 @@
 {
-  "name": "Daniel Rau",
+  "name": "Mrs. Meredith Beatty",
   "appliesTo": [
     "observation"
   ],
   "tags": {
-    "des": false
+    "versus": true
   },
   "addTags": {},
   "removeTags": {},
@@ -12,6 +12,5 @@
     "field1"
   ],
   "terms": [],
-  "color": "#d6d0d0",
   "sort": 3
 }

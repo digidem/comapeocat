@@ -207,4 +207,44 @@ describe('CLI build command', () => {
 
 		await reader.close()
 	})
+
+	test('should migrate deprecated geometry field to appliesTo', async () => {
+		const fixturePath = join(FIXTURES_DIR, 'with-geometry')
+		const outputPath = join(TEST_DIR, 'with-geometry.comapeocat')
+
+		const { exitCode } = await execa('node', [
+			CLI_PATH,
+			fixturePath,
+			'--output',
+			outputPath,
+		])
+		assert.equal(exitCode, 0)
+
+		// Verify that geometry was migrated to appliesTo
+		const reader = new Reader(outputPath)
+		await reader.opened()
+
+		const categories = await reader.categories()
+		assert.equal(categories.size, 3)
+
+		// preset1 has geometry: ['point'] -> should have appliesTo: ['observation']
+		const preset1 = categories.get('preset1')
+		assert.ok(preset1)
+		assert.deepEqual(preset1.appliesTo, ['observation'])
+
+		// preset2 has geometry: ['line'] -> should have appliesTo: ['track']
+		const preset2 = categories.get('preset2')
+		assert.ok(preset2)
+		assert.deepEqual(preset2.appliesTo, ['track'])
+
+		// preset3 has geometry: ['point', 'line'] -> should have appliesTo: ['observation', 'track']
+		const preset3 = categories.get('preset3')
+		assert.ok(preset3)
+		// Check that appliesTo contains both types (order may vary)
+		assert.equal(preset3.appliesTo.length, 2)
+		assert.ok(preset3.appliesTo.includes('observation'))
+		assert.ok(preset3.appliesTo.includes('track'))
+
+		await reader.close()
+	})
 })

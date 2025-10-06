@@ -7,12 +7,16 @@ import * as v from 'valibot'
 
 import { isParseError } from '../src/lib/errors.js'
 import { assertValidBCP47 } from '../src/lib/utils.js'
-import { CategorySchema } from '../src/schema/category.js'
+import {
+	CategorySchema,
+	CategorySchemaDeprecated,
+} from '../src/schema/category.js'
 import { MetadataSchemaInput } from '../src/schema/metadata.js'
 import { Writer } from '../src/writer.js'
 import { generateCategorySelection } from './helpers/generate-category-selection.js'
 import { lint } from './helpers/lint.js'
 import { messagesToTranslations } from './helpers/messages-to-translations.js'
+import { migrateGeometry } from './helpers/migrate-geometry.js'
 import { readFiles } from './helpers/read-files.js'
 
 const program = new Command()
@@ -35,7 +39,7 @@ program
 			handleError,
 		)
 		writer.on('error', handleError)
-		/** @type {Map<string, import('../src/schema/category.js').CategoryDeprecatedInput>} */
+		/** @type {Map<string, import('../src/schema/category.js').CategoryDeprecatedSortInput>} */
 		const categoriesMap = new Map()
 		/** @type {import('../src/schema/metadata.js').MetadataInput | undefined} */
 		let fileMetadata
@@ -45,12 +49,13 @@ program
 			for await (const { type, id, value } of readFiles(dir)) {
 				switch (type) {
 					case 'category': {
-						// We use the deprecated schema here to generate categorySelection.json if it's missing
-						categoriesMap.set(id, value)
-						// Currently parsing will migrate, because all that needs done is
-						// removing the `sort` field (v.parse removes unknown fields)
-						const migratedCategory = v.parse(CategorySchema, value)
-						writer.addCategory(id, migratedCategory)
+						v.assert(v.union([CategorySchema, CategorySchemaDeprecated]), value)
+						// Migrate deprecated geometry field to appliesTo first
+						const migratedGeometry = migrateGeometry(value)
+						// We don't migrate the sort field yet
+						categoriesMap.set(id, migratedGeometry)
+						// v.parse validates the schema and removes the sort field
+						writer.addCategory(id, v.parse(CategorySchema, migratedGeometry))
 						break
 					}
 					case 'field':

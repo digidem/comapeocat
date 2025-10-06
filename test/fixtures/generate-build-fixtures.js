@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { writeFileSync, mkdirSync } from 'node:fs'
 import { join, dirname } from 'node:path'
 import { fileURLToPath } from 'node:url'
@@ -5,7 +6,11 @@ import { fileURLToPath } from 'node:url'
 import { faker } from '@faker-js/faker'
 import { Valimock } from 'valimock'
 
-import { CategorySchemaDeprecated } from '../../src/schema/category.js'
+import {
+	CategorySchema,
+	CategorySchemaDeprecatedSort,
+	CategorySchemaDeprecatedGeometry,
+} from '../../src/schema/category.js'
 import { FieldSchema } from '../../src/schema/field.js'
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
@@ -37,19 +42,19 @@ const field2 = valimock.mock(FieldSchema)
 writeJSON(join(noCategorySelectionDir, 'fields'), 'field1.json', field1)
 writeJSON(join(noCategorySelectionDir, 'fields'), 'field2.json', field2)
 
-const preset1 = valimock.mock(CategorySchemaDeprecated)
+const preset1 = valimock.mock(CategorySchema)
 preset1.fields = ['field1']
 preset1.appliesTo = ['observation']
 delete preset1.icon
 delete preset1.sort
 
-const preset2 = valimock.mock(CategorySchemaDeprecated)
+const preset2 = valimock.mock(CategorySchema)
 preset2.fields = ['field2']
 preset2.appliesTo = ['track']
 delete preset2.icon
 delete preset2.sort
 
-const preset3 = valimock.mock(CategorySchemaDeprecated)
+const preset3 = valimock.mock(CategorySchema)
 preset3.fields = ['field1', 'field2']
 preset3.appliesTo = ['track']
 delete preset3.icon
@@ -71,19 +76,19 @@ const sortField1 = valimock.mock(FieldSchema)
 writeJSON(join(withSortDir, 'fields'), 'field1.json', sortField1)
 
 // Create presets with sort field in specific order
-const sortPreset1 = valimock.mock(CategorySchemaDeprecated)
+const sortPreset1 = valimock.mock(CategorySchemaDeprecatedSort)
 sortPreset1.fields = ['field1']
 sortPreset1.appliesTo = ['observation']
 sortPreset1.sort = 3 // Should appear third
 delete sortPreset1.icon
 
-const sortPreset2 = valimock.mock(CategorySchemaDeprecated)
+const sortPreset2 = valimock.mock(CategorySchemaDeprecatedSort)
 sortPreset2.fields = ['field1']
 sortPreset2.appliesTo = ['observation']
 sortPreset2.sort = 1 // Should appear first
 delete sortPreset2.icon
 
-const sortPreset3 = valimock.mock(CategorySchemaDeprecated)
+const sortPreset3 = valimock.mock(CategorySchemaDeprecatedSort)
 sortPreset3.fields = ['field1']
 sortPreset3.appliesTo = ['observation']
 sortPreset3.sort = 2 // Should appear second
@@ -107,12 +112,12 @@ const completeField2 = valimock.mock(FieldSchema)
 writeJSON(join(completeDir, 'fields'), 'field1.json', completeField1)
 writeJSON(join(completeDir, 'fields'), 'field2.json', completeField2)
 
-const completePreset1 = valimock.mock(CategorySchemaDeprecated)
+const completePreset1 = valimock.mock(CategorySchema)
 completePreset1.fields = ['field1', 'field2']
 completePreset1.icon = 'icon1'
 completePreset1.appliesTo = ['observation']
 
-const completePreset2 = valimock.mock(CategorySchemaDeprecated)
+const completePreset2 = valimock.mock(CategorySchema)
 completePreset2.fields = ['field2']
 completePreset2.icon = 'icon2'
 completePreset2.appliesTo = ['track']
@@ -147,6 +152,37 @@ writeJSON(join(completeDir, 'messages'), 'en.json', {
 	},
 })
 
+// Fixture 4: With deprecated geometry field - should migrate to appliesTo
+const withGeometryDir = join(FIXTURES_DIR, 'with-geometry')
+
+const geometryField1 = valimock.mock(FieldSchema)
+writeJSON(join(withGeometryDir, 'fields'), 'field1.json', geometryField1)
+
+// Create categories with deprecated geometry field
+const geometryPreset1 = valimock.mock(CategorySchemaDeprecatedGeometry)
+geometryPreset1.fields = ['field1']
+geometryPreset1.geometry = ['point']
+delete geometryPreset1.icon
+
+const geometryPreset2 = valimock.mock(CategorySchemaDeprecatedGeometry)
+geometryPreset2.fields = ['field1']
+geometryPreset2.geometry = ['line']
+delete geometryPreset2.icon
+
+const geometryPreset3 = valimock.mock(CategorySchemaDeprecatedGeometry)
+geometryPreset3.fields = ['field1']
+geometryPreset3.geometry = ['point', 'line']
+delete geometryPreset3.icon
+
+writeJSON(join(withGeometryDir, 'categories'), 'preset1.json', geometryPreset1)
+writeJSON(join(withGeometryDir, 'categories'), 'preset2.json', geometryPreset2)
+writeJSON(join(withGeometryDir, 'categories'), 'preset3.json', geometryPreset3)
+
+writeJSON(withGeometryDir, 'metadata.json', {
+	name: 'With Geometry Test',
+	version: '1.0.0',
+})
+
 console.log(`Generated build fixtures at ${FIXTURES_DIR}`)
 console.log('Build fixtures:')
 console.log(
@@ -154,3 +190,6 @@ console.log(
 )
 console.log('  - with-sort (tests deprecated sort field handling)')
 console.log('  - complete (complete fixture with all components)')
+console.log(
+	'  - with-geometry (tests deprecated geometry field migration to appliesTo)',
+)

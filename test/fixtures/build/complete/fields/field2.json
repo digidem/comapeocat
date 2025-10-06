@@ -1,6 +1,17 @@
 {
-  "tagKey": "verbera",
-  "label": "denuo",
-  "placeholder": "adhaero",
-  "type": "number"
+  "tagKey": "curo",
+  "label": "coerceo",
+  "placeholder": "pax",
+  "helperText": "spiculum",
+  "type": "selectMultiple",
+  "options": [
+    {
+      "label": "conculco",
+      "value": 3.469923514291213
+    },
+    {
+      "label": "candidus",
+      "value": 3.8888450877735377
+    }
+  ]
 }

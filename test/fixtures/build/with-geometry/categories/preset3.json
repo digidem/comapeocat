@@ -1,10 +1,7 @@
 {
-  "name": "Vicki Streich",
-  "appliesTo": [
-    "observation"
-  ],
+  "name": "Joy Jacobson",
   "tags": {
-    "corrumpo": true
+    "somnus": "sub"
   },
   "addTags": {},
   "removeTags": {},
@@ -12,5 +9,8 @@
     "field1"
   ],
   "terms": [],
-  "sort": 1
+  "geometry": [
+    "point",
+    "line"
+  ]
 }
