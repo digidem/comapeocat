@@ -1,10 +1,10 @@
 {
-  "name": "Marsha Ondricka MD",
-  "geometry": [
-    "area"
+  "name": "Sean Block-Keebler",
+  "appliesTo": [
+    "track"
   ],
   "tags": {
-    "ager": null
+    "defluo": null
   },
   "addTags": {},
   "removeTags": {},
@@ -12,5 +12,6 @@
     "field1",
     "field2"
   ],
-  "terms": []
+  "terms": [],
+  "color": "#b7eaca"
 }

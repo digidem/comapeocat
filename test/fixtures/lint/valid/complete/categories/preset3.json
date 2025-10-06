@@ -1,10 +1,10 @@
 {
-  "name": "Grace Treutel DDS",
-  "geometry": [
-    "area"
+  "name": "Luke Kuvalis",
+  "appliesTo": [
+    "track"
   ],
   "tags": {
-    "capio": 3.732457025590121
+    "vergo": 0.07728308264433714
   },
   "addTags": {},
   "removeTags": {},
@@ -12,6 +12,5 @@
     "field1"
   ],
   "icon": "icon3",
-  "terms": [],
-  "color": "#0e3eee"
+  "terms": []
 }

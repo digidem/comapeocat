@@ -66,7 +66,7 @@ describe('CLI lint command', () => {
 			)
 		})
 
-		test('should throw InvalidCategorySelectionError for invalid geometry in categorySelection', async () => {
+		test('should throw InvalidCategorySelectionError for invalid document type in categorySelection', async () => {
 			const fixturePath = join(
 				FIXTURES_DIR,
 				'invalid',
@@ -78,7 +78,7 @@ describe('CLI lint command', () => {
 					assert.equal(error.exitCode, 1)
 					assert.match(
 						error.stderr,
-						/does not include "point" in its geometry array/,
+						/does not include "observation" in its appliesTo array/,
 					)
 					return true
 				},

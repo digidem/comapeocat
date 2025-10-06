@@ -33,10 +33,9 @@ function writeJSON(dirPath, filename, content) {
 // Minimal valid fixture - no fields, no icons, no categorySelection, no metadata
 const minimalDir = join(FIXTURES_DIR, 'valid', 'minimal')
 const minimalPreset = valimock.mock(CategorySchema)
-// Override to ensure no field/icon references and valid geometry
+// Override to ensure no field/icon references and valid appliesTo
 minimalPreset.fields = []
-// @ts-expect-error
-minimalPreset.geometry = ['point']
+minimalPreset.appliesTo = ['observation']
 delete minimalPreset.icon
 writeJSON(join(minimalDir, 'categories'), 'preset1.json', minimalPreset)
 
@@ -56,20 +55,17 @@ writeJSON(join(completeDir, 'fields'), 'field3.json', field3)
 const preset1 = valimock.mock(CategorySchema)
 preset1.fields = ['field1', 'field2']
 preset1.icon = 'icon1'
-// @ts-expect-error
-preset1.geometry = ['point']
+preset1.appliesTo = ['observation']
 
 const preset2 = valimock.mock(CategorySchema)
 preset2.fields = ['field2', 'field3']
 preset2.icon = 'icon2'
-// @ts-expect-error
-preset2.geometry = ['line']
+preset2.appliesTo = ['track']
 
 const preset3 = valimock.mock(CategorySchema)
 preset3.fields = ['field1']
 preset3.icon = 'icon3'
-// @ts-expect-error
-preset3.geometry = ['area']
+preset3.appliesTo = ['track']
 
 writeJSON(join(completeDir, 'categories'), 'preset1.json', preset1)
 writeJSON(join(completeDir, 'categories'), 'preset2.json', preset2)
@@ -92,9 +88,8 @@ writeFileSync(
 
 // Generate categorySelection
 writeJSON(completeDir, 'categorySelection.json', {
-	point: ['preset1'],
-	line: ['preset2'],
-	area: ['preset3'],
+	observation: ['preset1'],
+	track: ['preset2', 'preset3'],
 })
 
 // Generate metadata

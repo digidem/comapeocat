@@ -31,7 +31,7 @@ describe('Writer', () => {
 		const writer = new Writer()
 
 		writer.addCategory('tree', fixtures.categories.tree)
-		writer.setCategorySelection(fixtures.categorySelection.point)
+		writer.setCategorySelection(fixtures.categorySelection.observation)
 		writer.setMetadata({ name: 'Test Categories' })
 		writer.finish()
 
@@ -66,9 +66,8 @@ describe('Writer', () => {
 		await writer.addTranslations('es', fixtures.translations.es)
 
 		writer.setCategorySelection({
-			point: ['tree'],
-			line: ['river'],
-			area: [],
+			observation: ['tree'],
+			track: ['river'],
 		})
 
 		writer.setMetadata({
@@ -272,8 +271,8 @@ describe('Writer', () => {
 		)
 	})
 
-	test('handles multiple geometry types', async () => {
-		const filepath = join(TEST_DIR, 'writer-multi-geom.comapeocat')
+	test('handles multiple document types', async () => {
+		const filepath = join(TEST_DIR, 'writer-multi-doc-types.comapeocat')
 		const writer = createTestWriter()
 
 		writer.addCategory('water', fixtures.categories.multiGeometry)
@@ -284,9 +283,8 @@ describe('Writer', () => {
 		const reader = new Reader(filepath)
 		const categories = await reader.categories()
 
-		assert.ok(categories.get('water')?.geometry.includes('point'))
-		assert.ok(categories.get('water')?.geometry.includes('line'))
-		assert.ok(categories.get('water')?.geometry.includes('area'))
+		assert.ok(categories.get('water')?.appliesTo.includes('observation'))
+		assert.ok(categories.get('water')?.appliesTo.includes('track'))
 
 		await reader.close()
 	})

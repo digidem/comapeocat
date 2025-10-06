@@ -1,12 +1,27 @@
 {
-  "tagKey": "patrocinor",
-  "label": "autus",
-  "placeholder": "creta",
-  "type": "selectMultiple",
+  "tagKey": "deputo",
+  "label": "caute",
+  "type": "selectOne",
   "options": [
     {
-      "label": "vos",
+      "label": "alienus",
+      "value": "creta"
+    },
+    {
+      "label": "consuasor",
+      "value": false
+    },
+    {
+      "label": "aestas",
       "value": null
+    },
+    {
+      "label": "abscido",
+      "value": null
+    },
+    {
+      "label": "tepidus",
+      "value": "urbanus"
     }
   ]
 }

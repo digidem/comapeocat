@@ -28,7 +28,7 @@ The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT", "SHOULD", "S
 - **Field**: A form field definition that specifies data collection parameters and the user interface for editing tags associated with a map feature
 - **Icon**: An SVG graphic representing a category
 - **Tag**: A key-value pair used to identify and categorize map features
-- **Geometry Type**: One of `point`, `line`, or `area`
+- **Document Type**: The type of CoMapeo document that a category applies to. One or more of `observation` or `track` (future versions may add more document types)
 
 ## 3. File Format Overview
 
@@ -168,9 +168,9 @@ The categories file MUST be a valid JSON object where:
 Each category object MUST contain:
 
 - **name** (required): Display name for the feature (string)
-- **geometry** (required): Array of valid geometry types for this category
-  - MUST contain one or more of: `"point"`, `"line"`, `"area"`
-  - MAY contain other geometry types in future versions
+- **appliesTo** (required): Array of valid document types for this category
+  - MUST contain one or more of: `"observation"`, `"track"`
+  - MAY contain other document types in future versions
   - SHOULD contain only unique values
 - **tags** (required): Object mapping tag keys to tag values
   - Used to match the category to existing map entities
@@ -198,7 +198,7 @@ Each category object MAY contain:
 {
 	"tree": {
 		"name": "Tree",
-		"geometry": ["point"],
+		"appliesTo": ["observation"],
 		"tags": {
 			"natural": "tree"
 		},
@@ -292,31 +292,29 @@ The category selection file MUST be a valid JSON object with the following struc
 
 ```json
 {
-  "point": ["category-id-1", "category-id-2", ...],
-  "line": ["category-id-1", "category-id-2", ...],
-  "area": ["category-id-1", "category-id-2", ...]
+  "observation": ["category-id-1", "category-id-2", ...],
+  "track": ["category-id-1", "category-id-2", ...],
 }
 ```
 
 ### 9.3. Properties
 
-Each geometry type property:
+Each document type property:
 
-- MUST be present (`point`, `line`, and `area`)
+- MUST be present (`observation` and `track`)
 - MUST be an array of category IDs (non-empty strings)
 - Category IDs MUST reference categories defined in `categories.json`
-- Each referenced category MUST include the corresponding geometry type in its `geometry` array
-  - For example, a category referenced in `categorySelection.point` MUST have `"point"` in its `geometry` array
+- Each referenced category MUST include the corresponding document type in its `appliesTo` array
+  - For example, a category referenced in `categorySelection.observation` MUST have `"observation"` in its `appliesTo` array
 
-The order of category IDs in each array determines the display order of categories shown to the user in CoMapeo applications for that geometry type.
+The order of category IDs in each array determines the display order of categories shown to the user in CoMapeo applications for that document type.
 
 ### 9.4. Example
 
 ```json
 {
-	"point": ["tree", "waterhole", "camp"],
-	"line": ["river", "trail"],
-	"area": ["forest", "lake"]
+	"observation": ["tree", "waterhole", "camp"],
+	"track": ["river", "trail"]
 }
 ```
 

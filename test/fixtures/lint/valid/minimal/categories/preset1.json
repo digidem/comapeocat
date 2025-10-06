@@ -1,13 +1,14 @@
 {
   "name": "Leon Crist",
-  "geometry": [
-    "point"
+  "appliesTo": [
+    "observation"
   ],
   "tags": {
-    "territo": false
+    "custodia": 3.0592644736118975
   },
   "addTags": {},
   "removeTags": {},
   "fields": [],
-  "terms": []
+  "terms": [],
+  "color": "#31efb6"
 }

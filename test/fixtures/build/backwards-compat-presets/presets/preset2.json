@@ -1,18 +1,14 @@
 {
-  "name": "Derek Heller",
-  "geometry": [
-    "line"
-  ],
-  "tags": {
-    "veniam": true
-  },
-  "addTags": {},
-  "removeTags": {},
-  "fields": [
-    "field2"
-  ],
-  "icon": "icon2",
-  "terms": [],
-  "color": "#e8ad8f",
-  "sort": 1.1030165890360117
+	"name": "Derek Heller",
+	"appliesTo": ["track"],
+	"tags": {
+		"veniam": true
+	},
+	"addTags": {},
+	"removeTags": {},
+	"fields": ["field2"],
+	"icon": "icon2",
+	"terms": [],
+	"color": "#e8ad8f",
+	"sort": 1.1030165890360117
 }

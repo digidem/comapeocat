@@ -1,17 +1,12 @@
 {
-  "name": "Shawna Gulgowski DDS",
-  "geometry": [
-    "point"
-  ],
-  "tags": {
-    "cernuus": 0.9244301551265433
-  },
-  "addTags": {},
-  "removeTags": {},
-  "fields": [
-    "field1",
-    "field2"
-  ],
-  "icon": "icon1",
-  "terms": []
+	"name": "Shawna Gulgowski DDS",
+	"appliesTo": ["observation"],
+	"tags": {
+		"cernuus": 0.9244301551265433
+	},
+	"addTags": {},
+	"removeTags": {},
+	"fields": ["field1", "field2"],
+	"icon": "icon1",
+	"terms": []
 }

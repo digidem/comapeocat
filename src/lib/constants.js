@@ -7,7 +7,12 @@ export const TRANSLATIONS_DIR = 'translations'
 export const CATEGORY_SELECTION_FILE = 'categorySelection.json'
 export const METATADATA_FILE = 'metadata.json'
 export const VERSION_FILE = 'VERSION'
-export const GEOMETRY_TYPES = /** @type {const} */ (['point', 'line', 'area'])
+export const DOCUMENT_TYPES = /** @type {const} */ (['observation', 'track'])
+export const DEPRECATED_GEOMETRY_TYPES = /** @type {const} */ ([
+	'point',
+	'line',
+	'area',
+])
 /** Max number of entries permitted in a CoMapeo Categories file */
 export const MAX_ENTRIES = 10_000
 /** Max size of an icon file in bytes */

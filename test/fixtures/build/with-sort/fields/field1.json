@@ -1,27 +1,20 @@
 {
-  "tagKey": "ambulo",
-  "label": "admiratio",
-  "helperText": "attonbitus",
+  "tagKey": "aperiam",
+  "label": "cubitum",
+  "placeholder": "annus",
+  "helperText": "titulus",
   "type": "selectMultiple",
   "options": [
     {
-      "label": "vox",
-      "value": "aliqua"
+      "label": "basium",
+      "value": 1.8949292484945883
     },
     {
-      "label": "combibo",
-      "value": "capitulus"
+      "label": "repellat",
+      "value": "animus"
     },
     {
-      "label": "adimpleo",
-      "value": false
-    },
-    {
-      "label": "abscido",
-      "value": false
-    },
-    {
-      "label": "deinde",
+      "label": "solitudo",
       "value": null
     }
   ]

@@ -19,7 +19,7 @@ lint/
     ├── invalid-preset-schema/              # Preset with invalid schema
     ├── invalid-field-schema/               # Field with invalid schema
     ├── categorySelection-missing-preset/   # CategorySelection references non-existent preset
-    └── categorySelection-invalid-geometry/ # CategorySelection references preset with wrong geometry
+    └── categorySelection-invalid-geometry/ # CategorySelection references preset with wrong document type
 ```
 
 ### Regenerating Lint Fixtures
@@ -37,7 +37,7 @@ The fixtures are used in [../lint-cli.test.js](../lint-cli.test.js) to test the 
 - Missing field references (`CategoryRefError`)
 - Missing icon references (`CategoryRefError`)
 - Missing category references in categorySelection (`CategorySelectionRefError`)
-- Invalid geometry types in categorySelection (`InvalidCategorySelectionError`)
+- Invalid document types in categorySelection (`InvalidCategorySelectionError`)
 - Invalid category schema (`SchemaError`)
 - Invalid field schema (`SchemaError`)
 

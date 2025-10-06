@@ -1,10 +1,10 @@
 {
-  "name": "Kelle",
-  "geometry": [
-    "point"
+  "name": "Angel",
+  "appliesTo": [
+    "observation"
   ],
   "tags": {
-    "cometes": true
+    "spectaculum": null
   },
   "addTags": {},
   "removeTags": {},
@@ -13,5 +13,6 @@
     "field2"
   ],
   "icon": "icon1",
-  "terms": []
+  "terms": [],
+  "color": "#0b4e3f"
 }

@@ -1,7 +1,6 @@
 {
-  "point": [],
-  "line": [
+  "observation": [],
+  "track": [
     "river"
-  ],
-  "area": []
+  ]
 }

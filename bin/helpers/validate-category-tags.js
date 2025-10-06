@@ -2,7 +2,7 @@ import { DuplicateTagsError } from '../../src/lib/errors.js'
 
 /**
  * Validate that all category tags are unique
- * @param {Map<string, import('../../src/schema/category.js').CategoryInput>} categoriesMap
+ * @param {Map<string, Pick<import('../../src/schema/category.js').CategoryInput, 'tags'>>} categoriesMap
  */
 export function validateCategoryTags(categoriesMap) {
 	/** @type {Map<string, { categoryIds: string[], tags: Record<string, unknown> }>} */

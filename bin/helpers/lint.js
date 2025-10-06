@@ -8,7 +8,7 @@ import { validateCategoryTags } from './validate-category-tags.js'
 
 /** @import {CategorySelectionInput} from '../../src/schema/categorySelection.js' */
 /** @import {MetadataInput} from '../../src/schema/metadata.js' */
-/** @import {CategoryInput, CategoryDeprecatedInput} from '../../src/schema/category.js' */
+/** @import {CategoryInput, CategoryDeprecatedSortInput, CategoryDeprecatedGeometryInput} from '../../src/schema/category.js' */
 /** @import {FieldInput} from '../../src/schema/field.js' */
 /** @import {Entries} from 'type-fest' */
 /**
@@ -24,7 +24,7 @@ export async function lint(dir) {
 	const fields = new Map()
 	/** @type {Set<string>} */
 	const iconIds = new Set()
-	/** @type {Map<string, CategoryInput | CategoryDeprecatedInput>} */
+	/** @type {Map<string, CategoryInput | CategoryDeprecatedSortInput | CategoryDeprecatedGeometryInput>} */
 	const categories = new Map()
 	/** @type {CategorySelectionInput | undefined} */
 	let categorySelection = undefined
@@ -125,7 +125,7 @@ export async function lint(dir) {
 	if (categorySelection) {
 		successes.push(`✓ CategorySelection file references existing categories`)
 		successes.push(
-			`✓ CategorySelection file references categories with matching geometry`,
+			`✓ CategorySelection file references categories with matching document types`,
 		)
 	}
 

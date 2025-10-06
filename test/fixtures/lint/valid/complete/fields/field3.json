@@ -1,7 +1,20 @@
 {
-  "tagKey": "valens",
-  "label": "summisse",
-  "placeholder": "tepidus",
-  "helperText": "acies",
-  "type": "number"
+  "tagKey": "vapulus",
+  "label": "vel",
+  "placeholder": "calcar",
+  "type": "selectMultiple",
+  "options": [
+    {
+      "label": "confero",
+      "value": null
+    },
+    {
+      "label": "succedo",
+      "value": false
+    },
+    {
+      "label": "derideo",
+      "value": true
+    }
+  ]
 }

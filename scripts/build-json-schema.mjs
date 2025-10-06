@@ -15,6 +15,22 @@ fs.mkdirSync(outDir, { recursive: true })
 const categorySchemaJson = toJsonSchema(CategorySchemaDeprecated, {
 	typeMode: 'input',
 	ignoreActions: ['check'],
+	overrideSchema({ jsonSchema }) {
+		if (
+			jsonSchema.type === 'array' &&
+			typeof jsonSchema.items === 'object' &&
+			'anyOf' in jsonSchema.items &&
+			Array.isArray(jsonSchema.items.anyOf)
+		) {
+			// Remove string from arrays (appliesTo and geometry) for JSONSchema
+			// output (we allow unknown strings when parsing data from the file format
+			// for forward compat, but don't allow it for file input)
+			jsonSchema.items.anyOf = jsonSchema.items.anyOf.filter(
+				(item) => typeof item === 'object' && item.type !== 'string',
+			)
+		}
+		return jsonSchema
+	},
 	overrideAction({ valibotAction, jsonSchema }) {
 		if (
 			valibotAction.type === 'metadata' &&

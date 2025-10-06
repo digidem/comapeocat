@@ -51,9 +51,8 @@ describe('Writer -> Reader roundtrip tests', () => {
 		await writer.addTranslations('fr', fixtures.translations.fr)
 
 		writer.setCategorySelection({
-			point: ['tree'],
-			line: ['river'],
-			area: ['forest'],
+			observation: ['tree'],
+			track: ['river', 'forest'],
 		})
 
 		writer.setMetadata({
@@ -118,9 +117,8 @@ describe('Writer -> Reader roundtrip tests', () => {
 		// Verify categorySelection
 		const categorySelection = await reader.categorySelection()
 		assert.deepEqual(categorySelection, {
-			point: ['tree'],
-			line: ['river'],
-			area: ['forest'],
+			observation: ['tree'],
+			track: ['river', 'forest'],
 		})
 
 		// Verify metadata
@@ -141,7 +139,7 @@ describe('Writer -> Reader roundtrip tests', () => {
 
 		writer.addCategory('poi', {
 			name: 'Point of Interest',
-			geometry: ['point'],
+			appliesTo: ['observation'],
 			tags: { poi: 'yes' },
 			fields: [],
 		})
@@ -195,7 +193,7 @@ describe('Writer -> Reader roundtrip tests', () => {
 
 		writer.addCategory('multi_tag', {
 			name: 'Multi Tag',
-			geometry: ['point'],
+			appliesTo: ['observation'],
 			tags: {
 				string: 'value',
 				number: 42,
@@ -228,7 +226,7 @@ describe('Writer -> Reader roundtrip tests', () => {
 
 		writer.addCategory('note', {
 			name: 'Note',
-			geometry: ['point'],
+			appliesTo: ['observation'],
 			tags: { note: 'yes' },
 			fields: ['description'],
 		})
@@ -254,7 +252,7 @@ describe('Writer -> Reader roundtrip tests', () => {
 
 		writer.addCategory('survey', {
 			name: 'Survey',
-			geometry: ['point'],
+			appliesTo: ['observation'],
 			tags: { survey: 'yes' },
 			fields: ['features'],
 		})
