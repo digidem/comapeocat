@@ -1,44 +1,48 @@
 import { typedEntries } from '../../src/lib/utils.js'
 
 /** @import {CategoryDeprecatedInput} from '../../src/schema/category.js' */
-/** @import {DefaultsInput} from '../../src/schema/defaults.js' */
+/** @import {CategorySelectionInput} from '../../src/schema/categorySelection.js' */
 /** @import {Entries} from 'type-fest' */
 
 /** @typedef {Pick<CategoryDeprecatedInput, 'sort' | 'name'> & { id: string }} CategoryForSort */
 
 /**
- * Generate defaults from categories if no defaults are provided. Sort categories by
+ * Generate category selection from categories if no category selection is provided. Sort categories by
  * sort field first, then by name.
  *
  * @param {Map<string, CategoryDeprecatedInput>} categoriesMap
- * @returns {DefaultsInput}
+ * @returns {CategorySelectionInput}
  */
-export function generateDefaults(categoriesMap) {
-	/** @type {Record<keyof DefaultsInput, Array<CategoryForSort>>} */
-	const defaultsForSort = {
+export function generateCategorySelection(categoriesMap) {
+	/** @type {Record<keyof CategorySelectionInput, Array<CategoryForSort>>} */
+	const categorySelectionForSort = {
 		point: [],
 		line: [],
 		area: [],
 	}
 	for (const [id, category] of categoriesMap) {
 		for (const geom of category.geometry) {
-			if (!isKeyOf(geom, defaultsForSort)) continue
-			defaultsForSort[geom].push({
+			if (!isKeyOf(geom, categorySelectionForSort)) continue
+			categorySelectionForSort[geom].push({
 				id,
 				sort: category.sort,
 				name: category.name,
 			})
 		}
 	}
-	/** @type {Entries<DefaultsInput>} */
-	const defaultsEntries = []
-	for (const [geom, categoriesForSort] of typedEntries(defaultsForSort)) {
-		defaultsEntries.push([
+	/** @type {Entries<CategorySelectionInput>} */
+	const categorySelectionEntries = []
+	for (const [geom, categoriesForSort] of typedEntries(
+		categorySelectionForSort,
+	)) {
+		categorySelectionEntries.push([
 			geom,
 			categoriesForSort.sort(sortCategories).map((c) => c.id),
 		])
 	}
-	return /** @type {DefaultsInput} */ (Object.fromEntries(defaultsEntries))
+	return /** @type {CategorySelectionInput} */ (
+		Object.fromEntries(categorySelectionEntries)
+	)
 }
 
 /**

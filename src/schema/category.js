@@ -109,7 +109,7 @@ export const CategorySchema = v.pipe(
 // We support reading this schema off disk when generating the comapeocat file,
 // but we do not use this schema in the file format itself - deprecated fields
 // are mapping to equivalents in the file format (e.g. sort is used to determine
-// the order of defaults)
+// the order of categorySelection)
 export const CategorySchemaDeprecated = v.pipe(
 	v.object({
 		...CategorySchema.entries,
@@ -117,7 +117,8 @@ export const CategorySchemaDeprecated = v.pipe(
 			v.pipe(
 				v.number(),
 				v.metadata({
-					description: 'Sort order (deprecated, use defaults.json instead)',
+					description:
+						'Sort order (deprecated, use categorySelection.json instead)',
 					deprecated: true,
 				}),
 			),

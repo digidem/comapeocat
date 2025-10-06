@@ -89,7 +89,7 @@ describe('Edge cases and untested spec details', () => {
 				version: '1.0.0',
 				files: {
 					'categories.json': { tree: fixtures.categories.tree },
-					'defaults.json': fixtures.defaults.point,
+					'categorySelection.json': fixtures.categorySelection.point,
 					'metadata.json': fixtures.metadata.minimal,
 				},
 			})
@@ -108,7 +108,7 @@ describe('Edge cases and untested spec details', () => {
 				version: '1',
 				files: {
 					'categories.json': { tree: fixtures.categories.tree },
-					'defaults.json': fixtures.defaults.point,
+					'categorySelection.json': fixtures.categorySelection.point,
 					'metadata.json': fixtures.metadata.minimal,
 				},
 			})
@@ -127,7 +127,7 @@ describe('Edge cases and untested spec details', () => {
 				version: '',
 				files: {
 					'categories.json': { tree: fixtures.categories.tree },
-					'defaults.json': fixtures.defaults.point,
+					'categorySelection.json': fixtures.categorySelection.point,
 					'metadata.json': fixtures.metadata.minimal,
 				},
 			})
@@ -144,7 +144,7 @@ describe('Edge cases and untested spec details', () => {
 				version: '1 . 0',
 				files: {
 					'categories.json': { tree: fixtures.categories.tree },
-					'defaults.json': fixtures.defaults.point,
+					'categorySelection.json': fixtures.categorySelection.point,
 					'metadata.json': fixtures.metadata.minimal,
 				},
 			})
@@ -240,14 +240,17 @@ describe('Edge cases and untested spec details', () => {
 		})
 	})
 
-	describe('Defaults validation', () => {
-		test('allows defaults with non-existent preset IDs', async () => {
-			const filepath = join(TEST_DIR, 'defaults-nonexistent.comapeocat')
+	describe('CategorySelection validation', () => {
+		test('allows categorySelection with non-existent preset IDs', async () => {
+			const filepath = join(
+				TEST_DIR,
+				'categorySelection-nonexistent.comapeocat',
+			)
 			await createTestZip({
 				filepath,
 				files: {
 					'categories.json': { tree: fixtures.categories.tree },
-					'defaults.json': {
+					'categorySelection.json': {
 						point: ['tree', 'nonexistent'],
 						line: [],
 						area: [],
@@ -257,22 +260,25 @@ describe('Edge cases and untested spec details', () => {
 			})
 
 			const reader = new Reader(filepath)
-			const defaults = await reader.defaults()
+			const categorySelection = await reader.categorySelection()
 
-			assert.deepEqual(defaults.point, ['tree', 'nonexistent'])
+			assert.deepEqual(categorySelection.point, ['tree', 'nonexistent'])
 
 			await reader.close()
 		})
 
-		test('allows category in defaults without matching geometry', async () => {
-			const filepath = join(TEST_DIR, 'defaults-wrong-geometry.comapeocat')
+		test('allows category in categorySelection without matching geometry', async () => {
+			const filepath = join(
+				TEST_DIR,
+				'categorySelection-wrong-geometry.comapeocat',
+			)
 			await createTestZip({
 				filepath,
 				files: {
 					'categories.json': {
 						tree: fixtures.categories.tree, // geometry: ['point']
 					},
-					'defaults.json': {
+					'categorySelection.json': {
 						point: [],
 						line: ['tree'], // tree is point, not line
 						area: [],
@@ -282,20 +288,23 @@ describe('Edge cases and untested spec details', () => {
 			})
 
 			const reader = new Reader(filepath)
-			const defaults = await reader.defaults()
+			const categorySelection = await reader.categorySelection()
 
-			assert.deepEqual(defaults.line, ['tree'])
+			assert.deepEqual(categorySelection.line, ['tree'])
 
 			await reader.close()
 		})
 
-		test('rejects defaults missing required geometry types', async () => {
-			const filepath = join(TEST_DIR, 'defaults-missing-type.comapeocat')
+		test('rejects categorySelection missing required geometry types', async () => {
+			const filepath = join(
+				TEST_DIR,
+				'categorySelection-missing-type.comapeocat',
+			)
 			await createTestZip({
 				filepath,
 				files: {
 					'categories.json': { tree: fixtures.categories.tree },
-					'defaults.json': {
+					'categorySelection.json': {
 						point: ['tree'],
 						line: [],
 						// Missing area
@@ -305,7 +314,7 @@ describe('Edge cases and untested spec details', () => {
 			})
 
 			const reader = new Reader(filepath)
-			await assert.rejects(() => reader.defaults())
+			await assert.rejects(() => reader.categorySelection())
 
 			await reader.close()
 		})
@@ -677,7 +686,7 @@ describe('Edge cases and untested spec details', () => {
 				filepath,
 				files: {
 					'categories.json': { tree: fixtures.categories.tree },
-					'defaults.json': fixtures.defaults.point,
+					'categorySelection.json': fixtures.categorySelection.point,
 					'metadata.json': fixtures.metadata.minimal,
 					'translations/es.json': {
 						category: {
@@ -709,7 +718,7 @@ describe('Edge cases and untested spec details', () => {
 				filepath,
 				files: {
 					'categories.json': { tree: fixtures.categories.tree },
-					'defaults.json': fixtures.defaults.point,
+					'categorySelection.json': fixtures.categorySelection.point,
 					'metadata.json': fixtures.metadata.minimal,
 					'translations/es.json': {
 						category: {},

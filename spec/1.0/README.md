@@ -54,16 +54,16 @@ The archive MUST be a valid ZIP file and SHOULD use compression level 9 for opti
 
 ```
 archive.comapeocat
-├── VERSION              (required)
-├── categories.json      (required)
-├── defaults.json        (required)
-├── metadata.json        (required)
-├── fields.json          (optional)
-├── icons/               (optional)
+├── VERSION                  (required)
+├── categories.json          (required)
+├── categorySelection.json   (required)
+├── metadata.json            (required)
+├── fields.json              (optional)
+├── icons/                   (optional)
 │   ├── icon1.svg
 │   ├── icon2.svg
 │   └── ...
-└── translations/        (optional)
+└── translations/            (optional)
     ├── en.json
     ├── es.json
     └── ...
@@ -280,15 +280,15 @@ Select fields (`selectOne` and `selectMultiple`) MUST contain:
 }
 ```
 
-## 9. Defaults File
+## 9. Category Selection File
 
 ### 9.1. Location
 
-The defaults file MUST be named `defaults.json` and MUST be located at the root of the archive.
+The category selection file MUST be named `categorySelection.json` and MUST be located at the root of the archive.
 
 ### 9.2. Schema
 
-The defaults file MUST be a valid JSON object with the following structure:
+The category selection file MUST be a valid JSON object with the following structure:
 
 ```json
 {
@@ -306,7 +306,7 @@ Each geometry type property:
 - MUST be an array of category IDs (non-empty strings)
 - Category IDs MUST reference categories defined in `categories.json`
 - Each referenced category MUST include the corresponding geometry type in its `geometry` array
-  - For example, a category referenced in `defaults.point` MUST have `"point"` in its `geometry` array
+  - For example, a category referenced in `categorySelection.point` MUST have `"point"` in its `geometry` array
 
 The order of category IDs in each array determines the display order of categories shown to the user in CoMapeo applications for that geometry type.
 
@@ -465,7 +465,7 @@ Readers MUST verify that the following files are present:
 
 - `VERSION`
 - `categories.json`
-- `defaults.json`
+- `categorySelection.json`
 - `metadata.json`
 
 If any required file is missing, readers MUST reject the file.

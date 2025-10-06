@@ -28,14 +28,14 @@ function writeJSON(dirPath, filename, content) {
 	writeFileSync(join(dirPath, filename), JSON.stringify(content, null, 2))
 }
 
-// Fixture 1: No defaults.json - should auto-generate based on preset order
-const noDefaultsDir = join(FIXTURES_DIR, 'no-defaults')
+// Fixture 1: No categorySelection.json - should auto-generate based on preset order
+const noCategorySelectionDir = join(FIXTURES_DIR, 'no-categorySelection')
 
 const field1 = valimock.mock(FieldSchema)
 const field2 = valimock.mock(FieldSchema)
 
-writeJSON(join(noDefaultsDir, 'fields'), 'field1.json', field1)
-writeJSON(join(noDefaultsDir, 'fields'), 'field2.json', field2)
+writeJSON(join(noCategorySelectionDir, 'fields'), 'field1.json', field1)
+writeJSON(join(noCategorySelectionDir, 'fields'), 'field2.json', field2)
 
 const preset1 = valimock.mock(CategorySchemaDeprecated)
 preset1.fields = ['field1']
@@ -58,16 +58,16 @@ preset3.geometry = ['area']
 delete preset3.icon
 delete preset3.sort
 
-writeJSON(join(noDefaultsDir, 'categories'), 'preset1.json', preset1)
-writeJSON(join(noDefaultsDir, 'categories'), 'preset2.json', preset2)
-writeJSON(join(noDefaultsDir, 'categories'), 'preset3.json', preset3)
+writeJSON(join(noCategorySelectionDir, 'categories'), 'preset1.json', preset1)
+writeJSON(join(noCategorySelectionDir, 'categories'), 'preset2.json', preset2)
+writeJSON(join(noCategorySelectionDir, 'categories'), 'preset3.json', preset3)
 
-writeJSON(noDefaultsDir, 'metadata.json', {
-	name: 'No Defaults Test',
+writeJSON(noCategorySelectionDir, 'metadata.json', {
+	name: 'No CategorySelection Test',
 	version: '1.0.0',
 })
 
-// Fixture 2: With deprecated sort field - should use sort to determine defaults order
+// Fixture 2: With deprecated sort field - should use sort to determine categorySelection order
 const withSortDir = join(FIXTURES_DIR, 'with-sort')
 
 const sortField1 = valimock.mock(FieldSchema)
@@ -138,7 +138,7 @@ writeFileSync(
 	'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><rect x="10" y="10" width="80" height="80"/></svg>',
 )
 
-writeJSON(completeDir, 'defaults.json', {
+writeJSON(completeDir, 'categorySelection.json', {
 	point: ['preset1'],
 	line: ['preset2'],
 	area: [],
@@ -158,6 +158,8 @@ writeJSON(join(completeDir, 'messages'), 'en.json', {
 
 console.log(`Generated build fixtures at ${FIXTURES_DIR}`)
 console.log('Build fixtures:')
-console.log('  - no-defaults (tests auto-generation of defaults.json)')
+console.log(
+	'  - no-categorySelection (tests auto-generation of categorySelection.json)',
+)
 console.log('  - with-sort (tests deprecated sort field handling)')
 console.log('  - complete (complete fixture with all components)')

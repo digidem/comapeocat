@@ -6,7 +6,7 @@ import { open } from 'yauzl-promise'
 import { VERSION_FILE, ICONS_DIR, TRANSLATIONS_DIR } from './lib/constants.js'
 import {
 	InvalidFileVersionError,
-	MissingDefaultsError,
+	MissingCategorySelectionError,
 	MissingMetadataError,
 	MissingCategoriesError,
 	UnsupportedFileVersionError,
@@ -14,7 +14,7 @@ import {
 import { isSupportedBCP47, parse } from './lib/utils.js'
 import { validateReferences } from './lib/validate-references.js'
 import { CategorySchema } from './schema/category.js'
-import { DefaultsSchema } from './schema/defaults.js'
+import { CategorySelectionSchema } from './schema/categorySelection.js'
 import { FieldSchema } from './schema/field.js'
 import { MetadataSchemaOutput } from './schema/metadata.js'
 import { TranslationsSchema } from './schema/translations.js'
@@ -26,12 +26,12 @@ const SUPPORTED_MAJOR_VERSION = 1
 /** @import {SetOptional} from 'type-fest' */
 /** @import {FieldOutput} from './schema/field.js' */
 /** @import {CategoryOutput} from './schema/category.js' */
-/** @import {DefaultsOutput} from './schema/defaults.js' */
+/** @import {CategorySelectionOutput} from './schema/categorySelection.js' */
 /** @import {MetadataOutput} from './schema/metadata.js' */
 /**
  * @typedef {{
  *   categories: Entry,
- *   defaults: Entry,
+ *   categorySelection: Entry,
  *   metadata: Entry,
  *   fields?: Entry,
  *   icons: Map<string, Entry>,
@@ -41,7 +41,7 @@ const SUPPORTED_MAJOR_VERSION = 1
 const FILENAMES = /** @type {const} */ ({
 	'categories.json': 'categories',
 	'fields.json': 'fields',
-	'defaults.json': 'defaults',
+	'categorySelection.json': 'categorySelection',
 	'metadata.json': 'metadata',
 })
 const ICON_REGEX = new RegExp(`^${ICONS_DIR}/(.+)\\.svg$`)
@@ -64,8 +64,8 @@ export class Reader {
 		fields: undefined,
 		/** @type {Map<string, CategoryOutput> | undefined} */
 		categories: undefined,
-		/** @type {DefaultsOutput | undefined} */
-		defaults: undefined,
+		/** @type {CategorySelectionOutput | undefined} */
+		categorySelection: undefined,
 		/** @type {MetadataOutput | undefined} */
 		metadata: undefined,
 	}
@@ -80,7 +80,7 @@ export class Reader {
 				: Promise.resolve(filepathOrZip))
 		zipPromise.catch(noop)
 		this.#entriesPromise = (async () => {
-			/** @type {SetOptional<ZipEntries, 'categories' | 'defaults' | 'metadata'>} */
+			/** @type {SetOptional<ZipEntries, 'categories' | 'categorySelection' | 'metadata'>} */
 			const entries = {
 				icons: new Map(),
 				translations: new Map(),
@@ -145,7 +145,7 @@ export class Reader {
 		await this.#entriesPromise
 
 		const categories = await this.categories()
-		const defaults = await this.defaults()
+		const categorySelection = await this.categorySelection()
 		const fields = await this.fields()
 		const iconNames = await this.iconNames()
 
@@ -153,7 +153,7 @@ export class Reader {
 			categories,
 			fieldIds: fields,
 			iconIds: iconNames,
-			defaults,
+			categorySelection,
 		})
 	}
 
@@ -238,14 +238,14 @@ export class Reader {
 	}
 
 	/**
-	 * @returns {Promise<DefaultsOutput>} Defaults data
+	 * @returns {Promise<CategorySelectionOutput>} Category selection data
 	 */
-	async defaults() {
-		if (this.#cached.defaults) return this.#cached.defaults
-		const { defaults: entry } = await this.#entriesPromise
+	async categorySelection() {
+		if (this.#cached.categorySelection) return this.#cached.categorySelection
+		const { categorySelection: entry } = await this.#entriesPromise
 		const data = await this.#readJsonEntry(entry)
-		this.#cached.defaults = v.parse(DefaultsSchema, data)
-		return this.#cached.defaults
+		this.#cached.categorySelection = v.parse(CategorySelectionSchema, data)
+		return this.#cached.categorySelection
 	}
 
 	/**
@@ -294,15 +294,15 @@ async function concatStream(stream) {
 }
 
 /**
- * @param {import('type-fest').SetOptional<ZipEntries, 'categories' | 'defaults' | 'metadata'>} entries
+ * @param {import('type-fest').SetOptional<ZipEntries, 'categories' | 'categorySelection' | 'metadata'>} entries
  * @returns {asserts entries is ZipEntries}
  */
 function assertValidEntries(entries) {
 	if (!entries.categories) {
 		throw new MissingCategoriesError()
 	}
-	if (!entries.defaults) {
-		throw new MissingDefaultsError()
+	if (!entries.categorySelection) {
+		throw new MissingCategorySelectionError()
 	}
 	if (!entries.metadata) {
 		throw new MissingMetadataError()

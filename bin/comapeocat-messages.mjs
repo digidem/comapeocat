@@ -13,7 +13,7 @@ program
 	.description('Extract messages for translation from <inputDir>')
 	.argument(
 		'[inputDir]',
-		'directory containing categories, fields, defaults and icons',
+		'directory containing categories, fields, and icons',
 		process.cwd(),
 	)
 	.option('-o, --output <file>', 'output JSON file path (defaults to stdout)')

@@ -31,7 +31,7 @@ describe('Writer', () => {
 		const writer = new Writer()
 
 		writer.addCategory('tree', fixtures.categories.tree)
-		writer.setDefaults(fixtures.defaults.point)
+		writer.setCategorySelection(fixtures.categorySelection.point)
 		writer.setMetadata({ name: 'Test Categories' })
 		writer.finish()
 
@@ -65,7 +65,7 @@ describe('Writer', () => {
 		await writer.addIcon('tree', fixtures.icons.tree)
 		await writer.addTranslations('es', fixtures.translations.es)
 
-		writer.setDefaults({
+		writer.setCategorySelection({
 			point: ['tree'],
 			line: ['river'],
 			area: [],
@@ -108,12 +108,14 @@ describe('Writer', () => {
 		await reader.close()
 	})
 
-	test('throws when no defaults set', async () => {
+	test('throws when no categorySelection set', async () => {
 		const writer = new Writer()
 
 		writer.addCategory('tree', fixtures.categories.tree)
 		writer.setMetadata({ name: 'Test' })
-		assert.throws(() => writer.finish(), { name: 'MissingDefaultsError' })
+		assert.throws(() => writer.finish(), {
+			name: 'MissingCategorySelectionError',
+		})
 	})
 
 	test('throws when adding after finish', async () => {

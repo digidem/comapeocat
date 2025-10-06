@@ -19,7 +19,7 @@
 			"import": "./src/writer.js"
 		},
 		"./dist/schema/category.json": "./dist/schema/category.json",
-		"./dist/schema/defaults.json": "./dist/schema/defaults.json",
+		"./dist/schema/categorySelection.json": "./dist/schema/categorySelection.json",
 		"./dist/schema/field.json": "./dist/schema/field.json",
 		"./dist/schema/messages.json": "./dist/schema/messages.json"
 	},
@@ -28,7 +28,9 @@
 		"prepare": "husky && husky install",
 		"format": "prettier --write .",
 		"build:types": "tsc -p tsconfig.npm.json",
-		"prepack": "npm run build:types"
+		"build:schema": "node scripts/build-json-schema.mjs",
+		"build": "npm run build:types && npm run build:schema",
+		"prepack": "npm run build"
 	},
 	"keywords": [],
 	"author": "",

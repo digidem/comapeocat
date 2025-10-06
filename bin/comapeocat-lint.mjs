@@ -10,7 +10,7 @@ program
 	.description('Lint category and field JSON files')
 	.argument(
 		'[inputDir]',
-		'directory containing categories, fields, defaults and icons',
+		'directory containing categories, fields, categorySelection and icons',
 		process.cwd(),
 	)
 	.action(async (dir) => {

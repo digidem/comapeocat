@@ -44,7 +44,7 @@ Build a `.comapeocat` file from a directory containing JSON files and icons.
 
 **Arguments:**
 
-- `[inputDir]` - Directory containing categories, fields, defaults, icons, and messages (default: current directory)
+- `[inputDir]` - Directory containing categories, fields, categorySelection, icons, and messages (default: current directory)
 
 **Options:**
 
@@ -68,7 +68,7 @@ inputDir/
 ├── messages/
 │   ├── en.json
 │   └── es.json
-├── defaults.json
+├── categorySelection.json
 └── metadata.json
 ```
 
@@ -140,8 +140,8 @@ To enable JSON schema validation in VSCode for the various JSON files used in a 
 			"url": "./node_modules/comapeocat/dist/schema/messages.json"
 		},
 		{
-			"fileMatch": ["defaults.json"],
-			"url": "./node_modules/comapeocat/dist/schema/defaults.json"
+			"fileMatch": ["categorySelection.json"],
+			"url": "./node_modules/comapeocat/dist/schema/categorySelection.json"
 		},
 		{
 			"fileMatch": ["metadata.json"],
@@ -245,8 +245,8 @@ await writer.addTranslations('es', {
 	},
 })
 
-// Set defaults
-writer.setDefaults({
+// Set category selection
+writer.setCategorySelection({
 	point: ['tree'],
 	line: [],
 	area: [],
@@ -283,9 +283,9 @@ Returns a `Promise<Map<string, Category>>` of all categories in the file.
 
 Returns a `Promise<Map<string, Field>>` of all fields in the file.
 
-#### `async reader.defaults()`
+#### `async reader.categorySelection()`
 
-Returns a `Promise<Defaults>` - the defaults object mapping geometry types to category IDs.
+Returns a `Promise<CategorySelection>` - the category selection object mapping geometry types to category IDs.
 
 #### `async reader.metadata()`
 
@@ -361,9 +361,9 @@ Adds an SVG icon. Returns a promise that resolves when the icon is added. Throws
 
 Adds translations for a language. Returns a promise that resolves when translations are added. Throws if called after `finish()`.
 
-#### `writer.setDefaults(defaults)` _(synchronous)_
+#### `writer.setCategorySelection(categorySelection)` _(synchronous)_
 
-Sets the defaults object mapping geometry types to category IDs. Throws if called after `finish()`.
+Sets the category selection object mapping geometry types to category IDs. Throws if called after `finish()`.
 
 #### `writer.setMetadata(metadata)` _(synchronous)_
 
@@ -385,7 +385,7 @@ The `.comapeocat` file format is a ZIP archive containing JSON configuration fil
 
 - `VERSION` - Format version (e.g., "1.0")
 - `categories.json` - Category definitions
-- `defaults.json` - Default categories for each geometry type
+- `categorySelection.json` - Category selection for each geometry type
 - `metadata.json` - Package metadata
 
 ### Optional Files

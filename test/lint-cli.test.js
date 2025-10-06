@@ -50,11 +50,11 @@ describe('CLI lint command', () => {
 			)
 		})
 
-		test('should throw DefaultsRefError for missing category in defaults', async () => {
+		test('should throw CategorySelectionRefError for missing category in categorySelection', async () => {
 			const fixturePath = join(
 				FIXTURES_DIR,
 				'invalid',
-				'defaults-missing-preset',
+				'categorySelection-missing-preset',
 			)
 			await assert.rejects(
 				() => execa('node', [CLI_PATH, fixturePath]),
@@ -66,11 +66,11 @@ describe('CLI lint command', () => {
 			)
 		})
 
-		test('should throw InvalidDefaultsError for invalid geometry in defaults', async () => {
+		test('should throw InvalidCategorySelectionError for invalid geometry in categorySelection', async () => {
 			const fixturePath = join(
 				FIXTURES_DIR,
 				'invalid',
-				'defaults-invalid-geometry',
+				'categorySelection-invalid-geometry',
 			)
 			await assert.rejects(
 				() => execa('node', [CLI_PATH, fixturePath]),

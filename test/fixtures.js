@@ -126,7 +126,7 @@ export const fixtures = /** @type {const} */ ({
 		},
 	},
 
-	defaults: {
+	categorySelection: {
 		point: {
 			point: ['tree'],
 			line: [],

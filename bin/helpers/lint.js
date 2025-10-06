@@ -6,7 +6,7 @@ import { parseMessageId } from './messages-to-translations.js'
 import { readFiles } from './read-files.js'
 import { validateCategoryTags } from './validate-category-tags.js'
 
-/** @import {DefaultsInput} from '../../src/schema/defaults.js' */
+/** @import {CategorySelectionInput} from '../../src/schema/categorySelection.js' */
 /** @import {MetadataInput} from '../../src/schema/metadata.js' */
 /** @import {CategoryInput, CategoryDeprecatedInput} from '../../src/schema/category.js' */
 /** @import {FieldInput} from '../../src/schema/field.js' */
@@ -26,8 +26,8 @@ export async function lint(dir) {
 	const iconIds = new Set()
 	/** @type {Map<string, CategoryInput | CategoryDeprecatedInput>} */
 	const categories = new Map()
-	/** @type {DefaultsInput | undefined} */
-	let defaults = undefined
+	/** @type {CategorySelectionInput | undefined} */
+	let categorySelection = undefined
 	/** @type {Set<import('../../src/schema/messages.js').MessagesInput>} */
 	const messages = new Set()
 	/** @type {string[]} */
@@ -42,7 +42,7 @@ export async function lint(dir) {
 		field: 0,
 		icon: 0,
 		messages: 0,
-		defaults: 0,
+		categorySelection: 0,
 		metadata: 0,
 	}
 
@@ -64,8 +64,8 @@ export async function lint(dir) {
 					addRefToMap(iconRefs, value.icon, id)
 				}
 				break
-			case 'defaults':
-				defaults = value
+			case 'categorySelection':
+				categorySelection = value
 				break
 			case 'messages':
 				messages.add(value)
@@ -74,7 +74,7 @@ export async function lint(dir) {
 	}
 
 	for (const [type, count] of Object.entries(counts)) {
-		if (['metadata', 'defaults'].includes(type) && count === 0) {
+		if (['metadata', 'categorySelection'].includes(type) && count === 0) {
 			warnings.push(`⚠️ Warning: No ${type}.json file found`)
 			continue
 		}
@@ -120,12 +120,12 @@ export async function lint(dir) {
 	validateCategoryTags(categories)
 	successes.push(`✓ All categories have tags which are unique`)
 	const fieldIds = new Set(fields.keys())
-	validateReferences({ categories, fieldIds, iconIds, defaults })
+	validateReferences({ categories, fieldIds, iconIds, categorySelection })
 	successes.push(`✓ All categories reference existing fields and icons`)
-	if (defaults) {
-		successes.push(`✓ Defaults file references existing categories`)
+	if (categorySelection) {
+		successes.push(`✓ CategorySelection file references existing categories`)
 		successes.push(
-			`✓ Defaults file references categories with matching geometry`,
+			`✓ CategorySelection file references categories with matching geometry`,
 		)
 	}
 
