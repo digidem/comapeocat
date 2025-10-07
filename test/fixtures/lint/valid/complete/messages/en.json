@@ -1,10 +1,10 @@
 {
   "category.preset1.name": {
-    "message": "Angel",
+    "message": "Melba Abernathy",
     "description": "The name of category 'preset1'"
   },
   "field.field1.label": {
-    "message": "caute",
+    "message": "defluo",
     "description": "Label for field 'field1'"
   }
 }

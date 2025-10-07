@@ -1,14 +1,13 @@
 {
-  "name": "Leon Crist",
+  "name": "Gabriel Monahan",
   "appliesTo": [
     "observation"
   ],
   "tags": {
-    "custodia": 3.0592644736118975
+    "villa": null
   },
   "addTags": {},
   "removeTags": {},
   "fields": [],
-  "terms": [],
-  "color": "#31efb6"
+  "terms": []
 }

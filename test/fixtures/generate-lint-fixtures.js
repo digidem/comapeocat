@@ -11,7 +11,7 @@ import { FieldSchema } from '../../src/schema/field.js'
 const __dirname = dirname(fileURLToPath(import.meta.url))
 
 // Set a fixed seed for reproducible fixtures
-faker.seed(42)
+faker.seed(44)
 
 const valimock = new Valimock()
 
