@@ -30,7 +30,7 @@ describe('CLI build command', () => {
 		rmSync(TEST_DIR, { recursive: true, force: true })
 	})
 
-	test.only('should build valid comapeocat file from complete fixture', async () => {
+	test('should build valid comapeocat file from complete fixture', async () => {
 		const fixturePath = join(FIXTURES_DIR, 'complete')
 		const outputPath = join(TEST_DIR, 'complete.comapeocat')
 
