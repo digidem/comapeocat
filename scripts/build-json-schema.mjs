@@ -49,7 +49,7 @@ const categorySchemaJson = toJsonSchema(CategorySchemaDeprecated, {
 })
 const fieldSchemaJson = toJsonSchema(FieldSchema, {
 	typeMode: 'input',
-	ignoreActions: ['check'],
+	ignoreActions: ['check', 'every_item'],
 })
 const categorySelectionSchemaJson = toJsonSchema(CategorySelectionSchema, {
 	typeMode: 'input',

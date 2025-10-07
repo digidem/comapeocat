@@ -47,7 +47,7 @@
 		"archiver": "^7.0.1",
 		"bcp-47": "^2.1.0",
 		"commander": "^14.0.1",
-		"dot-prop": "^10.0.0",
+		"dot-prop-extra": "^10.2.0",
 		"p-event": "^7.0.0",
 		"parse-json": "^8.3.0",
 		"svgo": "^4.0.0",

@@ -3,7 +3,7 @@ import fs from 'node:fs/promises'
 import path from 'node:path'
 
 import { Command } from '@commander-js/extra-typings'
-import { escapePath } from 'dot-prop'
+import { escapePath } from 'dot-prop-extra'
 
 import { readFiles } from './helpers/read-files.js'
 
@@ -40,14 +40,14 @@ program
 						message: value.label,
 					}
 
-					if (value.helperText) {
+					if (typeof value.helperText === 'string') {
 						messages[`field.${escapedId}.helperText`] = {
 							description: `Descriptive text shown under the label for field '${id}'`,
 							message: value.helperText,
 						}
 					}
 
-					if (value.placeholder) {
+					if (typeof value.placeholder === 'string') {
 						messages[`field.${escapedId}.placeholder`] = {
 							description: `Example input for field '${id}' (only visible for text and number fields)`,
 							message: value.placeholder,
@@ -55,10 +55,12 @@ program
 					}
 
 					if ('options' in value && Array.isArray(value.options)) {
-						for (const [index, option] of value.options.entries()) {
-							messages[`field.${escapedId}.options.${index}.label`] = {
-								description: `Label for option '${option.value}' (option ${index}) of field '${id}'`,
-								message: option.label,
+						for (const { label, value: optionValue } of value.options) {
+							messages[
+								`field.${escapedId}.options[value=${JSON.stringify(optionValue)}].label`
+							] = {
+								description: `Label for option '${optionValue}' of field '${id}'`,
+								message: label,
 							}
 						}
 					}

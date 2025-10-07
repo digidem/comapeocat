@@ -24,7 +24,7 @@ const AppearanceSchema = v.pipe(
 const OptionValueSchema = v.union([
 	v.string(),
 	v.boolean(),
-	v.number(),
+	v.pipe(v.number(), v.integer()),
 	v.null(),
 ])
 
@@ -36,6 +36,11 @@ const OptionSchema = v.object({
 const OptionsSchema = v.pipe(
 	v.array(OptionSchema),
 	v.minLength(1),
+	v.everyItem(
+		(item, index, array) =>
+			array.findIndex((i) => i.value === item.value) === index,
+		'All select option values must be unique',
+	),
 	v.description(
 		'List of options the user can select for single- or multi-select fields',
 	),

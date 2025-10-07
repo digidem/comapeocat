@@ -1,21 +1,6 @@
 {
-  "tagKey": "aperiam",
-  "label": "cubitum",
-  "placeholder": "annus",
-  "helperText": "titulus",
-  "type": "selectMultiple",
-  "options": [
-    {
-      "label": "basium",
-      "value": 1.8949292484945883
-    },
-    {
-      "label": "repellat",
-      "value": "animus"
-    },
-    {
-      "label": "solitudo",
-      "value": null
-    }
-  ]
+  "tagKey": "capio",
+  "label": "ratione",
+  "type": "text",
+  "appearance": "multiline"
 }
