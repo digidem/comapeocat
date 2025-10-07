@@ -24,10 +24,10 @@ const SUPPORTED_MAJOR_VERSION = 1
 /** @import { SchemaError } from './lib/errors.js' */
 /** @import { JSONError } from 'parse-json' */
 /** @import {SetOptional} from 'type-fest' */
-/** @import {FieldOutput} from './schema/field.js' */
-/** @import {CategoryOutput} from './schema/category.js' */
-/** @import {CategorySelectionOutput} from './schema/categorySelection.js' */
-/** @import {MetadataOutput} from './schema/metadata.js' */
+/** @typedef {import('./schema/field.js').FieldOutput} FieldOutput */
+/** @typedef {import('./schema/category.js').CategoryOutput} CategoryOutput */
+/** @typedef {import('./schema/categorySelection.js').CategorySelectionOutput} CategorySelectionOutput */
+/** @typedef {import('./schema/metadata.js').MetadataOutput} MetadataOutput */
 /**
  * @typedef {{
  *   categories: Entry,
