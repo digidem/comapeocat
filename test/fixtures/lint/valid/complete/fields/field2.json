@@ -1,20 +1,6 @@
 {
-  "tagKey": "colo",
-  "label": "repellendus",
-  "helperText": "tepidus",
-  "type": "selectOne",
-  "options": [
-    {
-      "label": "amita",
-      "value": "dolor"
-    },
-    {
-      "label": "cunae",
-      "value": null
-    },
-    {
-      "label": "clam",
-      "value": "recusandae"
-    }
-  ]
+  "tagKey": "adfero",
+  "label": "paens",
+  "type": "text",
+  "appearance": "multiline"
 }

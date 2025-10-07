@@ -1,6 +1,38 @@
 {
   "category.preset1.name": {
-    "message": "Patty Hartmann MD",
-    "description": "The name of category 'preset1'"
+    "description": "The name of category 'preset1'",
+    "message": "Margarita Lockman III"
+  },
+  "category.preset2.name": {
+    "description": "The name of category 'preset2'",
+    "message": "Ms. Geneva Rolfson"
+  },
+  "field.field1.label": {
+    "description": "Label for field 'field1'",
+    "message": "cunabula"
+  },
+  "field.field2.label": {
+    "description": "Label for field 'field2'",
+    "message": "tempora"
+  },
+  "field.field2.helperText": {
+    "description": "Descriptive text shown under the label for field 'field2'",
+    "message": "demitto"
+  },
+  "field.field2.placeholder": {
+    "description": "Example input for field 'field2' (only visible for text and number fields)",
+    "message": "a"
+  },
+  "field.field2.options[value=false].label": {
+    "description": "Label for option 'false' of field 'field2'",
+    "message": "damno"
+  },
+  "field.field2.options[value=3].label": {
+    "description": "Label for option '3' of field 'field2'",
+    "message": "corrupti"
+  },
+  "field.field2.options[value=\"occaecati\"].label": {
+    "description": "Label for option 'occaecati' of field 'field2'",
+    "message": "ascisco"
   }
 }

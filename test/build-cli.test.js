@@ -7,6 +7,7 @@ import { join, dirname } from 'node:path'
 import { describe, test, before, after } from 'node:test'
 import { fileURLToPath } from 'node:url'
 
+import { getProperty } from 'dot-prop-extra'
 import { execa } from 'execa'
 
 import { Reader } from '../src/reader.js'
@@ -60,6 +61,33 @@ describe('CLI build command', () => {
 
 		const metadata = await reader.metadata()
 		assert.equal(metadata.name, 'Complete Build Test')
+
+		// Tests how we would use translations in core
+		const allTranslations = new Map()
+		for await (const { lang, translations } of reader.translations()) {
+			allTranslations.set(lang, translations)
+		}
+		const enTranslations = allTranslations.get('en')
+		assert.ok(enTranslations)
+		for (const [docType, docTypeTranslations] of Object.entries(
+			enTranslations,
+		)) {
+			for (const [docId, docTranslations] of Object.entries(
+				docTypeTranslations,
+			)) {
+				const doc =
+					docType === 'category' ? categories.get(docId) : fields.get(docId)
+				assert.ok(doc, `Document ${docType}/${docId} should exist`)
+				for (const [propertyRef, message] of Object.entries(docTranslations)) {
+					const actualValue = getProperty(doc, propertyRef)
+					assert.equal(
+						actualValue,
+						message,
+						`Translation for ${docType}/${docId} property ${propertyRef} should match actual value`,
+					)
+				}
+			}
+		}
 
 		await reader.close()
 	})

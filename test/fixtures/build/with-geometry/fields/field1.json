@@ -1,24 +1,6 @@
 {
-  "tagKey": "acidus",
-  "label": "deleo",
-  "helperText": "appono",
-  "type": "selectMultiple",
-  "options": [
-    {
-      "label": "consectetur",
-      "value": false
-    },
-    {
-      "label": "adfici",
-      "value": null
-    },
-    {
-      "label": "socius",
-      "value": 3.3904765745942194
-    },
-    {
-      "label": "defendo",
-      "value": false
-    }
-  ]
+  "tagKey": "labore",
+  "label": "amoveo",
+  "placeholder": "delicate",
+  "type": "number"
 }

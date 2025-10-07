@@ -4,6 +4,7 @@ import { join, dirname } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
 import { faker } from '@faker-js/faker'
+import { execaSync } from 'execa'
 import { Valimock } from 'valimock'
 
 import {
@@ -14,9 +15,10 @@ import {
 import { FieldSchema } from '../../src/schema/field.js'
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
+const CLI_PATH = join(__dirname, '..', '..', 'bin', 'comapeocat.mjs')
 
 // Set a fixed seed for reproducible fixtures
-faker.seed(123)
+faker.seed(42)
 
 const valimock = new Valimock()
 
@@ -145,12 +147,13 @@ writeJSON(completeDir, 'metadata.json', {
 	version: '1.0.0',
 })
 
-writeJSON(join(completeDir, 'messages'), 'en.json', {
-	'category.preset1.name': {
-		message: completePreset1.name,
-		description: "The name of category 'preset1'",
-	},
-})
+execaSync('node', [
+	CLI_PATH,
+	'messages',
+	completeDir,
+	'--output',
+	join(completeDir, 'messages', 'en.json'),
+])
 
 // Fixture 4: With deprecated geometry field - should migrate to appliesTo
 const withGeometryDir = join(FIXTURES_DIR, 'with-geometry')

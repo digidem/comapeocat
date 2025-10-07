@@ -255,6 +255,7 @@ Select fields (`selectOne` and `selectMultiple`) MUST contain:
   - Each option MUST have:
     - **label** (required): Display text (non-empty string)
     - **value** (required): The value to store (string, number, boolean, or null)
+  - Each option MUST be unique by its `value`
 
 ### 8.4. Example
 
@@ -388,7 +389,7 @@ Where:
 
 - `[docType]` is either `"category"` or `"field"`
 - `[docId]` is the ID of the category or field being translated
-- `[propertyRef]` is the name of the property being translated, using dot-notation for nested properties (e.g., `"options.0"` for the first option label in a select field)
+- `[propertyRef]` is the name of the property being translated, using dot-notation for nested properties, and referencing array items with a filter notation e.g. `options[value="healthy"].label` to translate the label of the option with value `"healthy"`
 - Each translation for a given docId MAY have multiple propertyRef entries.
 - Each propertyRef entry SHOULD reference an existing property in the corresponding category or field definition
 - A reader MAY ignore propertyRef entries that do not correspond to existing properties
@@ -429,9 +430,9 @@ File: `translations/es.json`
 		},
 		"condition": {
 			"label": "Condición del árbol",
-			"options.0": "Saludable",
-			"options.1": "Dañado",
-			"options.2": "Muerto"
+			"options[value=\"healthy\"].label": "Saludable",
+			"options[value=\"damaged\"].label": "Dañado",
+			"options[value=\"dead\"].label": "Muerto"
 		}
 	}
 }

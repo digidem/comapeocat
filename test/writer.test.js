@@ -186,6 +186,26 @@ describe('Writer', () => {
 		)
 	})
 
+	test('validates unique select option values', async () => {
+		const writer = new Writer()
+
+		assert.throws(
+			() => {
+				writer.addField('condition', {
+					type: 'selectOne',
+					tagKey: 'condition',
+					label: 'Condition',
+					options: [
+						{ label: 'Good', value: 'good' },
+						{ label: 'Bad', value: 'bad' },
+						{ label: 'Also Good', value: 'good' }, // Duplicate value
+					],
+				})
+			},
+			{ name: 'ValiError' },
+		)
+	})
+
 	test('validates category schema', async () => {
 		const writer = new Writer()
 

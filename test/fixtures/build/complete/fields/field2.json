@@ -1,17 +1,21 @@
 {
-  "tagKey": "curo",
-  "label": "coerceo",
-  "placeholder": "pax",
-  "helperText": "spiculum",
-  "type": "selectMultiple",
+  "tagKey": "curia",
+  "label": "tempora",
+  "placeholder": "a",
+  "helperText": "demitto",
+  "type": "selectOne",
   "options": [
     {
-      "label": "conculco",
-      "value": 3.469923514291213
+      "label": "damno",
+      "value": false
     },
     {
-      "label": "candidus",
-      "value": 3.8888450877735377
+      "label": "corrupti",
+      "value": 3
+    },
+    {
+      "label": "ascisco",
+      "value": "occaecati"
     }
   ]
 }

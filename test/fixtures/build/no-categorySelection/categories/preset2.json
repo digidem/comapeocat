@@ -1,16 +1,15 @@
 {
-  "name": "Jaime Heathcote",
+  "name": "Neil Russel",
   "appliesTo": [
     "track"
   ],
   "tags": {
-    "ultra": 1.5839394855918987
+    "suspendo": "animadverto"
   },
   "addTags": {},
   "removeTags": {},
   "fields": [
     "field2"
   ],
-  "terms": [],
-  "color": "#bdf5cb"
+  "terms": []
 }

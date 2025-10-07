@@ -1,27 +1,16 @@
 {
-  "tagKey": "deputo",
-  "label": "caute",
-  "type": "selectOne",
+  "tagKey": "via",
+  "label": "defluo",
+  "helperText": "asper",
+  "type": "selectMultiple",
   "options": [
     {
-      "label": "alienus",
-      "value": "creta"
+      "label": "comptus",
+      "value": 0
     },
     {
-      "label": "consuasor",
-      "value": false
-    },
-    {
-      "label": "aestas",
+      "label": "vere",
       "value": null
-    },
-    {
-      "label": "abscido",
-      "value": null
-    },
-    {
-      "label": "tepidus",
-      "value": "urbanus"
     }
   ]
 }

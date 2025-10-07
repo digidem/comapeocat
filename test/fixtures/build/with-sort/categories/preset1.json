@@ -1,10 +1,10 @@
 {
-  "name": "Mrs. Meredith Beatty",
+  "name": "Daryl Daniel",
   "appliesTo": [
     "observation"
   ],
   "tags": {
-    "versus": true
+    "ex": true
   },
   "addTags": {},
   "removeTags": {},

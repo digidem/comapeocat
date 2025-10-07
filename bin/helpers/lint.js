@@ -1,8 +1,11 @@
-import { hasProperty } from 'dot-prop'
+import { hasProperty } from 'dot-prop-extra'
+import * as v from 'valibot'
 
 import { addRefToMap } from '../../src/lib/utils.js'
 import { validateReferences } from '../../src/lib/validate-references.js'
+import { CategorySchema } from '../../src/schema/category.js'
 import { parseMessageId } from './messages-to-translations.js'
+import { migrateGeometry } from './migrate-geometry.js'
 import { readFiles } from './read-files.js'
 import { validateCategoryTags } from './validate-category-tags.js'
 
@@ -24,7 +27,7 @@ export async function lint(dir) {
 	const fields = new Map()
 	/** @type {Set<string>} */
 	const iconIds = new Set()
-	/** @type {Map<string, CategoryInput | CategoryDeprecatedSortInput | CategoryDeprecatedGeometryInput>} */
+	/** @type {Map<string, CategoryInput>} */
 	const categories = new Map()
 	/** @type {CategorySelectionInput | undefined} */
 	let categorySelection = undefined
@@ -56,7 +59,7 @@ export async function lint(dir) {
 				iconIds.add(id)
 				break
 			case 'category':
-				categories.set(id, value)
+				categories.set(id, v.parse(CategorySchema, migrateGeometry(value)))
 				for (const fieldRef of value.fields) {
 					addRefToMap(fieldRefs, fieldRef, id)
 				}

@@ -1,25 +1,7 @@
 {
-  "tagKey": "ipsa",
-  "label": "vomer",
-  "placeholder": "cruciamentum",
-  "helperText": "adulatio",
-  "type": "selectOne",
-  "options": [
-    {
-      "label": "exercitationem",
-      "value": 3.1720047927566055
-    },
-    {
-      "label": "perferendis",
-      "value": 1.6147945692658912
-    },
-    {
-      "label": "claudeo",
-      "value": 0.4605246997253759
-    },
-    {
-      "label": "depulso",
-      "value": true
-    }
-  ]
+  "tagKey": "patruus",
+  "label": "adsum",
+  "placeholder": "suggero",
+  "helperText": "benevolentia",
+  "type": "number"
 }
