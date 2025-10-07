@@ -1,7 +1,7 @@
 import * as v from 'valibot'
 
 /** @typedef {v.InferOutput<typeof DocTranslationSchema>} DocTranslationSchema */
-/** @typedef {v.InferInput<typeof TranslationsSchema>} TranslationsIntput */
+/** @typedef {v.InferInput<typeof TranslationsSchema>} TranslationsInput */
 /** @typedef {v.InferOutput<typeof TranslationsSchema>} TranslationsOutput */
 
 const DocTranslationSchema = v.record(

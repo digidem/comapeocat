@@ -20,10 +20,16 @@ import { FieldSchema } from './schema/field.js'
 import { MetadataSchemaOutput } from './schema/metadata.js'
 import { TranslationsSchema } from './schema/translations.js'
 
-/** @import { CategoryInput, CategoryOutput } from './schema/category.js' */
-/** @import { FieldInput, FieldOutput } from './schema/field.js' */
-/** @import { CategorySelectionInput, CategorySelectionOutput } from './schema/categorySelection.js' */
-/** @import { MetadataInput, MetadataOutput } from './schema/metadata.js' */
+/** @typedef {import('./schema/translations.js').TranslationsInput} TranslationsInput */
+/** @typedef {import('./schema/category.js').CategoryInput} CategoryInput */
+/** @typedef {import('./schema/field.js').FieldInput} FieldInput */
+/** @typedef {import('./schema/categorySelection.js').CategorySelectionInput} CategorySelectionInput */
+/** @typedef {import('./schema/metadata.js').MetadataInput} MetadataInput */
+
+/** @import { CategoryOutput } from './schema/category.js' */
+/** @import { FieldOutput } from './schema/field.js' */
+/** @import { CategorySelectionOutput } from './schema/categorySelection.js' */
+/** @import { MetadataOutput } from './schema/metadata.js' */
 /** @import { Entries } from 'type-fest'*/
 
 const FILE_VERSION = '1.0'
@@ -115,7 +121,7 @@ export class Writer extends EventEmitter {
 
 	/**
 	 * @param {string} lang BCP47 language tag (e.g. "en", "de", "fr", "en-US")
-	 * @param {v.InferInput<typeof TranslationsSchema>} translations
+	 * @param {TranslationsInput} translations
 	 * @returns {Promise<readonly v.InferOutput<typeof TranslationsSchema>>} The parsed translations that were added (unknown properties are stripped)
 	 */
 	async addTranslations(lang, translations) {
