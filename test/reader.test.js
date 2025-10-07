@@ -37,6 +37,7 @@ describe('Reader', () => {
 
 			const reader = new Reader(filepath)
 			await assert.doesNotReject(() => reader.opened())
+			assert.equal(await reader.fileVersion(), '1.0')
 			await reader.close()
 		})
 
@@ -54,6 +55,7 @@ describe('Reader', () => {
 
 			const reader = new Reader(filepath)
 			await assert.doesNotReject(() => reader.opened())
+			assert.equal(await reader.fileVersion(), '1.5')
 			await reader.close()
 		})
 

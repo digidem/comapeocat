@@ -29,6 +29,7 @@ const SUPPORTED_MAJOR_VERSION = 1
 /** @typedef {import('./schema/categorySelection.js').CategorySelectionOutput} CategorySelectionOutput */
 /** @typedef {import('./schema/metadata.js').MetadataOutput} MetadataOutput */
 /**
+ * @private
  * @typedef {{
  *   categories: Entry,
  *   categorySelection: Entry,
@@ -36,6 +37,7 @@ const SUPPORTED_MAJOR_VERSION = 1
  *   fields?: Entry,
  *   icons: Map<string, Entry>,
  *   translations: Map<string, Entry>,
+ *   fileVersion: string
  * }} ZipEntries
  */
 const FILENAMES = /** @type {const} */ ({
@@ -80,12 +82,11 @@ export class Reader {
 				: Promise.resolve(filepathOrZip))
 		zipPromise.catch(noop)
 		this.#entriesPromise = (async () => {
-			/** @type {SetOptional<ZipEntries, 'categories' | 'categorySelection' | 'metadata'>} */
+			/** @type {SetOptional<ZipEntries, 'categories' | 'categorySelection' | 'metadata' | 'fileVersion'>} */
 			const entries = {
 				icons: new Map(),
 				translations: new Map(),
 			}
-			let versionFound = false
 			if (this.#closePromise) throw new Error('Reader is closed')
 			const zip = await zipPromise
 			if (this.#closePromise) throw new Error('Reader is closed')
@@ -94,9 +95,8 @@ export class Reader {
 				if (isValidFileName(entry.filename)) {
 					entries[FILENAMES[entry.filename]] = entry
 				} else if (entry.filename === VERSION_FILE) {
-					versionFound = true
-					const version = await concatStream(await entry.openReadStream())
-					assertReadableVersion(version)
+					entries.fileVersion = await concatStream(await entry.openReadStream())
+					assertReadableVersion(entries.fileVersion)
 				} else {
 					const iconMatch = entry.filename.match(ICON_REGEX)
 					if (iconMatch) {
@@ -114,9 +114,6 @@ export class Reader {
 						}
 					}
 				}
-			}
-			if (!versionFound) {
-				throw new InvalidFileVersionError({ version: '(missing)' })
 			}
 			assertValidEntries(entries)
 			return entries
@@ -260,6 +257,14 @@ export class Reader {
 	}
 
 	/**
+	 * @returns {Promise<string>} File version string (e.g. "1.0")
+	 */
+	async fileVersion() {
+		const { fileVersion } = await this.#entriesPromise
+		return fileVersion
+	}
+
+	/**
 	 * @param {Entry} entry
 	 * @returns {Promise<unknown>}
 	 * @throws {JSONError} When the JSON is invalid or does not conform to the expected schema
@@ -294,7 +299,7 @@ async function concatStream(stream) {
 }
 
 /**
- * @param {import('type-fest').SetOptional<ZipEntries, 'categories' | 'categorySelection' | 'metadata'>} entries
+ * @param {import('type-fest').SetOptional<ZipEntries, 'categories' | 'categorySelection' | 'metadata' | 'fileVersion'>} entries
  * @returns {asserts entries is ZipEntries}
  */
 function assertValidEntries(entries) {
@@ -306,6 +311,9 @@ function assertValidEntries(entries) {
 	}
 	if (!entries.metadata) {
 		throw new MissingMetadataError()
+	}
+	if (!entries.fileVersion) {
+		throw new InvalidFileVersionError({ version: '(missing)' })
 	}
 }
 
