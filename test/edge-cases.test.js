@@ -643,16 +643,16 @@ describe('Edge cases and untested spec details', () => {
 	})
 
 	describe('Translation validation', () => {
-		test('accepts valid BCP 47 language codes', async () => {
+		test('accepts and normalizes valid BCP 47 language codes', async () => {
 			const filepath = join(TEST_DIR, 'translation-bcp47-valid.comapeocat')
 			const writer = createTestWriter()
 
 			writer.addCategory('tree', fixtures.categories.tree)
 
-			await writer.addTranslations('en', fixtures.translations.es)
-			await writer.addTranslations('en-US', fixtures.translations.es)
+			await writer.addTranslations('es', fixtures.translations.es)
+			await writer.addTranslations('pt-BR', fixtures.translations.es)
 			await writer.addTranslations('en-GB', fixtures.translations.es)
-			await writer.addTranslations('zh-Hans', fixtures.translations.es)
+			await writer.addTranslations('nan-Hant-TW', fixtures.translations.es)
 
 			writer.setMetadata({ name: 'Test' })
 			writer.finish()
@@ -664,13 +664,42 @@ describe('Edge cases and untested spec details', () => {
 			for await (const t of reader.translations()) {
 				translations.push(t.lang)
 			}
+			console.log(translations)
 
-			assert.ok(translations.includes('en'))
-			assert.ok(translations.includes('en-US'))
+			assert.ok(translations.includes('es'))
+			assert.ok(translations.includes('pt'), 'pt-BR should normalize to pt')
 			assert.ok(translations.includes('en-GB'))
-			assert.ok(translations.includes('zh-Hans'))
+			assert.ok(translations.includes('nan-Hant-TW'))
 
 			await reader.close()
+		})
+
+		test('throws error for invalid BCP 47 language codes', async () => {
+			const writer = createTestWriter()
+
+			writer.addCategory('tree', fixtures.categories.tree)
+
+			await writer.addTranslations('es', fixtures.translations.es)
+
+			await assert.rejects(
+				() => writer.addTranslations('invalid_code', fixtures.translations.es),
+				{ name: 'Error' },
+			)
+			await assert.rejects(
+				() => writer.addTranslations('en-YY', fixtures.translations.es),
+				{ name: 'Error' },
+			)
+			await assert.rejects(
+				() => writer.addTranslations('xx-GB', fixtures.translations.es),
+				{ name: 'Error' },
+			)
+			await assert.rejects(
+				() => writer.addTranslations('123', fixtures.translations.es),
+				{ name: 'Error' },
+			)
+
+			writer.setMetadata({ name: 'Test' })
+			writer.finish()
 		})
 
 		test('allows translation for non-existent preset', async () => {

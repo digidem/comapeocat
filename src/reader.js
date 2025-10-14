@@ -11,7 +11,7 @@ import {
 	MissingCategoriesError,
 	UnsupportedFileVersionError,
 } from './lib/errors.js'
-import { isSupportedBCP47, parse } from './lib/utils.js'
+import { parse } from './lib/utils.js'
 import { validateReferences } from './lib/validate-references.js'
 import { CategorySchema } from './schema/category.js'
 import { CategorySelectionSchema } from './schema/categorySelection.js'
@@ -28,6 +28,7 @@ const SUPPORTED_MAJOR_VERSION = 1
 /** @typedef {import('./schema/category.js').CategoryOutput} CategoryOutput */
 /** @typedef {import('./schema/categorySelection.js').CategorySelectionOutput} CategorySelectionOutput */
 /** @typedef {import('./schema/metadata.js').MetadataOutput} MetadataOutput */
+/** @typedef {import('./schema/translations.js').TranslationsOutput} TranslationsOutput */
 /**
  * @private
  * @typedef {{
@@ -107,8 +108,8 @@ export class Reader {
 					const translationMatch = entry.filename.match(TRANSLATIONS_REGEX)
 					if (translationMatch) {
 						const [, lang] = translationMatch
-						// Ignore invalid or unsupported BCP 47 language tags
-						if (isSupportedBCP47(parseBCP47(lang))) {
+						// Ignore BCP 47 without a primary language subtag
+						if (parseBCP47(lang).language) {
 							entries.translations.set(lang, entry)
 							continue
 						}
@@ -221,7 +222,7 @@ export class Reader {
 
 	/**
 	 * Async generator to yield language tag and translations data
-	 * @returns {AsyncGenerator<{lang: string, translations: v.InferOutput<typeof TranslationsSchema>}>}
+	 * @returns {AsyncGenerator<{lang: string, translations: TranslationsOutput}>}
 	 */
 	async *translations() {
 		const { translations: entries } = await this.#entriesPromise

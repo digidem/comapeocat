@@ -6,7 +6,7 @@ import { Command } from '@commander-js/extra-typings'
 import * as v from 'valibot'
 
 import { isParseError } from '../src/lib/errors.js'
-import { assertValidBCP47 } from '../src/lib/utils.js'
+import { validateBcp47 } from '../src/lib/validate-bcp-47.js'
 import {
 	CategorySchema,
 	CategorySchemaDeprecated,
@@ -68,8 +68,10 @@ program
 						writer.addIcon(id, value)
 						break
 					case 'messages':
-						assertValidBCP47(id)
-						await writer.addTranslations(id, messagesToTranslations(value))
+						await writer.addTranslations(
+							validateBcp47(id),
+							messagesToTranslations(value),
+						)
 						break
 					case 'metadata':
 						fileMetadata = value

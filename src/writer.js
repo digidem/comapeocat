@@ -13,6 +13,7 @@ import {
 	MissingCategoriesError,
 } from './lib/errors.js'
 import { parseSvg } from './lib/parse-svg.js'
+import { validateBcp47 } from './lib/validate-bcp-47.js'
 import { validateReferences } from './lib/validate-references.js'
 import { CategorySchema } from './schema/category.js'
 import { CategorySelectionSchema } from './schema/categorySelection.js'
@@ -127,8 +128,9 @@ export class Writer extends EventEmitter {
 	async addTranslations(lang, translations) {
 		if (this.#finished) throw new AddAfterFinishError()
 		const parsedTranslations = v.parse(TranslationsSchema, translations)
+		const normalizedLang = validateBcp47(lang)
 		await this.#append(JSON.stringify(parsedTranslations, null, 2), {
-			name: `${TRANSLATIONS_DIR}/${lang}.json`,
+			name: `${TRANSLATIONS_DIR}/${normalizedLang}.json`,
 		})
 		return parsedTranslations
 	}
