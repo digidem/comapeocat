@@ -351,4 +351,130 @@ describe('Writer', () => {
 		await new Promise((resolve) => setTimeout(resolve, 10))
 		assert.ok(errorEmitted)
 	})
+
+	test('throws when icon exceeds MAX_ICON_SIZE', async () => {
+		const writer = new Writer()
+		const largeIcon = `<svg xmlns="http://www.w3.org/2000/svg">${'x'.repeat(2_000_001)}</svg>`
+
+		await assert.rejects(
+			async () => {
+				await writer.addIcon('large', largeIcon)
+			},
+			{ name: 'IconSizeError' },
+		)
+	})
+
+	test('throws when translation JSON exceeds MAX_JSON_SIZE', async () => {
+		const writer = new Writer()
+		// Create a large translations object
+		const largeTranslations = {
+			category: {},
+			field: {},
+		}
+		// Add many categories to make it exceed 100KB
+		for (let i = 0; i < 5000; i++) {
+			largeTranslations.category[`cat${i}`] = {
+				name: 'A'.repeat(100),
+			}
+		}
+
+		await assert.rejects(
+			async () => {
+				await writer.addTranslations('en', largeTranslations)
+			},
+			{ name: 'JsonSizeError' },
+		)
+	})
+
+	test('throws when categories.json exceeds MAX_JSON_SIZE', () => {
+		const writer = createTestWriter()
+
+		// Add many categories to exceed 100KB
+		for (let i = 0; i < 1000; i++) {
+			writer.addCategory(`cat${i}`, {
+				name: 'A'.repeat(200),
+				appliesTo: ['observation'],
+				tags: { test: 'value' },
+				fields: [],
+			})
+		}
+
+		assert.throws(() => writer.finish(), { name: 'JsonSizeError' })
+	})
+
+	test('throws when fields.json exceeds MAX_JSON_SIZE', () => {
+		const writer = createTestWriter()
+
+		writer.addCategory('tree', fixtures.categories.tree)
+
+		// Add many fields to exceed 100KB
+		for (let i = 0; i < 5000; i++) {
+			writer.addField(`field${i}`, {
+				type: 'text',
+				tagKey: `key${i}`,
+				label: 'A'.repeat(100),
+			})
+		}
+
+		assert.throws(() => writer.finish(), { name: 'JsonSizeError' })
+	})
+
+	test('throws when trying to add more than MAX_ENTRIES', async () => {
+		const writer = createTestWriter()
+
+		writer.addCategory('tree', fixtures.categories.tree)
+
+		// Try to add 10001 icons (exceeds MAX_ENTRIES of 10000)
+		// Note: We also have to account for the 5 JSON files added in finish()
+		// So we add 9996 icons, then finish() will add 5 more for a total of 10001
+		for (let i = 0; i < 9996; i++) {
+			await writer.addIcon(`icon${i}`, fixtures.icons.simple)
+		}
+
+		// This should succeed (9996 icons + 5 JSON files = 10001, which exceeds MAX_ENTRIES)
+		assert.throws(() => writer.finish(), { name: 'TooManyEntriesError' })
+	})
+
+	test('throws when entry count exceeds MAX_ENTRIES during addIcon', async () => {
+		const writer = createTestWriter()
+
+		writer.addCategory('tree', fixtures.categories.tree)
+
+		// Add MAX_ENTRIES icons to trigger error
+		for (let i = 0; i < 10_000; i++) {
+			await writer.addIcon(`icon${i}`, fixtures.icons.simple)
+		}
+
+		// Adding one more should throw
+		await assert.rejects(
+			async () => {
+				await writer.addIcon('icon10000', fixtures.icons.simple)
+			},
+			{ name: 'TooManyEntriesError' },
+		)
+	})
+
+	test('throws when entry count exceeds MAX_ENTRIES during addTranslations', async () => {
+		const writer = createTestWriter()
+
+		writer.addCategory('tree', fixtures.categories.tree)
+
+		// Add MAX_ENTRIES translations to trigger error
+		// We use a simple translations object to make this faster
+		const simpleTranslations = { category: {}, field: {} }
+		for (let i = 0; i < 10_000; i++) {
+			// Use valid BCP 47 language codes: language + script variant
+			// Format: language-Latn-x-nnnnn where nnnnn is a private use subtag
+			const lang = `en-x-${i.toString().padStart(5, '0')}`
+			await writer.addTranslations(lang, simpleTranslations)
+		}
+
+		// Adding one more should throw
+		await assert.rejects(
+			async () => {
+				await writer.addTranslations('en-x-10000', simpleTranslations)
+			},
+			{ name: 'TooManyEntriesError' },
+		)
+	})
 })

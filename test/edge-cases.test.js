@@ -1,12 +1,13 @@
 // @ts-nocheck
 import assert from 'node:assert/strict'
 import { randomBytes } from 'node:crypto'
-import { createWriteStream, mkdirSync, rmSync } from 'node:fs'
+import { createWriteStream, mkdirSync, rmSync, writeFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { pipeline } from 'node:stream/promises'
 import { describe, test, before, after } from 'node:test'
 
+import { MAX_ENTRIES } from '../src/lib/constants.js'
 import { Reader } from '../src/reader.js'
 import { Writer } from '../src/writer.js'
 import { createTestZip, fixtures } from './fixtures.js'
@@ -862,6 +863,222 @@ describe('Edge cases and untested spec details', () => {
 			const fields = await reader.fields()
 
 			assert.equal(fields.get('name').appearance, 'singleline')
+
+			await reader.close()
+		})
+	})
+
+	describe('File type and size validation', () => {
+		test('rejects attempting to read a non-zip file', async () => {
+			const filepath = join(TEST_DIR, 'not-a-zip.comapeocat')
+			writeFileSync(filepath, 'This is not a zip file')
+
+			const reader = new Reader(filepath)
+			await assert.rejects(() => reader.opened(), {
+				name: 'InvalidZipFileError',
+			})
+			await reader.close()
+		})
+
+		test('rejects attempting to read a non-existent file', async () => {
+			const filepath = join(TEST_DIR, 'does-not-exist.comapeocat')
+
+			const reader = new Reader(filepath)
+			await assert.rejects(() => reader.opened(), { code: 'ENOENT' })
+			await reader.close()
+		})
+
+		test('rejects attempting to read a directory', async () => {
+			const dirpath = join(TEST_DIR, 'directory.comapeocat')
+			mkdirSync(dirpath, { recursive: true })
+
+			const reader = new Reader(dirpath)
+			await assert.rejects(() => reader.opened(), { code: 'EISDIR' })
+			await reader.close()
+		})
+
+		test('rejects icon larger than MAX_ICON_SIZE when reading', async () => {
+			const filepath = join(TEST_DIR, 'icon-too-large-read.comapeocat')
+			// Create an SVG that exceeds MAX_ICON_SIZE (2MB)
+			// Need to create unique content so compression doesn't reduce it
+			let circles = ''
+			for (let i = 0; i < 60000; i++) {
+				circles += `<circle cx="${i}" cy="${i}" r="1"/>`
+			}
+			const largeIcon = `<svg xmlns="http://www.w3.org/2000/svg">${circles}</svg>`
+			await createTestZip({
+				filepath,
+				files: {
+					'categories.json': { tree: fixtures.categories.tree },
+					'categorySelection.json': fixtures.categorySelection.observation,
+					'metadata.json': fixtures.metadata.minimal,
+					'icons/large.svg': largeIcon,
+				},
+			})
+
+			const reader = new Reader(filepath)
+			await assert.rejects(() => reader.opened(), {
+				name: 'IconSizeError',
+			})
+			await reader.close()
+		})
+
+		test('rejects icon larger than MAX_ICON_SIZE when writing', async () => {
+			const writer = createTestWriter()
+
+			writer.addCategory('test', {
+				name: 'Test',
+				appliesTo: ['observation'],
+				tags: { test: 'value' },
+				fields: [],
+			})
+
+			// Create an SVG that exceeds MAX_ICON_SIZE (2MB)
+			// Need to create unique content so it's actually large after optimization
+			let circles = ''
+			for (let i = 0; i < 60000; i++) {
+				circles += `<circle cx="${i}" cy="${i}" r="1"/>`
+			}
+			const largeIcon = `<svg xmlns="http://www.w3.org/2000/svg">${circles}</svg>`
+
+			await assert.rejects(() => writer.addIcon('large', largeIcon), {
+				name: 'IconSizeError',
+			})
+		})
+
+		test('rejects JSON file larger than MAX_JSON_SIZE', async () => {
+			const filepath = join(TEST_DIR, 'json-too-large.comapeocat')
+			// Create a categories.json that exceeds MAX_JSON_SIZE (100KB)
+			const largeCategories = {}
+			// Create many categories with unique names to ensure size exceeds 100KB
+			for (let i = 0; i < 500; i++) {
+				largeCategories[`category_${i}`] = {
+					name: `Category ${i} with a long name ${'x'.repeat(100)}`,
+					appliesTo: ['observation'],
+					tags: { tag: `value_${i}` },
+					fields: [],
+				}
+			}
+
+			await createTestZip({
+				filepath,
+				files: {
+					'categories.json': largeCategories,
+					'categorySelection.json': fixtures.categorySelection.observation,
+					'metadata.json': fixtures.metadata.minimal,
+				},
+			})
+
+			const reader = new Reader(filepath)
+			await assert.rejects(() => reader.opened(), {
+				name: 'JsonSizeError',
+			})
+			await reader.close()
+		})
+
+		test('rejects translation JSON file larger than MAX_JSON_SIZE', async () => {
+			const filepath = join(TEST_DIR, 'translation-too-large.comapeocat')
+			// Create a translation file that exceeds MAX_JSON_SIZE (100KB)
+			const largeTranslation = {
+				category: {},
+				field: {},
+			}
+			// Add many category translations to exceed the limit
+			for (let i = 0; i < 2000; i++) {
+				largeTranslation.category[`category_${i}`] = {
+					name: `Very long name ${'x'.repeat(50)}`,
+				}
+			}
+
+			await createTestZip({
+				filepath,
+				files: {
+					'categories.json': { tree: fixtures.categories.tree },
+					'categorySelection.json': fixtures.categorySelection.observation,
+					'metadata.json': fixtures.metadata.minimal,
+					'translations/es.json': largeTranslation,
+				},
+			})
+
+			const reader = new Reader(filepath)
+			await assert.rejects(() => reader.opened(), {
+				name: 'JsonSizeError',
+			})
+			await reader.close()
+		})
+
+		test('rejects file with more than MAX_ENTRIES entries', async () => {
+			const filepath = join(TEST_DIR, 'too-many-entries.comapeocat')
+			// Create a file with more than MAX_ENTRIES (10,000) entries
+			const files = {
+				'categories.json': { tree: fixtures.categories.tree },
+				'categorySelection.json': fixtures.categorySelection.observation,
+				'metadata.json': fixtures.metadata.minimal,
+			}
+
+			// Add enough icons to exceed MAX_ENTRIES
+			// Each icon counts as 1 entry, plus the 4 required files
+			for (let i = 0; i < MAX_ENTRIES + 1; i++) {
+				files[`icons/icon_${i}.svg`] = fixtures.icons.simple
+			}
+
+			await createTestZip({
+				filepath,
+				files,
+			})
+
+			const reader = new Reader(filepath)
+			await assert.rejects(() => reader.opened(), {
+				name: 'TooManyEntriesError',
+			})
+			await reader.close()
+		})
+
+		test('rejects VERSION file larger than 100 bytes', async () => {
+			const filepath = join(TEST_DIR, 'version-too-large.comapeocat')
+			// Create a VERSION file that exceeds 100 bytes
+			const largeVersion = '1.0' + ' '.repeat(99)
+
+			await createTestZip({
+				filepath,
+				version: largeVersion,
+				files: {
+					'categories.json': { tree: fixtures.categories.tree },
+					'categorySelection.json': fixtures.categorySelection.observation,
+					'metadata.json': fixtures.metadata.minimal,
+				},
+			})
+
+			const reader = new Reader(filepath)
+			await assert.rejects(() => reader.opened(), {
+				name: 'VersionSizeError',
+			})
+			await reader.close()
+		})
+
+		test('accepts VERSION file exactly 100 bytes', async () => {
+			const filepath = join(TEST_DIR, 'version-100-bytes.comapeocat')
+			// Create a VERSION file that is exactly 100 bytes
+			// "1.0" is 3 bytes, so add 97 more bytes
+			const version = '1.0' + ' '.repeat(97)
+
+			await createTestZip({
+				filepath,
+				version,
+				files: {
+					'categories.json': { tree: fixtures.categories.tree },
+					'categorySelection.json': fixtures.categorySelection.observation,
+					'metadata.json': fixtures.metadata.minimal,
+				},
+			})
+
+			const reader = new Reader(filepath)
+			await reader.opened()
+			const fileVersion = await reader.fileVersion()
+
+			// The version is trimmed when validated, so check the length before trim
+			assert.equal(version.length, 100)
+			assert.equal(fileVersion.trim(), '1.0')
 
 			await reader.close()
 		})
