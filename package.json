@@ -52,6 +52,7 @@
 		"iso-3166": "^4.3.0",
 		"p-event": "^7.0.0",
 		"parse-json": "^8.3.0",
+		"safe-stable-stringify": "^2.5.0",
 		"svgo": "^4.0.0",
 		"un-m49": "^2.2.0",
 		"valibot": "^1.1.0",

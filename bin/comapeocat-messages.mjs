@@ -4,6 +4,7 @@ import path from 'node:path'
 
 import { Command } from '@commander-js/extra-typings'
 import { escapePath } from 'dot-prop-extra'
+import stableStringify from 'safe-stable-stringify'
 
 import { readFiles } from './helpers/read-files.js'
 
@@ -67,7 +68,7 @@ program
 					break
 			}
 		}
-		const messagesJson = JSON.stringify(messages, null, 2)
+		const messagesJson = stableStringify(messages, null, 2)
 		if (output) {
 			await fs.mkdir(path.dirname(output), { recursive: true })
 			await fs.writeFile(output, messagesJson)
