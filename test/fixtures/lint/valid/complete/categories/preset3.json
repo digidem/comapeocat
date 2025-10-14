@@ -1,10 +1,10 @@
 {
-  "name": "Eduardo Durgan",
+  "name": "John Hane",
   "appliesTo": [
     "track"
   ],
   "tags": {
-    "aperio": 0.8816491980516272
+    "tamen": "comedo"
   },
   "addTags": {},
   "removeTags": {},
@@ -12,5 +12,6 @@
     "field1"
   ],
   "icon": "icon3",
-  "terms": []
+  "terms": [],
+  "color": "#70df9a"
 }

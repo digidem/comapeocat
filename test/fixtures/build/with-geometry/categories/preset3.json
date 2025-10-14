@@ -1,7 +1,7 @@
 {
-  "name": "Darin Ankunding",
+  "name": "Katie Lynch",
   "tags": {
-    "debitis": null
+    "vis": true
   },
   "addTags": {},
   "removeTags": {},
@@ -9,7 +9,6 @@
     "field1"
   ],
   "terms": [],
-  "color": "#a7d512",
   "geometry": [
     "point",
     "line"

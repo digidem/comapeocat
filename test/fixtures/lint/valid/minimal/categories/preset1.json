@@ -1,13 +1,14 @@
 {
-  "name": "Gabriel Monahan",
+  "name": "Belinda Kozey",
   "appliesTo": [
     "observation"
   ],
   "tags": {
-    "villa": null
+    "sol": null
   },
   "addTags": {},
   "removeTags": {},
   "fields": [],
-  "terms": []
+  "terms": [],
+  "color": "#6b24a5"
 }

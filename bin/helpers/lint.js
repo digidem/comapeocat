@@ -58,15 +58,17 @@ export async function lint(dir) {
 			case 'icon':
 				iconIds.add(id)
 				break
-			case 'category':
-				categories.set(id, v.parse(CategorySchema, migrateGeometry(value)))
-				for (const fieldRef of value.fields) {
+			case 'category': {
+				const migratedCategory = v.parse(CategorySchema, migrateGeometry(value))
+				categories.set(id, migratedCategory)
+				for (const fieldRef of migratedCategory.fields) {
 					addRefToMap(fieldRefs, fieldRef, id)
 				}
-				if (value.icon) {
-					addRefToMap(iconRefs, value.icon, id)
+				if (migratedCategory.icon) {
+					addRefToMap(iconRefs, migratedCategory.icon, id)
 				}
 				break
+			}
 			case 'categorySelection':
 				categorySelection = value
 				break

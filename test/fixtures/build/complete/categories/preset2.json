@@ -1,10 +1,10 @@
 {
-  "name": "Ms. Geneva Rolfson",
+  "name": "Grace O'Reilly",
   "appliesTo": [
     "track"
   ],
   "tags": {
-    "decimus": null
+    "cedo": null
   },
   "addTags": {},
   "removeTags": {},
@@ -12,5 +12,6 @@
     "field2"
   ],
   "icon": "icon2",
-  "terms": []
+  "terms": [],
+  "color": "#6df4d2"
 }

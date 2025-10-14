@@ -23,6 +23,12 @@ describe('CLI lint command', () => {
 			const { exitCode } = await execa('node', [CLI_PATH, fixturePath])
 			assert.equal(exitCode, 0)
 		})
+
+		test('should succeed for category without fields property', async () => {
+			const fixturePath = join(FIXTURES_DIR, 'valid', 'no-fields')
+			const { exitCode } = await execa('node', [CLI_PATH, fixturePath])
+			assert.equal(exitCode, 0)
+		})
 	})
 
 	describe('invalid fixtures - missing references', () => {

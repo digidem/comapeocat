@@ -1,7 +1,7 @@
 {
-  "tagKey": "patruus",
-  "label": "adsum",
-  "placeholder": "suggero",
-  "helperText": "benevolentia",
-  "type": "number"
+  "tagKey": "caput",
+  "label": "sophismata",
+  "placeholder": "tabernus",
+  "type": "text",
+  "appearance": "multiline"
 }
