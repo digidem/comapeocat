@@ -17,3 +17,7 @@ export const DEPRECATED_GEOMETRY_TYPES = /** @type {const} */ ([
 export const MAX_ENTRIES = 10_000
 /** Max size of an icon file in bytes */
 export const MAX_ICON_SIZE = 2_000_000 // 2MB
+/** Max size of a JSON file in bytes */
+export const MAX_JSON_SIZE = 100_000 // 100KB
+/** Max size of the VERSION file in bytes */
+export const MAX_VERSION_SIZE = 100 // 100 bytes

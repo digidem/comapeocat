@@ -2,7 +2,12 @@ import path from 'node:path'
 
 import { summarize } from 'valibot'
 
-import { CATEGORIES_DIR } from './constants.js'
+import {
+	CATEGORIES_DIR,
+	MAX_ICON_SIZE,
+	MAX_JSON_SIZE,
+	MAX_ENTRIES,
+} from './constants.js'
 
 /** @import { ValiError, BaseSchema, BaseSchemaAsync, BaseIssue } from 'valibot' */
 /** @import { JSONError } from 'parse-json' */
@@ -255,5 +260,59 @@ export class CategorySelectionRefError extends Error {
 		super(message)
 
 		Error.captureStackTrace?.(this, CategorySelectionRefError)
+	}
+}
+
+export class IconSizeError extends Error {
+	name = 'IconSizeError'
+
+	/**
+	 * @param {object} params
+	 * @param {string} params.iconId - The icon ID
+	 * @param {number} params.size - The actual size in bytes
+	 */
+	constructor({ iconId, size }) {
+		const message = `Icon "${iconId}" exceeds maximum size: ${size} bytes (max: ${MAX_ICON_SIZE} bytes)`
+		super(message)
+		Error.captureStackTrace?.(this, IconSizeError)
+	}
+}
+
+export class JsonSizeError extends Error {
+	name = 'JsonSizeError'
+
+	/**
+	 * @param {object} params
+	 * @param {string} params.fileName - The JSON file name
+	 * @param {number} params.size - The actual size in bytes
+	 */
+	constructor({ fileName, size }) {
+		const message = `JSON file "${fileName}" exceeds maximum size: ${size} bytes (max: ${MAX_JSON_SIZE} bytes)`
+		super(message)
+		Error.captureStackTrace?.(this, JsonSizeError)
+	}
+}
+
+export const InvalidZipFileError = createSimpleError(
+	'InvalidZipFileError',
+	'File is not a valid zip archive.',
+)
+
+export const TooManyEntriesError = createSimpleError(
+	'TooManyEntriesError',
+	`File contains too many entries (max: ${MAX_ENTRIES}).`,
+)
+
+export class VersionSizeError extends Error {
+	name = 'VersionSizeError'
+
+	/**
+	 * @param {object} params
+	 * @param {number} params.size - The actual size in bytes
+	 */
+	constructor({ size }) {
+		const message = `VERSION file exceeds maximum size: ${size} bytes (max: 100 bytes)`
+		super(message)
+		Error.captureStackTrace?.(this, VersionSizeError)
 	}
 }

@@ -3,13 +3,26 @@ import parseJson from 'parse-json'
 import * as v from 'valibot'
 import { open } from 'yauzl-promise'
 
-import { VERSION_FILE, ICONS_DIR, TRANSLATIONS_DIR } from './lib/constants.js'
+import {
+	VERSION_FILE,
+	ICONS_DIR,
+	TRANSLATIONS_DIR,
+	MAX_ICON_SIZE,
+	MAX_JSON_SIZE,
+	MAX_ENTRIES,
+	MAX_VERSION_SIZE,
+} from './lib/constants.js'
 import {
 	InvalidFileVersionError,
 	MissingCategorySelectionError,
 	MissingMetadataError,
 	MissingCategoriesError,
 	UnsupportedFileVersionError,
+	IconSizeError,
+	JsonSizeError,
+	InvalidZipFileError,
+	TooManyEntriesError,
+	VersionSizeError,
 } from './lib/errors.js'
 import { parse } from './lib/utils.js'
 import { validateReferences } from './lib/validate-references.js'
@@ -79,7 +92,24 @@ export class Reader {
 	constructor(filepathOrZip) {
 		const zipPromise = (this.#zipPromise =
 			typeof filepathOrZip === 'string'
-				? open(filepathOrZip)
+				? open(filepathOrZip).catch((err) => {
+						// Check if error is due to invalid zip file (yauzl throws various errors for invalid zips)
+						if (
+							err &&
+							typeof err === 'object' &&
+							'message' in err &&
+							typeof err.message === 'string' &&
+							(err.message.includes('invalid signature') ||
+								err.message
+									.toLowerCase()
+									.includes('end of central directory') ||
+								err.message.includes('invalid zip') ||
+								err.message.includes('bad archive'))
+						) {
+							return Promise.reject(new InvalidZipFileError())
+						}
+						return Promise.reject(err)
+					})
 				: Promise.resolve(filepathOrZip))
 		zipPromise.catch(noop)
 		this.#entriesPromise = (async () => {
@@ -91,23 +121,55 @@ export class Reader {
 			if (this.#closePromise) throw new Error('Reader is closed')
 			const zip = await zipPromise
 			if (this.#closePromise) throw new Error('Reader is closed')
+			let entryCount = 0
 			for await (const entry of zip) {
+				entryCount++
+				if (entryCount > MAX_ENTRIES) {
+					throw new TooManyEntriesError()
+				}
 				if (this.#closePromise) throw new Error('Reader is closed')
 				if (isValidFileName(entry.filename)) {
+					// Validate JSON file size
+					if (entry.uncompressedSize > MAX_JSON_SIZE) {
+						throw new JsonSizeError({
+							fileName: entry.filename,
+							size: entry.uncompressedSize,
+						})
+					}
 					entries[FILENAMES[entry.filename]] = entry
 				} else if (entry.filename === VERSION_FILE) {
+					// Validate VERSION file size
+					if (entry.uncompressedSize > MAX_VERSION_SIZE) {
+						throw new VersionSizeError({
+							size: entry.uncompressedSize,
+						})
+					}
 					entries.fileVersion = await concatStream(await entry.openReadStream())
 					assertReadableVersion(entries.fileVersion)
 				} else {
 					const iconMatch = entry.filename.match(ICON_REGEX)
 					if (iconMatch) {
 						const [, iconName] = iconMatch
+						// Validate icon file size
+						if (entry.uncompressedSize > MAX_ICON_SIZE) {
+							throw new IconSizeError({
+								iconId: iconName,
+								size: entry.uncompressedSize,
+							})
+						}
 						entries.icons.set(iconName, entry)
 						continue
 					}
 					const translationMatch = entry.filename.match(TRANSLATIONS_REGEX)
 					if (translationMatch) {
 						const [, lang] = translationMatch
+						// Validate translation JSON file size
+						if (entry.uncompressedSize > MAX_JSON_SIZE) {
+							throw new JsonSizeError({
+								fileName: entry.filename,
+								size: entry.uncompressedSize,
+							})
+						}
 						// Ignore BCP 47 without a primary language subtag
 						if (parseBCP47(lang).language) {
 							entries.translations.set(lang, entry)
@@ -133,8 +195,8 @@ export class Reader {
 	async close() {
 		if (this.#closePromise) return this.#closePromise
 		this.#closePromise = (async () => {
-			const zip = await this.#zipPromise
-			await zip.close()
+			const zip = await this.#zipPromise.catch(noop)
+			await zip?.close()
 		})()
 		return this.#closePromise
 	}
