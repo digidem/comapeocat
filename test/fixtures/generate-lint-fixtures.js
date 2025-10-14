@@ -11,7 +11,7 @@ import { FieldSchema } from '../../src/schema/field.js'
 const __dirname = dirname(fileURLToPath(import.meta.url))
 
 // Set a fixed seed for reproducible fixtures
-faker.seed(44)
+faker.seed(45)
 
 const valimock = new Valimock()
 
@@ -110,6 +110,23 @@ writeJSON(join(completeDir, 'messages'), 'en.json', {
 	},
 })
 
+// Generate fixture with category without fields property
+const noFieldsDir = join(FIXTURES_DIR, 'valid', 'no-fields')
+const noFieldsPreset = valimock.mock(CategorySchema)
+// Remove the fields property entirely to test that it's optional
+delete noFieldsPreset.fields
+noFieldsPreset.appliesTo = ['observation']
+delete noFieldsPreset.icon
+writeJSON(join(noFieldsDir, 'categories'), 'preset1.json', noFieldsPreset)
+writeJSON(noFieldsDir, 'categorySelection.json', {
+	observation: ['preset1'],
+	track: [],
+})
+writeJSON(noFieldsDir, 'metadata.json', {
+	name: 'Test',
+	version: '1.0.0',
+})
+
 console.log(`Generated lint fixtures at ${FIXTURES_DIR}`)
 console.log('Valid fixtures:')
 console.log(
@@ -118,3 +135,4 @@ console.log(
 console.log(
 	'  - valid/complete (with fields, icons, categorySelection, and metadata)',
 )
+console.log('  - valid/no-fields (category without fields property)')

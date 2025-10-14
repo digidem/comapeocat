@@ -1,15 +1,12 @@
 {
-  "name": "Elias Jakubowski",
+  "name": "Bobbie Torphy",
   "appliesTo": [
-    "track"
+    "observation"
   ],
   "tags": {
-    "sub": false
+    "quasi": null
   },
   "addTags": {},
   "removeTags": {},
-  "fields": [
-    "field2"
-  ],
   "terms": []
 }

@@ -18,7 +18,7 @@ const __dirname = dirname(fileURLToPath(import.meta.url))
 const CLI_PATH = join(__dirname, '..', '..', 'bin', 'comapeocat.mjs')
 
 // Set a fixed seed for reproducible fixtures
-faker.seed(42)
+faker.seed(43)
 
 const valimock = new Valimock()
 

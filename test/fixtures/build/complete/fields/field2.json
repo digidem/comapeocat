@@ -1,21 +1,7 @@
 {
-  "tagKey": "curia",
-  "label": "tempora",
-  "placeholder": "a",
-  "helperText": "demitto",
-  "type": "selectOne",
-  "options": [
-    {
-      "label": "damno",
-      "value": false
-    },
-    {
-      "label": "corrupti",
-      "value": 3
-    },
-    {
-      "label": "ascisco",
-      "value": "occaecati"
-    }
-  ]
+  "tagKey": "tondeo",
+  "label": "provident",
+  "helperText": "canto",
+  "type": "text",
+  "appearance": "multiline"
 }

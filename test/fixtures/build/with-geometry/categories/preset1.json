@@ -1,7 +1,7 @@
 {
-  "name": "Erin Fadel Jr.",
+  "name": "Kim C",
   "tags": {
-    "vallum": "iste"
+    "ancilla": 0.8485766269868622
   },
   "addTags": {},
   "removeTags": {},
@@ -9,6 +9,7 @@
     "field1"
   ],
   "terms": [],
+  "color": "#5cdaf8",
   "geometry": [
     "point"
   ]

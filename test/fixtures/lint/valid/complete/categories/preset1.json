@@ -1,10 +1,10 @@
 {
-  "name": "Melba Abernathy",
+  "name": "Brandon Rippin",
   "appliesTo": [
     "observation"
   ],
   "tags": {
-    "spiculum": "tergum"
+    "vular": true
   },
   "addTags": {},
   "removeTags": {},
@@ -14,5 +14,5 @@
   ],
   "icon": "icon1",
   "terms": [],
-  "color": "#a7daec"
+  "color": "#842581"
 }

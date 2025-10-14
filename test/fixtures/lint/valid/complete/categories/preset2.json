@@ -1,10 +1,10 @@
 {
-  "name": "Jan Kirlin",
+  "name": "Shaun Bruen",
   "appliesTo": [
     "track"
   ],
   "tags": {
-    "odit": "volva"
+    "colligo": "usus"
   },
   "addTags": {},
   "removeTags": {},
@@ -13,6 +13,5 @@
     "field3"
   ],
   "icon": "icon2",
-  "terms": [],
-  "color": "#0ca5a0"
+  "terms": []
 }

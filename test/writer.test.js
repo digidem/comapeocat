@@ -334,6 +334,30 @@ describe('Writer', () => {
 		await reader.close()
 	})
 
+	test('accepts category without fields property', async () => {
+		const filepath = join(TEST_DIR, 'writer-no-fields.comapeocat')
+		const writer = createTestWriter()
+
+		// Create category without fields property
+		// eslint-disable-next-line no-unused-vars
+		const { fields, ...treeWithoutFields } = fixtures.categories.tree
+		writer.addCategory('tree', treeWithoutFields)
+		writer.finish()
+
+		await pipeline(writer.outputStream, createWriteStream(filepath))
+
+		const reader = new Reader(filepath)
+		await reader.opened()
+
+		const categories = await reader.categories()
+		assert.equal(categories.size, 1)
+		assert.equal(categories.get('tree').name, 'Tree')
+		// Should default to empty array
+		assert.deepEqual(categories.get('tree').fields, [])
+
+		await reader.close()
+	})
+
 	test('emits error event on invalid operations', async () => {
 		const writer = new Writer()
 		let errorEmitted = false

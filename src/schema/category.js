@@ -79,9 +79,12 @@ const CategorySchemaNoMetadata = v.object({
 		),
 		{},
 	),
-	fields: v.pipe(
-		v.array(RefSchema),
-		v.description('Array of field IDs to show for this category.'),
+	fields: v.optional(
+		v.pipe(
+			v.array(RefSchema),
+			v.description('Array of field IDs to show for this category.'),
+		),
+		[],
 	),
 	icon: v.optional(
 		v.pipe(
