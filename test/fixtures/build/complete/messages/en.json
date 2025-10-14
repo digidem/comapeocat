@@ -15,12 +15,12 @@
     "description": "Example input for field 'field1' (only visible for text and number fields)",
     "message": "crudelis"
   },
-  "field.field2.label": {
-    "description": "Label for field 'field2'",
-    "message": "provident"
-  },
   "field.field2.helperText": {
     "description": "Descriptive text shown under the label for field 'field2'",
     "message": "canto"
+  },
+  "field.field2.label": {
+    "description": "Label for field 'field2'",
+    "message": "provident"
   }
 }
