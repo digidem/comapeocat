@@ -1,6 +1,20 @@
 {
-  "tagKey": "capio",
-  "label": "ratione",
-  "type": "text",
-  "appearance": "multiline"
+  "tagKey": "conculco",
+  "label": "cupio",
+  "helperText": "su",
+  "type": "selectOne",
+  "options": [
+    {
+      "label": "cras",
+      "value": "attonbitus"
+    },
+    {
+      "label": "conatus",
+      "value": "conspergo"
+    },
+    {
+      "label": "abbas",
+      "value": null
+    }
+  ]
 }

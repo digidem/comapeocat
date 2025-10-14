@@ -1,6 +1,12 @@
 {
-  "tagKey": "adfero",
-  "label": "paens",
-  "type": "text",
-  "appearance": "multiline"
+  "tagKey": "vorax",
+  "label": "advoco",
+  "helperText": "audeo",
+  "type": "selectOne",
+  "options": [
+    {
+      "label": "vulariter",
+      "value": null
+    }
+  ]
 }

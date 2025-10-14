@@ -1,15 +1,16 @@
 {
-  "name": "Traci Schowalter-Haag",
+  "name": "J",
   "appliesTo": [
     "observation"
   ],
   "tags": {
-    "somniculosus": 2.600340105889054
+    "vel": true
   },
   "addTags": {},
   "removeTags": {},
   "fields": [
     "field1"
   ],
-  "terms": []
+  "terms": [],
+  "color": "#8efdb4"
 }
