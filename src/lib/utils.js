@@ -1,4 +1,3 @@
-import { parse as parseBCP47 } from 'bcp-47'
 import * as v from 'valibot'
 
 import { SchemaError } from './errors.js'
@@ -66,32 +65,6 @@ export function addRefToMap(map, refId, categoryId) {
  */
 export function typedEntries(obj) {
 	return /** @type {import('type-fest').Entries<T>} */ (Object.entries(obj))
-}
-
-/** @param {string} lang */
-export function assertValidBCP47(lang) {
-	const parsed = parseBCP47(lang)
-	// parseBCP47 will return an empty object if the tag is invalid
-	if (Object.keys(parsed).length === 0) {
-		throw new Error(`Invalid BCP 47 language tag: '${lang}'`)
-	}
-	if (!isSupportedBCP47(parsed)) {
-		throw new Error(
-			`Unsupported BCP 47 language tag: '${lang}'. Only language and region subtags are supported.`,
-		)
-	}
-	return lang
-}
-
-/**
- * @param {import('bcp-47').Schema} schema
- * @returns {boolean} True if the schema represents a valid and supported BCP 47 tag
- */
-export function isSupportedBCP47(schema) {
-	// parseBCP47 will return an empty object if the tag is invalid
-	if (Object.keys(schema).length === 0) return false
-	if (!schema.language) return false
-	return true
 }
 
 /**
