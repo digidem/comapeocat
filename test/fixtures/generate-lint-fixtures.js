@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { writeFileSync, mkdirSync } from 'node:fs'
 import { join, dirname } from 'node:path'
 import { fileURLToPath } from 'node:url'
@@ -127,6 +128,35 @@ writeJSON(noFieldsDir, 'metadata.json', {
 	version: '1.0.0',
 })
 
+// Generate fixture with matching tags but non-overlapping appliesTo
+const nonOverlappingDir = join(
+	FIXTURES_DIR,
+	'valid',
+	'non-overlapping-applies-to',
+)
+const nonOverlappingPreset1 = valimock.mock(CategorySchema)
+const nonOverlappingPreset2 = valimock.mock(CategorySchema)
+// Set identical tags but different appliesTo values
+const sharedTags = { category: 'water', type: 'natural' }
+nonOverlappingPreset1.tags = sharedTags
+nonOverlappingPreset2.tags = sharedTags
+nonOverlappingPreset1.appliesTo = ['observation']
+nonOverlappingPreset2.appliesTo = ['track']
+nonOverlappingPreset1.fields = []
+nonOverlappingPreset2.fields = []
+delete nonOverlappingPreset1.icon
+delete nonOverlappingPreset2.icon
+writeJSON(
+	join(nonOverlappingDir, 'categories'),
+	'preset1.json',
+	nonOverlappingPreset1,
+)
+writeJSON(
+	join(nonOverlappingDir, 'categories'),
+	'preset2.json',
+	nonOverlappingPreset2,
+)
+
 console.log(`Generated lint fixtures at ${FIXTURES_DIR}`)
 console.log('Valid fixtures:')
 console.log(
@@ -136,3 +166,6 @@ console.log(
 	'  - valid/complete (with fields, icons, categorySelection, and metadata)',
 )
 console.log('  - valid/no-fields (category without fields property)')
+console.log(
+	'  - valid/non-overlapping-applies-to (matching tags, non-overlapping appliesTo)',
+)

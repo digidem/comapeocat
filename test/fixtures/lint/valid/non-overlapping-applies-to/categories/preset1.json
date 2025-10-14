@@ -1,0 +1,14 @@
+{
+  "name": "Robert Zieme",
+  "appliesTo": [
+    "observation"
+  ],
+  "tags": {
+    "category": "water",
+    "type": "natural"
+  },
+  "addTags": {},
+  "removeTags": {},
+  "fields": [],
+  "terms": []
+}

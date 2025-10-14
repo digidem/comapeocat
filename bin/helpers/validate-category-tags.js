@@ -1,8 +1,10 @@
+import stableStringify from 'safe-stable-stringify'
+
 import { DuplicateTagsError } from '../../src/lib/errors.js'
 
 /**
  * Validate that all category tags are unique
- * @param {Map<string, Pick<import('../../src/schema/category.js').CategoryInput, 'tags'>>} categoriesMap
+ * @param {Map<string, Pick<import('../../src/schema/category.js').CategoryInput, 'tags' | 'appliesTo'>>} categoriesMap
  */
 export function validateCategoryTags(categoriesMap) {
 	/** @type {Map<string, { categoryIds: string[], tags: Record<string, unknown> }>} */
@@ -10,15 +12,16 @@ export function validateCategoryTags(categoriesMap) {
 
 	// Group categories by their normalized tags
 	for (const [categoryId, category] of categoriesMap) {
-		const normalizedTags = stableStringifyTags(category.tags)
-
-		if (tagGroups.has(normalizedTags)) {
-			tagGroups.get(normalizedTags)?.categoryIds.push(categoryId)
-		} else {
-			tagGroups.set(normalizedTags, {
-				categoryIds: [categoryId],
-				tags: category.tags,
-			})
+		for (const dataType of category.appliesTo) {
+			const normalizedTags = stableStringify(category.tags) + '|' + dataType
+			if (tagGroups.has(normalizedTags)) {
+				tagGroups.get(normalizedTags)?.categoryIds.push(categoryId)
+			} else {
+				tagGroups.set(normalizedTags, {
+					categoryIds: [categoryId],
+					tags: category.tags,
+				})
+			}
 		}
 	}
 
@@ -33,15 +36,4 @@ export function validateCategoryTags(categoriesMap) {
 	if (duplicates.length > 0) {
 		throw new DuplicateTagsError({ duplicates })
 	}
-}
-
-/**
- * Stable stringify tags object for comparison
- * @param {import('../../src/schema/category.js').CategoryOutput['tags']} tags
- */
-function stableStringifyTags(tags) {
-	// Sort by keys to ensure consistent ordering
-	const sortedKeys = Object.keys(tags).sort()
-	const sortedEntries = sortedKeys.map((key) => [key, tags[key]])
-	return JSON.stringify(sortedEntries)
 }
