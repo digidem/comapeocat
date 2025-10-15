@@ -21,6 +21,7 @@ import {
 	CategorySchemaDeprecatedGeometry,
 } from '../../src/schema/category.js'
 import { CategorySelectionSchema } from '../../src/schema/categorySelection.js'
+import { DefaultsDeprecatedSchema } from '../../src/schema/defaults.js'
 import { FieldSchema } from '../../src/schema/field.js'
 import { MessagesSchema } from '../../src/schema/messages.js'
 import { MetadataSchemaInput } from '../../src/schema/metadata.js'
@@ -30,6 +31,7 @@ import { jsonFiles } from './json-files.js'
  * @import {CategoryDeprecatedSortInput, CategoryDeprecatedGeometryInput, CategoryInput} from '../../src/schema/category.js'
  * @import {FieldInput} from '../../src/schema/field.js'
  * @import {CategorySelectionInput} from '../../src/schema/categorySelection.js'
+ * @import {DefaultsDeprecatedInput} from '../../src/schema/defaults.js'
  * @import {MetadataInput} from '../../src/schema/metadata.js'
  * @import {MessagesInput} from '../../src/schema/messages.js'
  */
@@ -45,6 +47,7 @@ import { jsonFiles } from './json-files.js'
  *  | { type: 'icon', id: string, value: string }
  *  | { type: 'metadata', id: 'metadata', value: MetadataInput }
  *  | { type: 'messages', id: string, value: MessagesInput 	}
+ *  | { type: 'defaults', id: 'defaults', value: DefaultsDeprecatedInput }
  * >} Completes when all files are read and validated
  */
 export async function* readFiles(dir) {
@@ -144,6 +147,22 @@ export async function* readFiles(dir) {
 			fileName: 'categorySelection.json',
 		})
 		yield { type: 'categorySelection', id: 'categorySelection', value: data }
+	}
+
+	/** @type {string | undefined} */
+	let defaultsJson
+	try {
+		defaultsJson = await fs.readFile(path.join(dir, 'defaults.json'), 'utf-8')
+	} catch (err) {
+		// defaults.json is optional
+		if (!isNotFoundError(err)) throw err
+	}
+	if (defaultsJson) {
+		const data = parseJson(defaultsJson, undefined, 'defaults.json')
+		assertSchema(DefaultsDeprecatedSchema, data, {
+			fileName: 'defaults.json',
+		})
+		yield { type: 'defaults', id: 'defaults', value: data }
 	}
 }
 

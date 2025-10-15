@@ -5,13 +5,14 @@ import { addRefToMap } from '../../src/lib/utils.js'
 import { validateReferences } from '../../src/lib/validate-references.js'
 import { CategorySchema } from '../../src/schema/category.js'
 import { parseMessageId } from './messages-to-translations.js'
+import { migrateDefaults } from './migrate-defaults.js'
 import { migrateGeometry } from './migrate-geometry.js'
 import { readFiles } from './read-files.js'
 import { validateCategoryTags } from './validate-category-tags.js'
 
 /** @import {CategorySelectionInput} from '../../src/schema/categorySelection.js' */
 /** @import {MetadataInput} from '../../src/schema/metadata.js' */
-/** @import {CategoryInput, CategoryDeprecatedSortInput, CategoryDeprecatedGeometryInput} from '../../src/schema/category.js' */
+/** @import {CategoryInput, CategoryOutput, CategoryDeprecatedSortInput, CategoryDeprecatedGeometryInput} from '../../src/schema/category.js' */
 /** @import {FieldInput} from '../../src/schema/field.js' */
 /** @import {Entries} from 'type-fest' */
 /**
@@ -27,12 +28,12 @@ export async function lint(dir) {
 	const fields = new Map()
 	/** @type {Set<string>} */
 	const iconIds = new Set()
-	/** @type {Map<string, CategoryInput>} */
+	/** @type {Map<string, CategoryOutput>} */
 	const categories = new Map()
 	/** @type {CategorySelectionInput | undefined} */
 	let categorySelection = undefined
-	/** @type {Set<import('../../src/schema/messages.js').MessagesInput>} */
-	const messages = new Set()
+	/** @type {Map<string, import('../../src/schema/messages.js').MessagesInput>} */
+	const messages = new Map()
 	/** @type {string[]} */
 	const messagesWarnings = []
 	/** @type {string[]} */
@@ -46,6 +47,7 @@ export async function lint(dir) {
 		icon: 0,
 		messages: 0,
 		categorySelection: 0,
+		defaults: 0,
 		metadata: 0,
 	}
 
@@ -70,10 +72,27 @@ export async function lint(dir) {
 				break
 			}
 			case 'categorySelection':
+				if (categorySelection) {
+					warnings.push(
+						'⚠️ Warning: Both defaults.json and categorySelection.json found, ignoring defaults.json',
+					)
+				}
 				categorySelection = value
 				break
+			case 'defaults':
+				if (categorySelection) {
+					warnings.push(
+						'⚠️ Warning: Both defaults.json and categorySelection.json found, ignoring defaults.json',
+					)
+				} else {
+					categorySelection = migrateDefaults(value)
+					warnings.push(
+						'⚠️ Warning: defaults.json is deprecated, please update to categorySelection.json',
+					)
+				}
+				break
 			case 'messages':
-				messages.add(value)
+				messages.set(id, value)
 				break
 		}
 	}
@@ -91,7 +110,7 @@ export async function lint(dir) {
 	}
 
 	// Validate messages
-	for (const msgs of messages) {
+	for (const [lang, msgs] of messages) {
 		for (const msgId of Object.keys(msgs)) {
 			const { docType, docId, propertyRef } = parseMessageId(msgId)
 			/** @type {CategoryInput | FieldInput | undefined} */
@@ -103,13 +122,13 @@ export async function lint(dir) {
 			}
 			if (!doc) {
 				messagesWarnings.push(
-					`⚠️ Warning: Message ID "${msgId}" references non-existent ${docType} "${docId}"`,
+					`⚠️ Warning: Message ID "${msgId}" (${lang}) references non-existent ${docType} "${docId}"`,
 				)
 				continue
 			}
-			if (!hasProperty(doc, propertyRef)) {
+			if (!hasProperty(doc, propertyRef) && msgs[msgId].message) {
 				messagesWarnings.push(
-					`⚠️ Warning: Message ID "${msgId}" references non-existent property "${propertyRef}" in ${docType} "${docId}"`,
+					`⚠️ Warning: Message ID "${msgId}" (${lang}) references non-existent property "${propertyRef}" in ${docType} "${docId}"`,
 				)
 			}
 		}
