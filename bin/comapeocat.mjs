@@ -15,5 +15,6 @@ program
 		'Build a .comapeocat archive from a directory of category, field and icon files',
 	)
 	.command('messages', 'Extract messages for translation')
+	.command('validate', 'Validate a .comapeocat archive')
 
 program.parse(process.argv)

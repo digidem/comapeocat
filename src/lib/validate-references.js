@@ -2,8 +2,9 @@ import {
 	CategoryRefError,
 	InvalidCategorySelectionError,
 	CategorySelectionRefError,
+	MissingCategoriesError,
 } from './errors.js'
-import { addRefToMap, typedEntries } from './utils.js'
+import { addRefToMap, getCategoryIdsForDocType, typedEntries } from './utils.js'
 
 /**
  * Validate category references to fields, icons, and category selection document types.
@@ -56,6 +57,14 @@ export function validateReferences({
 			missingRefs: missingIconRefs,
 			property: 'icon',
 		})
+	}
+
+	// Check that there are categories for both observation and track documents
+	if (getCategoryIdsForDocType(categories, 'observation').length === 0) {
+		throw new MissingCategoriesError({ docType: 'observation' })
+	}
+	if (getCategoryIdsForDocType(categories, 'track').length === 0) {
+		throw new MissingCategoriesError({ docType: 'track' })
 	}
 
 	// Check category selection document types if provided

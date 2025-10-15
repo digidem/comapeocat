@@ -1,7 +1,7 @@
 import { hasProperty } from 'dot-prop-extra'
 import * as v from 'valibot'
 
-import { addRefToMap } from '../../src/lib/utils.js'
+import { addRefToMap, getCategoryIdsForDocType } from '../../src/lib/utils.js'
 import { validateReferences } from '../../src/lib/validate-references.js'
 import { CategorySchema } from '../../src/schema/category.js'
 import { parseMessageId } from './messages-to-translations.js'
@@ -235,17 +235,6 @@ export async function lint(dir) {
 		successes.push(`✓ All icon files are referenced by at least one category`)
 	}
 
-	if (getCategoryIdsForDocType(categories, 'observation').length === 0) {
-		throw new Error(
-			'❌ Error: No categories found which apply to observation documents',
-		)
-	}
-	if (getCategoryIdsForDocType(categories, 'track').length === 0) {
-		throw new Error(
-			'❌ Error: No categories found which apply to track documents',
-		)
-	}
-
 	if (categorySelection) {
 		const obsCatIds = getCategoryIdsForDocType(categories, 'observation')
 		const obsCatIdsNotInSelection = diffArrays(
@@ -282,17 +271,6 @@ ${trackCatIdsNotInSelection.map((id) => `   - ${id}`).join('\n')}`,
 	if (warnings.length > 0) {
 		console.warn('\n' + warnings.join('\n'))
 	}
-}
-
-/**
- * Get category IDs which match a document type
- * @param {Map<string, CategoryOutput>} categories
- * @param {CategoryOutput['appliesTo'][number]} docType
- */
-function getCategoryIdsForDocType(categories, docType) {
-	return [...categories.entries()]
-		.filter(([, cat]) => cat.appliesTo.includes(docType))
-		.map(([id]) => id)
 }
 
 /**
