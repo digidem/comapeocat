@@ -1,0 +1,14 @@
+{
+  "name": "Observation Only Category",
+  "appliesTo": [
+    "observation"
+  ],
+  "tags": {
+    "observation": null
+  },
+  "addTags": {},
+  "removeTags": {},
+  "fields": [],
+  "terms": [],
+  "color": "#6b24a5"
+}

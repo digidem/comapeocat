@@ -1,0 +1,14 @@
+{
+  "name": "Track Only Category",
+  "appliesTo": [
+    "track"
+  ],
+  "tags": {
+    "track": null
+  },
+  "addTags": {},
+  "removeTags": {},
+  "fields": [],
+  "terms": [],
+  "color": "#6b24a5"
+}
