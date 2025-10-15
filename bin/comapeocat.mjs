@@ -8,7 +8,6 @@ program
 	.description(
 		'A CLI tool for managing categories, fields and icons for Comapeo',
 	)
-	.version('1.0.0')
 	.command('lint', 'Lint category, field and icon files')
 	.command(
 		'build',
