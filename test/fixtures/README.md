@@ -25,7 +25,7 @@ lint/
 ### Regenerating Lint Fixtures
 
 ```bash
-node test/fixtures/generate-lint-fixtures.js
+node scripts/generate-lint-fixtures.js
 ```
 
 Seed: 42
@@ -57,7 +57,7 @@ build/
 ### Regenerating Build Fixtures
 
 ```bash
-node test/fixtures/generate-build-fixtures.js
+node scripts/generate-build-fixtures.js
 ```
 
 Seed: 123
