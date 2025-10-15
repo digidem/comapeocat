@@ -16,6 +16,7 @@ import { Writer } from '../src/writer.js'
 import { generateCategorySelection } from './helpers/generate-category-selection.js'
 import { lint } from './helpers/lint.js'
 import { messagesToTranslations } from './helpers/messages-to-translations.js'
+import { migrateDefaults } from './helpers/migrate-defaults.js'
 import { migrateGeometry } from './helpers/migrate-geometry.js'
 import { readFiles } from './helpers/read-files.js'
 
@@ -64,6 +65,11 @@ program
 					case 'categorySelection':
 						categorySelection = value
 						break
+					case 'defaults':
+						// categorySelection takes precedence over defaults
+						if (categorySelection) break
+						categorySelection = migrateDefaults(value)
+						break
 					case 'icon':
 						writer.addIcon(id, value)
 						break
@@ -99,6 +105,10 @@ program
 			await pipelinePromise
 		} catch (err) {
 			handleError(err)
+		}
+
+		if (output) {
+			console.log(`\n✓ Successfully wrote category archive ${output}`)
 		}
 	})
 
