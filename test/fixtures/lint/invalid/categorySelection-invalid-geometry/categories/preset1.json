@@ -1,0 +1,11 @@
+{
+	"name": "Brandon Rippin",
+	"appliesTo": ["observation", "track"],
+	"tags": {
+		"vular": true
+	},
+	"addTags": {},
+	"removeTags": {},
+	"terms": [],
+	"color": "#842581"
+}

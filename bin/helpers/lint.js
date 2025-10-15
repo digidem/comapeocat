@@ -235,6 +235,17 @@ export async function lint(dir) {
 		successes.push(`✓ All icon files are referenced by at least one category`)
 	}
 
+	if (getCategoryIdsForDocType(categories, 'observation').length === 0) {
+		throw new Error(
+			'❌ Error: No categories found which apply to observation documents',
+		)
+	}
+	if (getCategoryIdsForDocType(categories, 'track').length === 0) {
+		throw new Error(
+			'❌ Error: No categories found which apply to track documents',
+		)
+	}
+
 	if (categorySelection) {
 		const obsCatIds = getCategoryIdsForDocType(categories, 'observation')
 		const obsCatIdsNotInSelection = diffArrays(

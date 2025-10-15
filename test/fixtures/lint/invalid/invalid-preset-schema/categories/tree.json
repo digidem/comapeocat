@@ -1,0 +1,12 @@
+{
+  "name": "Tree",
+  "appliesTo": [
+    "observation"
+  ],
+  "tags": {
+    "natural": "tree"
+  },
+  "fields": [
+    "species"
+  ]
+}

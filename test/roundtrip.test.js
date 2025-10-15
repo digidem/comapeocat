@@ -139,10 +139,11 @@ describe('Writer -> Reader roundtrip tests', () => {
 
 		writer.addCategory('poi', {
 			name: 'Point of Interest',
-			appliesTo: ['observation'],
+			appliesTo: ['observation', 'track'],
 			tags: { poi: 'yes' },
 			fields: [],
 		})
+		writer.setCategorySelection({ observation: ['poi'], track: ['poi'] })
 
 		writer.setMetadata({ name: 'Minimal' })
 		writer.finish()
@@ -173,6 +174,8 @@ describe('Writer -> Reader roundtrip tests', () => {
 			fields: ['height'],
 			icon: 'tree_icon',
 		})
+		writer.addCategory('river', fixtures.categories.river)
+		writer.setCategorySelection({ observation: ['tree'], track: ['river'] })
 
 		writer.addField('height', fixtures.fields.height)
 		await writer.addIcon('tree_icon', fixtures.icons.simple)
@@ -193,7 +196,7 @@ describe('Writer -> Reader roundtrip tests', () => {
 
 		writer.addCategory('multi_tag', {
 			name: 'Multi Tag',
-			appliesTo: ['observation'],
+			appliesTo: ['observation', 'track'],
 			tags: {
 				string: 'value',
 				number: 42,
@@ -201,6 +204,10 @@ describe('Writer -> Reader roundtrip tests', () => {
 				null_value: null,
 			},
 			fields: [],
+		})
+		writer.setCategorySelection({
+			observation: ['multi_tag'],
+			track: ['multi_tag'],
 		})
 
 		writer.setMetadata({ name: 'Complex Tags' })
@@ -226,10 +233,11 @@ describe('Writer -> Reader roundtrip tests', () => {
 
 		writer.addCategory('note', {
 			name: 'Note',
-			appliesTo: ['observation'],
+			appliesTo: ['observation', 'track'],
 			tags: { note: 'yes' },
 			fields: ['description'],
 		})
+		writer.setCategorySelection({ observation: ['note'], track: ['note'] })
 
 		writer.addField('description', fixtures.fields.description)
 		writer.setMetadata({ name: 'Test' })
@@ -252,10 +260,11 @@ describe('Writer -> Reader roundtrip tests', () => {
 
 		writer.addCategory('survey', {
 			name: 'Survey',
-			appliesTo: ['observation'],
+			appliesTo: ['observation', 'track'],
 			tags: { survey: 'yes' },
 			fields: ['features'],
 		})
+		writer.setCategorySelection({ observation: ['survey'], track: ['survey'] })
 
 		writer.addField('features', fixtures.fields.features)
 		writer.setMetadata({ name: 'Test' })

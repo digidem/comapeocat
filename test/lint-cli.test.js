@@ -127,4 +127,40 @@ describe('CLI lint command', () => {
 			)
 		})
 	})
+
+	describe('invalid fixtures - missing document type categories', () => {
+		test('should throw error when no categories apply to observation documents', async () => {
+			const fixturePath = join(
+				FIXTURES_DIR,
+				'invalid',
+				'no-observation-categories',
+			)
+			await assert.rejects(
+				() => execa('node', [CLI_PATH, fixturePath]),
+				(error) => {
+					assert.equal(error.exitCode, 1)
+					assert.match(
+						error.stderr,
+						/No categories found which apply to observation documents/,
+					)
+					return true
+				},
+			)
+		})
+
+		test('should throw error when no categories apply to track documents', async () => {
+			const fixturePath = join(FIXTURES_DIR, 'invalid', 'no-track-categories')
+			await assert.rejects(
+				() => execa('node', [CLI_PATH, fixturePath]),
+				(error) => {
+					assert.equal(error.exitCode, 1)
+					assert.match(
+						error.stderr,
+						/No categories found which apply to track documents/,
+					)
+					return true
+				},
+			)
+		})
+	})
 })

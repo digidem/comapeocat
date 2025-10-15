@@ -1,13 +1,14 @@
+#!/usr/bin/env node
 // @ts-nocheck
 import { writeFileSync, mkdirSync } from 'node:fs'
 import { join, dirname } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
 import { faker } from '@faker-js/faker'
-import { Valimock } from 'valimock'
 
-import { CategorySchema } from '../../src/schema/category.js'
-import { FieldSchema } from '../../src/schema/field.js'
+import { CategorySchema } from '../src/schema/category.js'
+import { FieldSchema } from '../src/schema/field.js'
+import { Valimock } from './custom-valimock.mjs'
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
 
@@ -16,7 +17,7 @@ faker.seed(45)
 
 const valimock = new Valimock()
 
-const FIXTURES_DIR = join(__dirname, 'lint')
+const FIXTURES_DIR = join(__dirname, '../test/fixtures/lint')
 
 /**
  * Helper to write a JSON file
@@ -36,7 +37,7 @@ const minimalDir = join(FIXTURES_DIR, 'valid', 'minimal')
 const minimalPreset = valimock.mock(CategorySchema)
 // Override to ensure no field/icon references and valid appliesTo
 minimalPreset.fields = []
-minimalPreset.appliesTo = ['observation']
+minimalPreset.appliesTo = ['observation', 'track']
 delete minimalPreset.icon
 writeJSON(join(minimalDir, 'categories'), 'preset1.json', minimalPreset)
 
@@ -116,12 +117,12 @@ const noFieldsDir = join(FIXTURES_DIR, 'valid', 'no-fields')
 const noFieldsPreset = valimock.mock(CategorySchema)
 // Remove the fields property entirely to test that it's optional
 delete noFieldsPreset.fields
-noFieldsPreset.appliesTo = ['observation']
+noFieldsPreset.appliesTo = ['observation', 'track']
 delete noFieldsPreset.icon
 writeJSON(join(noFieldsDir, 'categories'), 'preset1.json', noFieldsPreset)
 writeJSON(noFieldsDir, 'categorySelection.json', {
 	observation: ['preset1'],
-	track: [],
+	track: ['preset1'],
 })
 writeJSON(noFieldsDir, 'metadata.json', {
 	name: 'Test',

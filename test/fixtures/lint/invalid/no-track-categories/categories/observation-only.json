@@ -1,11 +1,10 @@
 {
-  "name": "Belinda Kozey",
+  "name": "Observation Only Category",
   "appliesTo": [
-    "observation",
-    "track"
+    "observation"
   ],
   "tags": {
-    "sol": null
+    "observation": null
   },
   "addTags": {},
   "removeTags": {},

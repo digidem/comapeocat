@@ -1,3 +1,4 @@
+#!/usr/bin/env node
 // @ts-nocheck
 import { writeFileSync, mkdirSync } from 'node:fs'
 import { join, dirname } from 'node:path'
@@ -5,24 +6,24 @@ import { fileURLToPath } from 'node:url'
 
 import { faker } from '@faker-js/faker'
 import { execaSync } from 'execa'
-import { Valimock } from 'valimock'
 
 import {
 	CategorySchema,
 	CategorySchemaDeprecatedSort,
 	CategorySchemaDeprecatedGeometry,
-} from '../../src/schema/category.js'
-import { FieldSchema } from '../../src/schema/field.js'
+} from '../src/schema/category.js'
+import { FieldSchema } from '../src/schema/field.js'
+import { Valimock } from './custom-valimock.mjs'
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
-const CLI_PATH = join(__dirname, '..', '..', 'bin', 'comapeocat.mjs')
+const CLI_PATH = join(__dirname, '..', 'bin', 'comapeocat.mjs')
 
 // Set a fixed seed for reproducible fixtures
 faker.seed(43)
 
 const valimock = new Valimock()
 
-const FIXTURES_DIR = join(__dirname, 'build')
+const FIXTURES_DIR = join(__dirname, '../test/fixtures/build')
 
 /**
  * Helper to write a JSON file
@@ -86,7 +87,7 @@ delete sortPreset1.icon
 
 const sortPreset2 = valimock.mock(CategorySchemaDeprecatedSort)
 sortPreset2.fields = ['field1']
-sortPreset2.appliesTo = ['observation']
+sortPreset2.appliesTo = ['observation', 'track']
 sortPreset2.sort = 1 // Should appear first
 delete sortPreset2.icon
 

@@ -1,7 +1,4 @@
 {
-  "observation": [
-    "tree",
-    "nonexistent_preset"
-  ],
-  "track": []
+	"observation": ["tree", "nonexistent_preset"],
+	"track": ["river"]
 }

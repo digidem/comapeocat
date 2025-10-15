@@ -2,5 +2,7 @@
   "observation": [
     "preset1"
   ],
-  "track": []
+  "track": [
+    "preset1"
+  ]
 }

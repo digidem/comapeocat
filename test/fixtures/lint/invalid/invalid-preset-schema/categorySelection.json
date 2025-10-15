@@ -1,4 +1,4 @@
 {
-  "observation": [],
-  "track": []
+	"observation": ["tree"],
+	"track": ["river"]
 }

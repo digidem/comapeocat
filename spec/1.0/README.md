@@ -162,6 +162,7 @@ The categories file MUST be a valid JSON object where:
 
 - Keys are category IDs (non-empty strings)
 - Values are category definition objects
+- MUST contain at least one category that applies to each of `observation` and `track`
 
 ### 7.3. Category Schema
 
@@ -304,6 +305,7 @@ Each document type property:
 
 - MUST be present (`observation` and `track`)
 - MUST be an array of category IDs (non-empty strings)
+- MUST contain at least one category ID
 - Category IDs MUST reference categories defined in `categories.json`
 - Each referenced category MUST include the corresponding document type in its `appliesTo` array
   - For example, a category referenced in `categorySelection.observation` MUST have `"observation"` in its `appliesTo` array
