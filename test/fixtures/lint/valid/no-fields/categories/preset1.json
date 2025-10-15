@@ -1,7 +1,8 @@
 {
   "name": "Bobbie Torphy",
   "appliesTo": [
-    "observation"
+    "observation",
+    "track"
   ],
   "tags": {
     "quasi": null

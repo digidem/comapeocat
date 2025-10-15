@@ -1,7 +1,8 @@
 {
   "name": "Ross Hansen-Bogisich DVM",
   "appliesTo": [
-    "observation"
+    "observation",
+    "track"
   ],
   "tags": {
     "const": 3.294890624014419

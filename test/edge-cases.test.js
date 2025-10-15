@@ -34,9 +34,13 @@ describe('Edge cases and untested spec details', () => {
 
 			writer.addCategory('árbol_🌳', {
 				name: 'Tree',
-				appliesTo: ['observation'],
+				appliesTo: ['observation', 'track'],
 				tags: { natural: 'tree' },
 				fields: [],
+			})
+			writer.setCategorySelection({
+				observation: ['árbol_🌳'],
+				track: ['árbol_🌳'],
 			})
 			writer.finish()
 
@@ -56,10 +60,12 @@ describe('Edge cases and untested spec details', () => {
 
 			writer.addCategory('test', {
 				name: 'Test',
-				appliesTo: ['observation'],
+				appliesTo: ['observation', 'track'],
 				tags: { test: 'value' },
 				fields: ['espèce'],
 			})
+
+			writer.setCategorySelection({ observation: ['test'], track: ['test'] })
 
 			writer.addField('espèce', {
 				type: 'text',
@@ -201,6 +207,7 @@ describe('Edge cases and untested spec details', () => {
 				tags: { test: 'value' },
 				fields: [],
 			})
+			writer.setCategorySelection({ observation: ['multi'], track: ['multi'] })
 			writer.finish()
 
 			await pipeline(writer.outputStream, createWriteStream(filepath))
@@ -222,9 +229,14 @@ describe('Edge cases and untested spec details', () => {
 
 			writer.addCategory('filtered', {
 				name: 'Filtered',
-				appliesTo: ['observation', 'invalid_type'],
+				appliesTo: ['observation', 'invalid_type', 'track'],
 				tags: { test: 'value' },
 				fields: [],
+			})
+
+			writer.setCategorySelection({
+				observation: ['filtered'],
+				track: ['filtered'],
 			})
 
 			writer.finish()
@@ -234,7 +246,10 @@ describe('Edge cases and untested spec details', () => {
 			const reader = new Reader(filepath)
 			const categories = await reader.categories()
 
-			assert.deepEqual(categories.get('filtered').appliesTo, ['observation'])
+			assert.deepEqual(categories.get('filtered').appliesTo, [
+				'observation',
+				'track',
+			])
 
 			await reader.close()
 		})
@@ -249,10 +264,13 @@ describe('Edge cases and untested spec details', () => {
 			await createTestZip({
 				filepath,
 				files: {
-					'categories.json': { tree: fixtures.categories.tree },
+					'categories.json': {
+						tree: fixtures.categories.tree,
+						river: fixtures.categories.river,
+					},
 					'categorySelection.json': {
 						observation: ['tree', 'nonexistent'],
-						track: [],
+						track: ['river'],
 					},
 					'metadata.json': fixtures.metadata.minimal,
 				},
@@ -275,11 +293,12 @@ describe('Edge cases and untested spec details', () => {
 				filepath,
 				files: {
 					'categories.json': {
-						tree: fixtures.categories.tree, // appliesTo: ['observation']
+						tree: fixtures.categories.tree,
+						house: fixtures.categories.house,
 					},
 					'categorySelection.json': {
-						observation: [],
-						track: ['tree'], // tree is observation, not track
+						observation: ['house'],
+						track: ['tree'], // tree appliesTo observation, not track
 					},
 					'metadata.json': fixtures.metadata.minimal,
 				},
@@ -324,12 +343,12 @@ describe('Edge cases and untested spec details', () => {
 
 			writer.addCategory('test', {
 				name: 'Test',
-				appliesTo: ['observation'],
+				appliesTo: ['observation', 'track'],
 				tags: { test: 'value' },
 				fields: [],
 				color: '#abc',
 			})
-
+			writer.setCategorySelection({ observation: ['test'], track: ['test'] })
 			writer.finish()
 
 			await pipeline(writer.outputStream, createWriteStream(filepath))
@@ -348,12 +367,12 @@ describe('Edge cases and untested spec details', () => {
 
 			writer.addCategory('test', {
 				name: 'Test',
-				appliesTo: ['observation'],
+				appliesTo: ['observation', 'track'],
 				tags: { test: 'value' },
 				fields: [],
 				color: '#aabbcc',
 			})
-
+			writer.setCategorySelection({ observation: ['test'], track: ['test'] })
 			writer.finish()
 
 			await pipeline(writer.outputStream, createWriteStream(filepath))
@@ -372,11 +391,13 @@ describe('Edge cases and untested spec details', () => {
 
 			writer.addCategory('test', {
 				name: 'Test',
-				appliesTo: ['observation'],
+				appliesTo: ['observation', 'track'],
 				tags: { test: 'value' },
 				fields: [],
 				color: '#aabbccdd',
 			})
+
+			writer.setCategorySelection({ observation: ['test'], track: ['test'] })
 
 			writer.finish()
 
@@ -396,11 +417,13 @@ describe('Edge cases and untested spec details', () => {
 
 			writer.addCategory('test', {
 				name: 'Test',
-				appliesTo: ['observation'],
+				appliesTo: ['observation', 'track'],
 				tags: { test: 'value' },
 				fields: [],
 				color: '#AABBCC',
 			})
+
+			writer.setCategorySelection({ observation: ['test'], track: ['test'] })
 
 			writer.finish()
 
@@ -421,7 +444,7 @@ describe('Edge cases and untested spec details', () => {
 				() => {
 					writer.addCategory('test', {
 						name: 'Test',
-						appliesTo: ['observation'],
+						appliesTo: ['observation', 'track'],
 						tags: { test: 'value' },
 						fields: [],
 						color: 'red',
@@ -438,7 +461,7 @@ describe('Edge cases and untested spec details', () => {
 				() => {
 					writer.addCategory('test', {
 						name: 'Test',
-						appliesTo: ['observation'],
+						appliesTo: ['observation', 'track'],
 						tags: { test: 'value' },
 						fields: [],
 						color: 'aabbcc',
@@ -455,7 +478,7 @@ describe('Edge cases and untested spec details', () => {
 				() => {
 					writer.addCategory('test', {
 						name: 'Test',
-						appliesTo: ['observation'],
+						appliesTo: ['observation', 'track'],
 						tags: { test: 'value' },
 						fields: [],
 						color: '#gghhii',
@@ -505,7 +528,7 @@ describe('Edge cases and untested spec details', () => {
 
 			writer.addCategory('test', {
 				name: 'Test',
-				appliesTo: ['observation'],
+				appliesTo: ['observation', 'track'],
 				tags: { test: 'value' },
 				fields: ['mixed'],
 			})
@@ -521,6 +544,8 @@ describe('Edge cases and untested spec details', () => {
 					{ label: 'Null', value: null },
 				],
 			})
+
+			writer.setCategorySelection({ observation: ['test'], track: ['test'] })
 
 			writer.finish()
 
@@ -546,10 +571,12 @@ describe('Edge cases and untested spec details', () => {
 
 			writer.addCategory('test', {
 				name: 'Test',
-				appliesTo: ['observation'],
+				appliesTo: ['observation', 'track'],
 				tags: { test: 'value' },
 				fields: [],
 			})
+
+			writer.setCategorySelection({ observation: ['test'], track: ['test'] })
 
 			writer.finish()
 
@@ -595,10 +622,12 @@ describe('Edge cases and untested spec details', () => {
 
 			writer.addCategory('test', {
 				name: 'Test',
-				appliesTo: ['observation'],
+				appliesTo: ['observation', 'track'],
 				tags: { test: 'value' },
 				fields: [],
 			})
+
+			writer.setCategorySelection({ observation: ['test'], track: ['test'] })
 
 			writer.setMetadata({
 				name: 'Test',
@@ -622,10 +651,12 @@ describe('Edge cases and untested spec details', () => {
 
 			writer.addCategory('test', {
 				name: 'Test',
-				appliesTo: ['observation'],
+				appliesTo: ['observation', 'track'],
 				tags: { test: 'value' },
 				fields: [],
 			})
+
+			writer.setCategorySelection({ observation: ['test'], track: ['test'] })
 
 			writer.setMetadata({
 				name: 'a'.repeat(100),
@@ -649,6 +680,7 @@ describe('Edge cases and untested spec details', () => {
 			const writer = createTestWriter()
 
 			writer.addCategory('tree', fixtures.categories.tree)
+			writer.setCategorySelection({ observation: ['tree'], track: ['tree'] })
 
 			await writer.addTranslations('es', fixtures.translations.es)
 			await writer.addTranslations('pt-BR', fixtures.translations.es)
@@ -665,7 +697,6 @@ describe('Edge cases and untested spec details', () => {
 			for await (const t of reader.translations()) {
 				translations.push(t.lang)
 			}
-			console.log(translations)
 
 			assert.ok(translations.includes('es'))
 			assert.ok(translations.includes('pt'), 'pt-BR should normalize to pt')
@@ -679,6 +710,8 @@ describe('Edge cases and untested spec details', () => {
 			const writer = createTestWriter()
 
 			writer.addCategory('tree', fixtures.categories.tree)
+
+			writer.setCategorySelection({ observation: ['tree'], track: ['tree'] })
 
 			await writer.addTranslations('es', fixtures.translations.es)
 
@@ -775,7 +808,7 @@ describe('Edge cases and untested spec details', () => {
 
 			writer.addCategory('test', {
 				name: 'Test',
-				appliesTo: ['observation'],
+				appliesTo: ['observation', 'track'],
 				tags: {
 					string_tag: 'value',
 					number_tag: 123,
@@ -784,6 +817,8 @@ describe('Edge cases and untested spec details', () => {
 				},
 				fields: [],
 			})
+
+			writer.setCategorySelection({ observation: ['test'], track: ['test'] })
 
 			writer.setMetadata({ name: 'Test' })
 			writer.finish()
@@ -810,10 +845,12 @@ describe('Edge cases and untested spec details', () => {
 
 			writer.addCategory('test', {
 				name: 'Test',
-				appliesTo: ['observation'],
+				appliesTo: ['observation', 'track'],
 				tags: { test: 'value' },
 				fields: ['notes'],
 			})
+
+			writer.setCategorySelection({ observation: ['test'], track: ['test'] })
 
 			writer.addField('notes', {
 				type: 'text',
@@ -842,10 +879,12 @@ describe('Edge cases and untested spec details', () => {
 
 			writer.addCategory('test', {
 				name: 'Test',
-				appliesTo: ['observation'],
+				appliesTo: ['observation', 'track'],
 				tags: { test: 'value' },
 				fields: ['name'],
 			})
+
+			writer.setCategorySelection({ observation: ['test'], track: ['test'] })
 
 			writer.addField('name', {
 				type: 'text',
@@ -928,10 +967,12 @@ describe('Edge cases and untested spec details', () => {
 
 			writer.addCategory('test', {
 				name: 'Test',
-				appliesTo: ['observation'],
+				appliesTo: ['observation', 'track'],
 				tags: { test: 'value' },
 				fields: [],
 			})
+
+			writer.setCategorySelection({ observation: ['test'], track: ['test'] })
 
 			// Create an SVG that exceeds MAX_ICON_SIZE (2MB)
 			// Need to create unique content so it's actually large after optimization
@@ -954,7 +995,7 @@ describe('Edge cases and untested spec details', () => {
 			for (let i = 0; i < 500; i++) {
 				largeCategories[`category_${i}`] = {
 					name: `Category ${i} with a long name ${'x'.repeat(100)}`,
-					appliesTo: ['observation'],
+					appliesTo: ['observation', 'track'],
 					tags: { tag: `value_${i}` },
 					fields: [],
 				}

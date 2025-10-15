@@ -10,6 +10,12 @@ export const fixtures = /** @type {const} */ ({
 			tags: { natural: 'tree' },
 			fields: [],
 		},
+		house: {
+			name: 'House',
+			appliesTo: ['observation'],
+			tags: { building: 'house' },
+			fields: [],
+		},
 		treeWithFields: {
 			name: 'Tree',
 			appliesTo: ['observation'],
@@ -129,7 +135,7 @@ export const fixtures = /** @type {const} */ ({
 	categorySelection: {
 		observation: {
 			observation: ['tree'],
-			track: [],
+			track: ['river'],
 		},
 		all: {
 			observation: ['tree'],

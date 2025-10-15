@@ -121,6 +121,8 @@ describe('Writer', () => {
 		const writer = createTestWriter()
 
 		writer.addCategory('tree', fixtures.categories.tree)
+		writer.addCategory('river', fixtures.categories.river)
+		writer.setCategorySelection(fixtures.categorySelection.observation)
 		writer.finish()
 
 		assert.throws(
@@ -233,6 +235,8 @@ describe('Writer', () => {
 		const writer = createTestWriter()
 
 		writer.addCategory('tree', { ...fixtures.categories.tree, icon: 'tree' })
+		writer.addCategory('river', fixtures.categories.river)
+		writer.setCategorySelection(fixtures.categorySelection.observation)
 		await writer.addIcon('tree', fixtures.icons.complex)
 		writer.finish()
 
@@ -296,6 +300,7 @@ describe('Writer', () => {
 		const writer = createTestWriter()
 
 		writer.addCategory('water', fixtures.categories.multiGeometry)
+		writer.setCategorySelection({ observation: ['water'], track: ['water'] })
 		writer.finish()
 
 		await pipeline(writer.outputStream, createWriteStream(filepath))
@@ -317,6 +322,8 @@ describe('Writer', () => {
 			...fixtures.categories.tree,
 			fields: ['condition'],
 		})
+		writer.addCategory('river', fixtures.categories.river)
+		writer.setCategorySelection(fixtures.categorySelection.observation)
 
 		writer.addField('condition', fixtures.fields.condition)
 		writer.finish()
@@ -342,6 +349,8 @@ describe('Writer', () => {
 		// eslint-disable-next-line no-unused-vars
 		const { fields, ...treeWithoutFields } = fixtures.categories.tree
 		writer.addCategory('tree', treeWithoutFields)
+		writer.addCategory('river', fixtures.categories.river)
+		writer.setCategorySelection(fixtures.categorySelection.observation)
 		writer.finish()
 
 		await pipeline(writer.outputStream, createWriteStream(filepath))
@@ -350,7 +359,7 @@ describe('Writer', () => {
 		await reader.opened()
 
 		const categories = await reader.categories()
-		assert.equal(categories.size, 1)
+		assert.equal(categories.size, 2)
 		assert.equal(categories.get('tree').name, 'Tree')
 		// Should default to empty array
 		assert.deepEqual(categories.get('tree').fields, [])
@@ -423,6 +432,11 @@ describe('Writer', () => {
 			})
 		}
 
+		// Need these for file to be valid otherwise
+		writer.addCategory('tree', fixtures.categories.tree)
+		writer.addCategory('river', fixtures.categories.river)
+		writer.setCategorySelection(fixtures.categorySelection.observation)
+
 		assert.throws(() => writer.finish(), { name: 'JsonSizeError' })
 	})
 
@@ -430,6 +444,8 @@ describe('Writer', () => {
 		const writer = createTestWriter()
 
 		writer.addCategory('tree', fixtures.categories.tree)
+		writer.addCategory('river', fixtures.categories.river)
+		writer.setCategorySelection(fixtures.categorySelection.observation)
 
 		// Add many fields to exceed 100KB
 		for (let i = 0; i < 5000; i++) {
@@ -447,6 +463,8 @@ describe('Writer', () => {
 		const writer = createTestWriter()
 
 		writer.addCategory('tree', fixtures.categories.tree)
+		writer.addCategory('river', fixtures.categories.river)
+		writer.setCategorySelection(fixtures.categorySelection.observation)
 
 		// Try to add 10001 icons (exceeds MAX_ENTRIES of 10000)
 		// Note: We also have to account for the 5 JSON files added in finish()

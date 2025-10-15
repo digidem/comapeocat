@@ -450,7 +450,10 @@ describe('Reader', () => {
 			await createTestZip({
 				filepath,
 				files: {
-					'categories.json': { tree: fixtures.categories.treeWithFields },
+					'categories.json': {
+						tree: fixtures.categories.treeWithFields,
+						river: fixtures.categories.river,
+					},
 					'fields.json': {
 						species: fixtures.fields.species,
 						height: fixtures.fields.height,
