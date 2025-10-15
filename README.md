@@ -100,6 +100,21 @@ Lint category and field JSON files to validate against schemas and check referen
 npx comapeocat lint
 ```
 
+#### `npx comapeocat validate [file]`
+
+Validate a `.comapeocat` archive file.
+
+**Arguments:**
+
+- `[file]` - Path to the `.comapeocat` file (required)
+
+**Example:**
+
+```bash
+# Validate a specific .comapeocat file
+npx comapeocat validate mycategories.comapeocat
+```
+
 #### `npx comapeocat messages [inputDir]`
 
 Extract translatable messages from categories and fields for a given language.
