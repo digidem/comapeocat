@@ -6,7 +6,7 @@ export const fixtures = /** @type {const} */ ({
 	categories: {
 		tree: {
 			name: 'Tree',
-			appliesTo: ['observation'],
+			appliesTo: ['observation', 'track'],
 			tags: { natural: 'tree' },
 			fields: [],
 		},

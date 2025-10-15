@@ -197,11 +197,6 @@ export class InvalidFileError extends Error {
 	}
 }
 
-export const MissingCategoriesError = createSimpleError(
-	'MissingCategoriesError',
-	'Missing required categories definitions.',
-)
-
 export const MissingCategorySelectionError = createSimpleError(
 	'MissingCategorySelectionError',
 	'Missing required category selection definitions.',
@@ -314,5 +309,22 @@ export class VersionSizeError extends Error {
 		const message = `VERSION file exceeds maximum size: ${size} bytes (max: 100 bytes)`
 		super(message)
 		Error.captureStackTrace?.(this, VersionSizeError)
+	}
+}
+
+export class MissingCategoriesError extends Error {
+	name = 'MissingCategoriesError'
+
+	/**
+	 * @param {object} [params]
+	 * @param {string} [params.docType] - The document type that has no categories
+	 */
+	constructor({ docType } = {}) {
+		let message = 'No categories found'
+		if (docType) {
+			message += ` which apply to ${docType} documents`
+		}
+		super(message)
+		Error.captureStackTrace?.(this, MissingCategoriesError)
 	}
 }

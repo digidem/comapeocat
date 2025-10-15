@@ -77,3 +77,14 @@ export function unEscapePath(path) {
 	}
 	return path.replaceAll(/\\([\\.[])/g, '$1')
 }
+
+/**
+ * Get category IDs which match a document type
+ * @param {Map<string, { appliesTo: string[] }>} categories
+ * @param {import('../reader.js').CategoryOutput['appliesTo'][number]} docType
+ */
+export function getCategoryIdsForDocType(categories, docType) {
+	return [...categories.entries()]
+		.filter(([, cat]) => cat.appliesTo.includes(docType))
+		.map(([id]) => id)
+}

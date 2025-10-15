@@ -191,7 +191,10 @@ describe('Reader', () => {
 
 			assert.equal(categories.size, 2)
 			assert.equal(categories.get('tree')?.name, 'Tree')
-			assert.deepEqual(categories.get('tree')?.appliesTo, ['observation'])
+			assert.deepEqual(categories.get('tree')?.appliesTo, [
+				'observation',
+				'track',
+			])
 			assert.equal(categories.get('water')?.name, 'Water')
 
 			await reader.close()
@@ -511,6 +514,62 @@ describe('Reader', () => {
 			const reader = new Reader(filepath)
 			await assert.rejects(() => reader.validate(), {
 				name: 'CategoryRefError',
+			})
+			await reader.close()
+		})
+
+		test('validate() rejects categories with no observation categories', async () => {
+			const filepath = join(TEST_DIR, 'validate-no-observation-cats.comapeocat')
+			await createTestZip({
+				filepath,
+				files: {
+					'categories.json': {
+						river: {
+							...fixtures.categories.river,
+							appliesTo: ['track'],
+						},
+					},
+					'categorySelection.json': {
+						// Add invalid ref here so we don't trigger a different error
+						observation: ['_placeholder_'],
+						track: ['river'],
+					},
+					'metadata.json': fixtures.metadata.minimal,
+				},
+			})
+
+			const reader = new Reader(filepath)
+			await assert.rejects(() => reader.validate(), {
+				name: 'MissingCategoriesError',
+				message: 'No categories found which apply to observation documents',
+			})
+			await reader.close()
+		})
+
+		test('validate() rejects categories with no track categories', async () => {
+			const filepath = join(TEST_DIR, 'validate-no-track-cats.comapeocat')
+			await createTestZip({
+				filepath,
+				files: {
+					'categories.json': {
+						tree: {
+							...fixtures.categories.tree,
+							appliesTo: ['observation'],
+						},
+					},
+					'categorySelection.json': {
+						observation: ['tree'],
+						// Add invalid ref here so we don't trigger a different error
+						track: ['_placeholder_'],
+					},
+					'metadata.json': fixtures.metadata.minimal,
+				},
+			})
+
+			const reader = new Reader(filepath)
+			await assert.rejects(() => reader.validate(), {
+				name: 'MissingCategoriesError',
+				message: 'No categories found which apply to track documents',
 			})
 			await reader.close()
 		})
