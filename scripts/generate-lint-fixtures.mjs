@@ -37,7 +37,7 @@ const minimalDir = join(FIXTURES_DIR, 'valid', 'minimal')
 const minimalPreset = valimock.mock(CategorySchema)
 // Override to ensure no field/icon references and valid appliesTo
 minimalPreset.fields = []
-minimalPreset.appliesTo = ['observation']
+minimalPreset.appliesTo = ['observation', 'track']
 delete minimalPreset.icon
 writeJSON(join(minimalDir, 'categories'), 'preset1.json', minimalPreset)
 

@@ -1,7 +1,8 @@
 {
   "name": "Belinda Kozey",
   "appliesTo": [
-    "observation"
+    "observation",
+    "track"
   ],
   "tags": {
     "sol": null
