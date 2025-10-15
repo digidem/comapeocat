@@ -51,6 +51,9 @@ export async function lint(dir) {
 		metadata: 0,
 	}
 
+	let usesCategorySort = false
+	let usesCategoryGeometry = false
+
 	for await (const { type, id, value } of readFiles(dir)) {
 		counts[type]++
 		switch (type) {
@@ -61,6 +64,12 @@ export async function lint(dir) {
 				iconIds.add(id)
 				break
 			case 'category': {
+				if ('sort' in value && typeof value.sort === 'number') {
+					usesCategorySort = true
+				}
+				if ('geometry' in value && Array.isArray(value.geometry)) {
+					usesCategoryGeometry = true
+				}
 				const migratedCategory = v.parse(CategorySchema, migrateGeometry(value))
 				categories.set(id, migratedCategory)
 				for (const fieldRef of migratedCategory.fields) {
@@ -97,16 +106,47 @@ export async function lint(dir) {
 		}
 	}
 
-	for (const [type, count] of Object.entries(counts)) {
-		if (['metadata', 'categorySelection'].includes(type) && count === 0) {
-			warnings.push(`⚠️ Warning: No ${type}.json file found`)
-			continue
+	if (usesCategoryGeometry) {
+		warnings.push(
+			'⚠️ Warning: Some categories use the deprecated "geometry" property, please update to use "appliesTo" instead',
+		)
+	}
+
+	if (usesCategorySort) {
+		warnings.push(
+			'⚠️ Warning: Some categories use the deprecated "sort" property, please update to use "categorySelection.json"',
+		)
+		if (counts.categorySelection) {
+			warnings.push(
+				`⚠️ Warning: Category sorting is defined in categorySelection.json, the "sort" property will be ignored`,
+			)
+		} else if (counts.defaults) {
+			warnings.push(
+				`⚠️ Warning: Category sorting is defined in defaults.json, the "sort" property will be ignored`,
+			)
 		}
+	}
+
+	for (const [type, count] of Object.entries(counts)) {
 		if (count) {
 			successes.push(`✓ ${count} valid ${type} file${count > 1 ? 's' : ''}`)
-		} else {
-			warnings.push(`⚠️ Warning: No ${type} file found`)
+			continue
 		}
+		if (
+			type === 'categorySelection' ||
+			type === 'metadata' ||
+			type === 'defaults'
+		) {
+			// These are optional
+			continue
+		}
+		warnings.push(`⚠️ Warning: No ${type} file found`)
+	}
+
+	if (counts.categorySelection === 0 && counts.defaults === 0) {
+		warnings.push(
+			'⚠️ Warning: No categorySelection.json or defaults.json file found: all categories will be selectable',
+		)
 	}
 
 	// Validate messages
@@ -166,7 +206,7 @@ export async function lint(dir) {
 		extraFieldWarning = `⚠️ Warning: ${fieldIds.size} field file${
 			fieldIds.size > 1 ? 's' : ''
 		} found with no categories referencing them:\n${[...fieldIds]
-			.map((id) => `  - ${id}`)
+			.map((id) => `   - ${id}`)
 			.join('\n')}`
 	}
 	if (extraFieldWarning) {
@@ -186,7 +226,7 @@ export async function lint(dir) {
 		extraIconWarning = `⚠️ Warning: ${iconIds.size} icon file${
 			iconIds.size > 1 ? 's' : ''
 		} found with no categories referencing them:\n${[...iconIds]
-			.map((id) => `  - ${id}`)
+			.map((id) => `   - ${id}`)
 			.join('\n')}`
 	}
 	if (extraIconWarning) {
@@ -195,9 +235,61 @@ export async function lint(dir) {
 		successes.push(`✓ All icon files are referenced by at least one category`)
 	}
 
+	if (categorySelection) {
+		const obsCatIds = getCategoryIdsForDocType(categories, 'observation')
+		const obsCatIdsNotInSelection = diffArrays(
+			obsCatIds,
+			categorySelection.observation,
+		)
+		if (obsCatIdsNotInSelection.length) {
+			warnings.push(
+				`⚠️ Warning: ${obsCatIdsNotInSelection.length} observation categor${
+					obsCatIdsNotInSelection.length > 1 ? 'ies' : 'y'
+				} not included in categorySelection.json
+   These categories will not be shown to the user by default:
+${obsCatIdsNotInSelection.map((id) => `   - ${id}`).join('\n')}`,
+			)
+		}
+		const trackCatIds = getCategoryIdsForDocType(categories, 'track')
+		const trackCatIdsNotInSelection = diffArrays(
+			trackCatIds,
+			categorySelection.track,
+		)
+		if (trackCatIdsNotInSelection.length) {
+			warnings.push(
+				`⚠️ Warning: ${trackCatIdsNotInSelection.length} track categor${
+					trackCatIdsNotInSelection.length > 1 ? 'ies' : 'y'
+				} not included in categorySelection.json
+   These categories will not be shown to the user by default:
+${trackCatIdsNotInSelection.map((id) => `   - ${id}`).join('\n')}`,
+			)
+		}
+	}
+
 	// Write to stderr, because stdout could be used for piping output
 	console.warn(successes.join('\n'))
 	if (warnings.length > 0) {
 		console.warn('\n' + warnings.join('\n'))
 	}
+}
+
+/**
+ * Get category IDs which match a document type
+ * @param {Map<string, CategoryOutput>} categories
+ * @param {CategoryOutput['appliesTo'][number]} docType
+ */
+function getCategoryIdsForDocType(categories, docType) {
+	return [...categories.entries()]
+		.filter(([, cat]) => cat.appliesTo.includes(docType))
+		.map(([id]) => id)
+}
+
+/**
+ * Get items in arr1 which are not in arr2
+ * @param {string[]} arr1
+ * @param {string[]} arr2
+ * @returns {string[]}
+ */
+function diffArrays(arr1, arr2) {
+	return arr1.filter((item) => !arr2.includes(item))
 }
