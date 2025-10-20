@@ -23,6 +23,11 @@ describe('Reader', () => {
 	})
 
 	describe('Version validation', () => {
+		test('supportedFileVersion returns the supported version', () => {
+			const reader = new Reader(join(TEST_DIR, 'dummy.comapeocat'))
+			assert.equal(reader.supportedFileVersion(), '1.0')
+		})
+
 		test('accepts valid version 1.0', async () => {
 			const filepath = join(TEST_DIR, 'version-1.0.comapeocat')
 			await createTestZip({
