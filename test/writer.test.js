@@ -295,6 +295,61 @@ describe('Writer', () => {
 		)
 	})
 
+	test('accepts metadata with builderName and builderVersion', async () => {
+		const filepath = join(TEST_DIR, 'writer-builder-metadata.comapeocat')
+		const writer = new Writer()
+
+		writer.addCategory('tree', fixtures.categories.tree)
+		writer.setCategorySelection(fixtures.categorySelection.observation)
+		writer.setMetadata({
+			name: 'Test Categories',
+			builderName: 'comapeocat',
+			builderVersion: '1.0.0',
+		})
+		writer.finish()
+
+		await pipeline(writer.outputStream, createWriteStream(filepath))
+
+		const reader = new Reader(filepath)
+		await reader.opened()
+
+		const metadata = await reader.metadata()
+		assert.equal(metadata.name, 'Test Categories')
+		assert.equal(metadata.builderName, 'comapeocat')
+		assert.equal(metadata.builderVersion, '1.0.0')
+		assert.ok(metadata.buildDateValue > 0)
+
+		await reader.close()
+	})
+
+	test('validates metadata builderName length', async () => {
+		const writer = new Writer()
+
+		assert.throws(
+			() => {
+				writer.setMetadata({
+					name: 'Test',
+					builderName: 'A'.repeat(101),
+				})
+			},
+			{ name: 'ValiError' },
+		)
+	})
+
+	test('validates metadata builderVersion length', async () => {
+		const writer = new Writer()
+
+		assert.throws(
+			() => {
+				writer.setMetadata({
+					name: 'Test',
+					builderVersion: 'A'.repeat(21),
+				})
+			},
+			{ name: 'ValiError' },
+		)
+	})
+
 	test('handles multiple document types', async () => {
 		const filepath = join(TEST_DIR, 'writer-multi-doc-types.comapeocat')
 		const writer = createTestWriter()

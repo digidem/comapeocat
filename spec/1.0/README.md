@@ -122,7 +122,9 @@ The metadata file MUST be a valid JSON object with the following structure:
 {
   "name": "string",
   "version": "string (optional)",
-  "buildDateValue": number
+  "buildDateValue": number,
+  "builderName": "string (optional)",
+  "builderVersion": "string (optional)"
 }
 ```
 
@@ -140,13 +142,25 @@ The metadata file MUST be a valid JSON object with the following structure:
   - MUST be a Unix timestamp in milliseconds
   - MUST be a positive integer
 
+- **builderName** (optional): The name or identifier of the tool used to build the categories archive
+  - MUST be a non-empty string
+  - MUST NOT exceed 100 characters
+  - Example: `"comapeocat"`
+
+- **builderVersion** (optional): The version of the tool used to build the categories archive
+  - MUST be a non-empty string
+  - MUST NOT exceed 20 characters
+  - Example: `"1.0.0"`
+
 ### 6.4. Example
 
 ```json
 {
 	"name": "Rainforest Monitoring Categories",
 	"version": "2.1.0",
-	"buildDateValue": 1727740800000
+	"buildDateValue": 1727740800000,
+	"builderName": "comapeocat",
+	"builderVersion": "1.0.0"
 }
 ```
 

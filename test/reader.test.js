@@ -292,6 +292,29 @@ describe('Reader', () => {
 			await reader.close()
 		})
 
+		test('reads metadata with builder fields', async () => {
+			const filepath = join(TEST_DIR, 'read-metadata-builder.comapeocat')
+			await createTestZip({
+				filepath,
+				files: {
+					'categories.json': { tree: fixtures.categories.tree },
+					'categorySelection.json': fixtures.categorySelection.observation,
+					'metadata.json': fixtures.metadata.withBuilder,
+				},
+			})
+
+			const reader = new Reader(filepath)
+			const metadata = await reader.metadata()
+
+			assert.equal(metadata.name, 'Test Categories')
+			assert.equal(metadata.version, '1.2.3')
+			assert.equal(metadata.buildDateValue, 1234567890)
+			assert.equal(metadata.builderName, 'comapeocat')
+			assert.equal(metadata.builderVersion, '1.0.0')
+
+			await reader.close()
+		})
+
 		test('reads icon names', async () => {
 			const filepath = join(TEST_DIR, 'read-icons.comapeocat')
 			await createTestZip({
