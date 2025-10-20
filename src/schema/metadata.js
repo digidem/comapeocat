@@ -21,6 +21,26 @@ export const MetadataSchemaInput = v.object({
 			),
 		),
 	),
+	builderName: v.optional(
+		v.pipe(
+			v.string(),
+			v.minLength(1),
+			v.maxLength(100),
+			v.description(
+				'The name or identifier of the tool used to build the categories archive',
+			),
+		),
+	),
+	builderVersion: v.optional(
+		v.pipe(
+			v.string(),
+			v.minLength(1),
+			v.maxLength(20),
+			v.description(
+				'The version of the tool used to build the categories archive',
+			),
+		),
+	),
 })
 
 // This is the metadata as-stored in the comapeocat file, which includes a build date and may include other fields in the future
