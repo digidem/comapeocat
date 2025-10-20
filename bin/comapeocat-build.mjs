@@ -1,6 +1,9 @@
 #!/usr/bin/env node
 import fs from 'node:fs'
 import { pipeline } from 'node:stream/promises'
+import { readFileSync } from 'node:fs'
+import { fileURLToPath } from 'node:url'
+import { dirname, join } from 'node:path'
 
 import { Command } from '@commander-js/extra-typings'
 import * as v from 'valibot'
@@ -19,6 +22,13 @@ import { messagesToTranslations } from './helpers/messages-to-translations.js'
 import { migrateDefaults } from './helpers/migrate-defaults.js'
 import { migrateGeometry } from './helpers/migrate-geometry.js'
 import { readFiles } from './helpers/read-files.js'
+
+// Read package.json to get the tool name and version
+const __filename = fileURLToPath(import.meta.url)
+const __dirname = dirname(__filename)
+const packageJson = JSON.parse(
+	readFileSync(join(__dirname, '..', 'package.json'), 'utf-8'),
+)
 
 const program = new Command()
 
@@ -86,6 +96,8 @@ program
 			}
 			// Metadata from the command line overrides metadata from the file, fallback to package.json
 			const mergedMetadata = {
+				builderName: packageJson.name,
+				builderVersion: packageJson.version,
 				...fileMetadata,
 				...metadata,
 			}

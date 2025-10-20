@@ -153,6 +153,13 @@ export const fixtures = /** @type {const} */ ({
 			version: '1.2.3',
 			buildDateValue: 1234567890,
 		},
+		withBuilder: {
+			name: 'Test Categories',
+			version: '1.2.3',
+			buildDateValue: 1234567890,
+			builderName: 'comapeocat',
+			builderVersion: '1.0.0',
+		},
 	},
 
 	icons: {
