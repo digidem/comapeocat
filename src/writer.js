@@ -9,6 +9,7 @@ import {
 	ICONS_DIR,
 	TRANSLATIONS_DIR,
 	VERSION_FILE,
+	FILE_VERSION,
 	MAX_ICON_SIZE,
 	MAX_JSON_SIZE,
 	MAX_ENTRIES,
@@ -42,8 +43,6 @@ import { TranslationsSchema } from './schema/translations.js'
 /** @import { CategorySelectionOutput } from './schema/categorySelection.js' */
 /** @import { MetadataOutput } from './schema/metadata.js' */
 /** @import { Entries } from 'type-fest'*/
-
-const FILE_VERSION = '1.0'
 
 export class Writer extends EventEmitter {
 	/** @param {Error} error */

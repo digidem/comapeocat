@@ -5,6 +5,7 @@ import { open } from 'yauzl-promise'
 
 import {
 	VERSION_FILE,
+	FILE_VERSION,
 	ICONS_DIR,
 	TRANSLATIONS_DIR,
 	MAX_ICON_SIZE,
@@ -325,6 +326,13 @@ export class Reader {
 	async fileVersion() {
 		const { fileVersion } = await this.#entriesPromise
 		return fileVersion
+	}
+
+	/**
+	 * @returns {string} Supported file version string (e.g. "1.0")
+	 */
+	supportedFileVersion() {
+		return FILE_VERSION
 	}
 
 	/**

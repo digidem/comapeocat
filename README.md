@@ -359,6 +359,31 @@ Returns a `Promise<Metadata>` - the metadata object containing:
 - `builderName` - Name of the tool used to build the archive (optional)
 - `builderVersion` - Version of the tool used to build the archive (optional)
 
+#### `reader.supportedFileVersion()`
+
+Returns the supported file version string (e.g., `"1.0"`).
+
+- **Returns**: `string` - The supported file version
+
+```javascript
+const reader = new Reader('path/to/categories.comapeocat')
+const supportedVersion = reader.supportedFileVersion()
+console.log('Supported version:', supportedVersion) // "1.0"
+```
+
+#### `async reader.fileVersion()`
+
+Returns the actual file version string from the archive.
+
+- **Returns**: `Promise<string>` - The file version (e.g., `"1.0"`, `"1.5"`)
+
+```javascript
+const reader = new Reader('path/to/categories.comapeocat')
+await reader.opened()
+const fileVersion = await reader.fileVersion()
+console.log('File version:', fileVersion)
+```
+
 #### `async reader.iconNames()`
 
 Returns a `Promise<Set<string>>` of all icon names (without `.svg` extension).

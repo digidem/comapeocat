@@ -7,6 +7,7 @@ export const TRANSLATIONS_DIR = 'translations'
 export const CATEGORY_SELECTION_FILE = 'categorySelection.json'
 export const METATADATA_FILE = 'metadata.json'
 export const VERSION_FILE = 'VERSION'
+export const FILE_VERSION = '1.0'
 export const DOCUMENT_TYPES = /** @type {const} */ (['observation', 'track'])
 export const DEPRECATED_GEOMETRY_TYPES = /** @type {const} */ ([
 	'point',
