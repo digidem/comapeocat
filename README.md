@@ -12,6 +12,52 @@ A JavaScript library for reading and writing CoMapeo Categories files (`.comapeo
 - **Validate** category files against the specification
 - **CLI tool** for creating and linting category files
 
+## Contents
+
+- [Quick Start](#quick-start)
+- [CLI Usage](#cli-usage)
+  - [Installation](#installation)
+  - [Commands](#commands)
+    - [`npx comapeocat build [inputDir]`](#npx-comapeocat-build-inputdir)
+    - [`npx comapeocat lint [inputDir]`](#npx-comapeocat-lint-inputdir)
+    - [`npx comapeocat validate [file]`](#npx-comapeocat-validate-file)
+    - [`npx comapeocat messages [inputDir]`](#npx-comapeocat-messages-inputdir)
+- [VSCode settings for JSON Schema Validation](#vscode-settings-for-json-schema-validation)
+- [API Reference](#api-reference)
+  - [Installation](#installation-1)
+  - [Quick Start](#quick-start-1)
+    - [Reading a Categories File](#reading-a-categories-file)
+    - [Writing a Categories File](#writing-a-categories-file)
+  - [Reader](#reader)
+    - [`new Reader(filepath)`](#new-readerfilepath)
+    - [`async reader.opened()`](#async-readeropened)
+    - [`async reader.categories()`](#async-readercategories)
+    - [`async reader.fields()`](#async-readerfields)
+    - [`async reader.categorySelection()`](#async-readercategoryselection)
+    - [`async reader.metadata()`](#async-readermetadata)
+    - [`async reader.iconNames()`](#async-readericonnames)
+    - [`async reader.getIcon(iconId)`](#async-readergeticoniconid)
+    - [`async *reader.icons()`](#async-readericons)
+    - [`async *reader.translations()`](#async-readertranslations)
+    - [`async reader.validate()`](#async-readervalidate)
+    - [`async reader.close()`](#async-readerclose)
+  - [Writer](#writer)
+    - [`new Writer(options?)`](#new-writeroptions)
+    - [`writer.addCategory(id, category)` _(synchronous)_](#writeraddcategoryid-category-synchronous)
+    - [`writer.addField(id, field)` _(synchronous)_](#writeraddfieldid-field-synchronous)
+    - [`async writer.addIcon(id, svg)`](#async-writeraddiconid-svg)
+    - [`async writer.addTranslations(lang, translations)`](#async-writeraddtranslationslang-translations)
+    - [`writer.setCategorySelection(categorySelection)` _(synchronous)_](#writersetcategoryselectioncategoryselection-synchronous)
+    - [`writer.setMetadata(metadata)` _(synchronous)_](#writersetmetadatametadata-synchronous)
+    - [`writer.finish()` _(synchronous)_](#writerfinish-synchronous)
+    - [`writer.outputStream` _(property)_](#writeroutputstream-property)
+- [File Format Specification](#file-format-specification)
+  - [Required Files](#required-files)
+  - [Optional Files](#optional-files)
+- [Validation](#validation)
+- [License](#license)
+- [Contributing](#contributing)
+
 ## Quick Start
 
 Build a `.comapeocat` file from a directory of JSON files and icons:
@@ -270,6 +316,8 @@ writer.setCategorySelection({
 writer.setMetadata({
 	name: 'Forest Monitoring',
 	version: '1.0.0',
+	builderName: 'comapeocat',
+	builderVersion: '1.0.0',
 })
 
 // Finalize and write
@@ -303,7 +351,13 @@ Returns a `Promise<CategorySelection>` - the category selection object mapping d
 
 #### `async reader.metadata()`
 
-Returns a `Promise<Metadata>` - the metadata object with name, version, and buildDateValue.
+Returns a `Promise<Metadata>` - the metadata object containing:
+
+- `name` - Human-readable name for the category set
+- `version` - Version identifier (optional)
+- `buildDateValue` - Build timestamp in milliseconds
+- `builderName` - Name of the tool used to build the archive (optional)
+- `builderVersion` - Version of the tool used to build the archive (optional)
 
 #### `async reader.iconNames()`
 
@@ -382,6 +436,11 @@ Sets the category selection object mapping document types to category IDs. Throw
 #### `writer.setMetadata(metadata)` _(synchronous)_
 
 Sets the metadata (required). Throws if called after `finish()`.
+
+- **metadata.name**: `string` (required) - Human-readable name for the category set (max 100 characters)
+- **metadata.version**: `string` (optional) - Version identifier (max 20 characters)
+- **metadata.builderName**: `string` (optional) - Name of the tool used to build the archive (max 100 characters)
+- **metadata.builderVersion**: `string` (optional) - Version of the tool (max 20 characters)
 
 #### `writer.finish()` _(synchronous)_
 
