@@ -7,6 +7,7 @@ import { join } from 'node:path'
 import { pipeline } from 'node:stream/promises'
 import { describe, test, before, after } from 'node:test'
 
+import { MAX_ENTRIES, MAX_JSON_SIZE } from '../src/lib/constants.js'
 import { Reader } from '../src/reader.js'
 import { Writer } from '../src/writer.js'
 import { fixtures } from './fixtures.js'
@@ -459,11 +460,19 @@ describe('Writer', () => {
 			category: {},
 			field: {},
 		}
-		// Add many categories to make it exceed 100KB
-		for (let i = 0; i < 5000; i++) {
-			largeTranslations.category[`cat${i}`] = {
-				name: 'A'.repeat(100),
+		let i = 0
+		// Keep adding until we exceed MAX_JSON_SIZE
+		while (
+			Buffer.byteLength(JSON.stringify(largeTranslations), 'utf8') <=
+			MAX_JSON_SIZE
+		) {
+			largeTranslations.field[`field${i}`] = {
+				label: 'A'.repeat(1000),
 			}
+			largeTranslations.category[`cat${i}`] = {
+				name: 'B'.repeat(1000),
+			}
+			i++
 		}
 
 		await assert.rejects(
@@ -477,14 +486,24 @@ describe('Writer', () => {
 	test('throws when categories.json exceeds MAX_JSON_SIZE', () => {
 		const writer = createTestWriter()
 
-		// Add many categories to exceed 100KB
-		for (let i = 0; i < 1000; i++) {
-			writer.addCategory(`cat${i}`, {
-				name: 'A'.repeat(200),
+		const largeCategories = {}
+
+		let i = 0
+		while (
+			Buffer.byteLength(JSON.stringify(largeCategories), 'utf8') <=
+			MAX_JSON_SIZE
+		) {
+			largeCategories[`cat${i}`] = {
+				name: 'A'.repeat(2000),
 				appliesTo: ['observation'],
-				tags: { test: 'value' },
+				tags: { test: `value${i}` },
 				fields: [],
-			})
+			}
+			i++
+		}
+
+		for (const [key, value] of Object.entries(largeCategories)) {
+			writer.addCategory(key, value)
 		}
 
 		// Need these for file to be valid otherwise
@@ -502,13 +521,22 @@ describe('Writer', () => {
 		writer.addCategory('river', fixtures.categories.river)
 		writer.setCategorySelection(fixtures.categorySelection.observation)
 
-		// Add many fields to exceed 100KB
-		for (let i = 0; i < 5000; i++) {
-			writer.addField(`field${i}`, {
+		const largeFields = {}
+
+		let i = 0
+		while (
+			Buffer.byteLength(JSON.stringify(largeFields), 'utf8') <= MAX_JSON_SIZE
+		) {
+			largeFields[`field${i}`] = {
 				type: 'text',
 				tagKey: `key${i}`,
-				label: 'A'.repeat(100),
-			})
+				label: 'A'.repeat(1000),
+			}
+			i++
+		}
+
+		for (const [key, value] of Object.entries(largeFields)) {
+			writer.addField(key, value)
 		}
 
 		assert.throws(() => writer.finish(), { name: 'JsonSizeError' })
@@ -521,10 +549,7 @@ describe('Writer', () => {
 		writer.addCategory('river', fixtures.categories.river)
 		writer.setCategorySelection(fixtures.categorySelection.observation)
 
-		// Try to add 10001 icons (exceeds MAX_ENTRIES of 10000)
-		// Note: We also have to account for the 5 JSON files added in finish()
-		// So we add 9996 icons, then finish() will add 5 more for a total of 10001
-		for (let i = 0; i < 9996; i++) {
+		for (let i = 0; i < MAX_ENTRIES - 4; i++) {
 			await writer.addIcon(`icon${i}`, fixtures.icons.simple)
 		}
 
@@ -538,7 +563,7 @@ describe('Writer', () => {
 		writer.addCategory('tree', fixtures.categories.tree)
 
 		// Add MAX_ENTRIES icons to trigger error
-		for (let i = 0; i < 10_000; i++) {
+		for (let i = 0; i < MAX_ENTRIES; i++) {
 			await writer.addIcon(`icon${i}`, fixtures.icons.simple)
 		}
 
@@ -559,7 +584,7 @@ describe('Writer', () => {
 		// Add MAX_ENTRIES translations to trigger error
 		// We use a simple translations object to make this faster
 		const simpleTranslations = { category: {}, field: {} }
-		for (let i = 0; i < 10_000; i++) {
+		for (let i = 0; i < MAX_ENTRIES; i++) {
 			// Use valid BCP 47 language codes: language + script variant
 			// Format: language-Latn-x-nnnnn where nnnnn is a private use subtag
 			const lang = `en-x-${i.toString().padStart(5, '0')}`

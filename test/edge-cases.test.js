@@ -7,7 +7,7 @@ import { join } from 'node:path'
 import { pipeline } from 'node:stream/promises'
 import { describe, test, before, after } from 'node:test'
 
-import { MAX_ENTRIES } from '../src/lib/constants.js'
+import { MAX_ENTRIES, MAX_JSON_SIZE } from '../src/lib/constants.js'
 import { Reader } from '../src/reader.js'
 import { Writer } from '../src/writer.js'
 import { createTestZip, fixtures } from './fixtures.js'
@@ -987,18 +987,21 @@ describe('Edge cases and untested spec details', () => {
 			})
 		})
 
-		test('rejects JSON file larger than MAX_JSON_SIZE', async () => {
+		test('rejects reading JSON file larger than MAX_JSON_SIZE', async () => {
 			const filepath = join(TEST_DIR, 'json-too-large.comapeocat')
-			// Create a categories.json that exceeds MAX_JSON_SIZE (100KB)
+			// Create a categories.json that exceeds MAX_JSON_SIZE
 			const largeCategories = {}
-			// Create many categories with unique names to ensure size exceeds 100KB
-			for (let i = 0; i < 500; i++) {
+			let i = 0
+			while (
+				Buffer.byteLength(JSON.stringify(largeCategories)) <= MAX_JSON_SIZE
+			) {
 				largeCategories[`category_${i}`] = {
-					name: `Category ${i} with a long name ${'x'.repeat(100)}`,
+					name: `Category ${i} with a long name ${'x'.repeat(1000)}`,
 					appliesTo: ['observation', 'track'],
 					tags: { tag: `value_${i}` },
 					fields: [],
 				}
+				i++
 			}
 
 			await createTestZip({
@@ -1017,18 +1020,22 @@ describe('Edge cases and untested spec details', () => {
 			await reader.close()
 		})
 
-		test('rejects translation JSON file larger than MAX_JSON_SIZE', async () => {
+		test('rejects reading translation JSON file larger than MAX_JSON_SIZE', async () => {
 			const filepath = join(TEST_DIR, 'translation-too-large.comapeocat')
 			// Create a translation file that exceeds MAX_JSON_SIZE (100KB)
 			const largeTranslation = {
 				category: {},
 				field: {},
 			}
-			// Add many category translations to exceed the limit
-			for (let i = 0; i < 2000; i++) {
-				largeTranslation.category[`category_${i}`] = {
-					name: `Very long name ${'x'.repeat(50)}`,
+
+			let i = 0
+			while (
+				Buffer.byteLength(JSON.stringify(largeTranslation)) <= MAX_JSON_SIZE
+			) {
+				largeTranslation.field[`field_${i}`] = {
+					label: `Very long label ${'x'.repeat(1000)}`,
 				}
+				i++
 			}
 
 			await createTestZip({
