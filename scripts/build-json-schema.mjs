@@ -7,6 +7,7 @@ import { CategorySchemaDeprecated } from '../src/schema/category.js'
 import { CategorySelectionSchema } from '../src/schema/categorySelection.js'
 import { FieldSchema } from '../src/schema/field.js'
 import { MessagesSchema } from '../src/schema/messages.js'
+import { MetadataSchemaInput } from '../src/schema/metadata.js'
 
 const outDir = new URL('../dist/schema/', import.meta.url)
 
@@ -57,6 +58,9 @@ const categorySelectionSchemaJson = toJsonSchema(CategorySelectionSchema, {
 const messagesSchemaJson = toJsonSchema(MessagesSchema, {
 	typeMode: 'input',
 })
+const metadataSchemaJson = toJsonSchema(MetadataSchemaInput, {
+	typeMode: 'input',
+})
 
 fs.writeFileSync(
 	new URL('category.json', outDir),
@@ -73,4 +77,8 @@ fs.writeFileSync(
 fs.writeFileSync(
 	new URL('messages.json', outDir),
 	JSON.stringify(messagesSchemaJson, null, 2),
+)
+fs.writeFileSync(
+	new URL('metadata.json', outDir),
+	JSON.stringify(metadataSchemaJson, null, 2),
 )
