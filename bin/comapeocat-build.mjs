@@ -1,9 +1,9 @@
 #!/usr/bin/env node
 import fs from 'node:fs'
-import { pipeline } from 'node:stream/promises'
 import { readFileSync } from 'node:fs'
-import { fileURLToPath } from 'node:url'
 import { dirname, join } from 'node:path'
+import { pipeline } from 'node:stream/promises'
+import { fileURLToPath } from 'node:url'
 
 import { Command } from '@commander-js/extra-typings'
 import * as v from 'valibot'
@@ -37,12 +37,13 @@ program
 	.option('-o, --output <file>', 'output .comapeocat file')
 	.option('--name <name>', 'name of the category set')
 	.option('--version <version>', 'version of the category set')
+	.option('--addCategoryIdTags', 'add a categoryId tag to each category', false)
 	.argument(
 		'[inputDir]',
 		'directory containing categories, fields, categorySelection and icons',
 		process.cwd(),
 	)
-	.action(async (dir, { output, ...metadata }) => {
+	.action(async (dir, { output, addCategoryIdTags, ...metadata }) => {
 		lint(dir).catch(handleError)
 		const writeStream = output ? fs.createWriteStream(output) : process.stdout
 		const writer = new Writer()
@@ -66,7 +67,17 @@ program
 						// We don't migrate the sort field yet
 						categoriesMap.set(id, migratedGeometry)
 						// v.parse validates the schema and removes the sort field
-						writer.addCategory(id, v.parse(CategorySchema, migratedGeometry))
+						const parsedCategory = v.parse(CategorySchema, migratedGeometry)
+						if (addCategoryIdTags) {
+							// Use addTags rather than tags so that categoryId is not used for
+							// matching, because that could result in unexpected behaviour
+							// when categories are updated.
+							parsedCategory.addTags = {
+								...parsedCategory.addTags,
+								categoryId: id,
+							}
+						}
+						writer.addCategory(id, parsedCategory)
 						break
 					}
 					case 'field':
