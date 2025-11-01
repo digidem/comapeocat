@@ -97,6 +97,7 @@ Build a `.comapeocat` file from a directory containing JSON files and icons.
 - `-o, --output <file>` - Output file path (default: stdout)
 - `--name <name>` - Name of the category set (overrides metadata.json)
 - `--version <version>` - Version of the category set (overrides metadata.json)
+- `--addCategoryIdTags` - Add a `categoryId` tag to each category's `addTags` property
 
 **Directory structure:**
 
@@ -129,6 +130,9 @@ npx comapeocat build ./my_categories --output output.comapeocat
 
 # Override metadata
 npx comapeocat build --name "My Categories" --version "1.0.0" --output output.comapeocat
+
+# Add categoryId tags to categories
+npx comapeocat build --addCategoryIdTags --output output.comapeocat
 ```
 
 #### `npx comapeocat lint [inputDir]`
