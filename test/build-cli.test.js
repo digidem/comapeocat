@@ -275,4 +275,36 @@ describe('CLI build command', () => {
 
 		await reader.close()
 	})
+
+	test('should add categoryId to addTags when --addCategoryIdTags is used', async () => {
+		const fixturePath = join(FIXTURES_DIR, 'complete')
+		const outputPath = join(TEST_DIR, 'with-category-id-tags.comapeocat')
+
+		const { exitCode } = await execa('node', [
+			CLI_PATH,
+			fixturePath,
+			'--output',
+			outputPath,
+			'--addCategoryIdTags',
+		])
+		assert.equal(exitCode, 0)
+
+		// Verify that categoryId was added to addTags
+		const reader = new Reader(outputPath)
+		await reader.opened()
+
+		const categories = await reader.categories()
+
+		// Check that all categories have categoryId in addTags
+		for (const [id, category] of categories) {
+			assert.ok(category.addTags, `Category ${id} should have addTags`)
+			assert.equal(
+				category.addTags.categoryId,
+				id,
+				`Category ${id} should have categoryId in addTags matching its id`,
+			)
+		}
+
+		await reader.close()
+	})
 })
