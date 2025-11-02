@@ -158,6 +158,163 @@ writeJSON(
 	nonOverlappingPreset2,
 )
 
+// Generate invalid fixtures
+
+// Field tagKey collision - error case (text field)
+const fieldTagKeyErrorDir = join(
+	FIXTURES_DIR,
+	'invalid',
+	'field-tagkey-collision-error',
+)
+const restaurantCategory = {
+	name: 'Restaurant',
+	appliesTo: ['observation'],
+	tags: {
+		amenity: 'restaurant',
+	},
+	addTags: {},
+	fields: ['cuisine_field'],
+}
+const cuisineField = {
+	tagKey: 'amenity',
+	label: 'Amenity Type',
+	type: 'text',
+}
+const trackCategory2 = {
+	name: 'Trail',
+	appliesTo: ['track'],
+	tags: {
+		highway: 'path',
+	},
+	addTags: {},
+	fields: [],
+}
+writeJSON(
+	join(fieldTagKeyErrorDir, 'categories'),
+	'restaurant.json',
+	restaurantCategory,
+)
+writeJSON(join(fieldTagKeyErrorDir, 'categories'), 'trail.json', trackCategory2)
+writeJSON(join(fieldTagKeyErrorDir, 'fields'), 'cuisine_field.json', cuisineField)
+writeJSON(fieldTagKeyErrorDir, 'categorySelection.json', {
+	observation: ['restaurant'],
+	track: ['trail'],
+})
+
+// Field tagKey collision - warning case (selectOne field)
+const fieldTagKeyWarningDir = join(
+	FIXTURES_DIR,
+	'invalid',
+	'field-tagkey-collision-warning',
+)
+const cafeCategory = {
+	name: 'Cafe',
+	appliesTo: ['observation'],
+	tags: {
+		amenity: 'cafe',
+	},
+	addTags: {
+		outdoor_seating: 'unknown',
+	},
+	fields: ['outdoor_seating_field'],
+}
+const outdoorSeatingField = {
+	tagKey: 'outdoor_seating',
+	label: 'Outdoor Seating',
+	type: 'selectOne',
+	options: [
+		{
+			label: 'Yes',
+			value: 'yes',
+		},
+		{
+			label: 'No',
+			value: 'no',
+		},
+	],
+}
+const trackCategory3 = {
+	name: 'Trail',
+	appliesTo: ['track'],
+	tags: {
+		highway: 'path',
+	},
+	addTags: {},
+	fields: [],
+}
+writeJSON(join(fieldTagKeyWarningDir, 'categories'), 'cafe.json', cafeCategory)
+writeJSON(join(fieldTagKeyWarningDir, 'categories'), 'trail.json', trackCategory3)
+writeJSON(
+	join(fieldTagKeyWarningDir, 'fields'),
+	'outdoor_seating_field.json',
+	outdoorSeatingField,
+)
+writeJSON(fieldTagKeyWarningDir, 'categorySelection.json', {
+	observation: ['cafe'],
+	track: ['trail'],
+})
+
+// Field tagKey collision - error case (selectMultiple field)
+const fieldTagKeyErrorSelectMultipleDir = join(
+	FIXTURES_DIR,
+	'invalid',
+	'field-tagkey-collision-selectMultiple',
+)
+const restaurantCategory2 = {
+	name: 'Restaurant',
+	appliesTo: ['observation'],
+	tags: {
+		amenity: 'restaurant',
+	},
+	addTags: {
+		cuisine: 'unknown',
+	},
+	fields: ['cuisine_field2'],
+}
+const cuisineField2 = {
+	tagKey: 'cuisine',
+	label: 'Cuisine Types',
+	type: 'selectMultiple',
+	options: [
+		{
+			label: 'Italian',
+			value: 'italian',
+		},
+		{
+			label: 'Mexican',
+			value: 'mexican',
+		},
+	],
+}
+const trackCategory4 = {
+	name: 'Trail',
+	appliesTo: ['track'],
+	tags: {
+		highway: 'path',
+	},
+	addTags: {},
+	fields: [],
+}
+writeJSON(
+	join(fieldTagKeyErrorSelectMultipleDir, 'categories'),
+	'restaurant.json',
+	restaurantCategory2,
+)
+writeJSON(
+	join(fieldTagKeyErrorSelectMultipleDir, 'categories'),
+	'trail.json',
+	trackCategory4,
+)
+writeJSON(
+	join(fieldTagKeyErrorSelectMultipleDir, 'fields'),
+	'cuisine_field2.json',
+	cuisineField2,
+)
+writeJSON(fieldTagKeyErrorSelectMultipleDir, 'categorySelection.json', {
+	observation: ['restaurant'],
+	track: ['trail'],
+})
+
 console.log(`Generated lint fixtures at ${FIXTURES_DIR}`)
 console.log('Valid fixtures:')
 console.log(
@@ -169,4 +326,14 @@ console.log(
 console.log('  - valid/no-fields (category without fields property)')
 console.log(
 	'  - valid/non-overlapping-applies-to (matching tags, non-overlapping appliesTo)',
+)
+console.log('\nInvalid fixtures:')
+console.log(
+	'  - invalid/field-tagkey-collision-error (text field with tagKey collision)',
+)
+console.log(
+	'  - invalid/field-tagkey-collision-warning (selectOne field with tagKey collision)',
+)
+console.log(
+	'  - invalid/field-tagkey-collision-selectMultiple (selectMultiple field with tagKey collision)',
 )

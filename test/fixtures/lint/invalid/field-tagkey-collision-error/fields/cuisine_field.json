@@ -1,0 +1,5 @@
+{
+  "tagKey": "amenity",
+  "label": "Amenity Type",
+  "type": "text"
+}

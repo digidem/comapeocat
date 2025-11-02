@@ -1,0 +1,11 @@
+{
+  "name": "Trail",
+  "appliesTo": [
+    "track"
+  ],
+  "tags": {
+    "highway": "path"
+  },
+  "addTags": {},
+  "fields": []
+}

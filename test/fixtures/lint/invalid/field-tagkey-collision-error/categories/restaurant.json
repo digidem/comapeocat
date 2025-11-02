@@ -1,0 +1,13 @@
+{
+  "name": "Restaurant",
+  "appliesTo": [
+    "observation"
+  ],
+  "tags": {
+    "amenity": "restaurant"
+  },
+  "addTags": {},
+  "fields": [
+    "cuisine_field"
+  ]
+}

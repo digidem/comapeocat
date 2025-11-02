@@ -163,4 +163,63 @@ describe('CLI lint command', () => {
 			)
 		})
 	})
+
+	describe('invalid fixtures - field tagKey collisions', () => {
+		test('should throw error for text field with tagKey collision', async () => {
+			const fixturePath = join(
+				FIXTURES_DIR,
+				'invalid',
+				'field-tagkey-collision-error',
+			)
+			await assert.rejects(
+				() => execa('node', [CLI_PATH, fixturePath]),
+				(error) => {
+					assert.equal(error.exitCode, 1)
+					assert.match(error.stderr, /FieldTagKeyConflictError/)
+					assert.match(
+						error.stderr,
+						/Field 'cuisine_field' \(type: text\) in category 'restaurant'/,
+					)
+					assert.match(error.stderr, /has tagKey 'amenity'/)
+					return true
+				},
+			)
+		})
+
+		test('should warn for selectOne field with tagKey collision', async () => {
+			const fixturePath = join(
+				FIXTURES_DIR,
+				'invalid',
+				'field-tagkey-collision-warning',
+			)
+			const { exitCode, stderr } = await execa('node', [CLI_PATH, fixturePath])
+			assert.equal(exitCode, 0)
+			assert.match(
+				stderr,
+				/Select field 'outdoor_seating_field' in category 'cafe'/,
+			)
+			assert.match(stderr, /has tagKey 'outdoor_seating'/)
+		})
+
+		test('should throw error for selectMultiple field with tagKey collision', async () => {
+			const fixturePath = join(
+				FIXTURES_DIR,
+				'invalid',
+				'field-tagkey-collision-selectMultiple',
+			)
+			await assert.rejects(
+				() => execa('node', [CLI_PATH, fixturePath]),
+				(error) => {
+					assert.equal(error.exitCode, 1)
+					assert.match(error.stderr, /FieldTagKeyConflictError/)
+					assert.match(
+						error.stderr,
+						/Field 'cuisine_field2' \(type: selectMultiple\) in category 'restaurant'/,
+					)
+					assert.match(error.stderr, /has tagKey 'cuisine'/)
+					return true
+				},
+			)
+		})
+	})
 })

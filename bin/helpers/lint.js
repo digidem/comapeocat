@@ -1,6 +1,7 @@
 import { hasProperty } from 'dot-prop-extra'
 import * as v from 'valibot'
 
+import { FieldTagKeyConflictError } from '../../src/lib/errors.js'
 import { addRefToMap, getCategoryIdsForDocType } from '../../src/lib/utils.js'
 import { validateReferences } from '../../src/lib/validate-references.js'
 import { CategorySchema } from '../../src/schema/category.js'
@@ -183,6 +184,15 @@ export async function lint(dir) {
 
 	validateCategoryTags(categories)
 	successes.push(`✓ All categories have tags which are unique`)
+
+	// Check that field tagKeys don't collide with category tags
+	const fieldTagKeyWarnings = validateFieldTagKeys(categories, fields)
+	if (fieldTagKeyWarnings.length) {
+		warnings.push(...fieldTagKeyWarnings)
+	} else {
+		successes.push(`✓ No collisions between category tags and field tagKeys`)
+	}
+
 	const fieldIds = new Set(fields.keys())
 	validateReferences({ categories, fieldIds, iconIds, categorySelection })
 	successes.push(`✓ All categories reference existing fields and icons`)
@@ -281,4 +291,41 @@ ${trackCatIdsNotInSelection.map((id) => `   - ${id}`).join('\n')}`,
  */
 function diffArrays(arr1, arr2) {
 	return arr1.filter((item) => !arr2.includes(item))
+}
+
+/**
+ * Validate that field tagKeys don't collide with category tags.
+ * Throws if there is a tag key conflict
+ * @param {Map<string, CategoryOutput>} categories
+ * @param {Map<string, FieldInput>} fields
+ * @returns {string[]} array of warnings
+ */
+function validateFieldTagKeys(categories, fields) {
+	const warnings = []
+
+	for (const [categoryId, category] of categories) {
+		// Get all tag keys from tags and addTags
+		const categoryTagKeys = new Set([
+			...Object.keys(category.tags),
+			...Object.keys(category.addTags),
+		])
+
+		// Check each field referenced by this category
+		for (const fieldId of category.fields) {
+			const field = fields.get(fieldId)
+			if (!field) continue // This is caught by validateReferences
+			if (!categoryTagKeys.has(field.tagKey)) continue
+			if (field.type === 'selectOne') {
+				warnings.push(`⚠️ Warning: Select field '${fieldId}' in category '${categoryId}' has tagKey '${field.tagKey}' which collides with a category tag.
+If a user changes the selected option, the category will change, leading to unexpected behavior.`)
+			} else {
+				throw new FieldTagKeyConflictError(
+					`Field '${fieldId}' (type: ${field.type}) in category '${categoryId}' has tagKey '${field.tagKey}' which collides with a category tag.
+If the user edits the field, the category could become unmatched, or you will end up with unexpected data coming from the category tag rather than user input.`,
+				)
+			}
+		}
+	}
+
+	return warnings
 }

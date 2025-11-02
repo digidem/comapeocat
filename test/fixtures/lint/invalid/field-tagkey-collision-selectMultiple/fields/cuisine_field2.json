@@ -1,0 +1,15 @@
+{
+  "tagKey": "cuisine",
+  "label": "Cuisine Types",
+  "type": "selectMultiple",
+  "options": [
+    {
+      "label": "Italian",
+      "value": "italian"
+    },
+    {
+      "label": "Mexican",
+      "value": "mexican"
+    }
+  ]
+}

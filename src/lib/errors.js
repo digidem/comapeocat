@@ -156,31 +156,37 @@ export class InvalidFileVersionError extends Error {
 
 /**
  * @template {string} TName
- * @typedef {{
+ * @template {string | undefined} TMessage
+ * @typedef {TMessage extends string ? {
  *   new (): Error & { name: TName }
+ * } : {
+ * 	 new (message?: string): Error & { name: TName }
  * }} SimpleErrorConstructor
  */
 
 /**
  * Factory function to create simple error classes with a static message
  * @template {string} TName
+ * @template {string | undefined} TMessage
  * @param {TName} name - The error class name
- * @param {string} message - The error message
- * @returns {SimpleErrorConstructor<TName>}
+ * @param {TMessage} [message] - The error message
+ * @returns {SimpleErrorConstructor<TName, TMessage>}
  */
 function createSimpleError(name, message) {
 	const ErrorClass = class extends Error {
 		name = name
 
-		constructor() {
-			super(message)
+		/** @param {string} [constructorMessage] */
+		constructor(constructorMessage) {
+			super(constructorMessage || message)
 			Error.captureStackTrace?.(this, ErrorClass)
 		}
 	}
 
 	Object.defineProperty(ErrorClass, 'name', { value: name })
 
-	return /** @type {SimpleErrorConstructor<TName>} */ (ErrorClass)
+	// @ts-expect-error
+	return ErrorClass
 }
 
 export class InvalidFileError extends Error {
@@ -210,6 +216,10 @@ export const MissingMetadataError = createSimpleError(
 export const AddAfterFinishError = createSimpleError(
 	'AddAfterFinishError',
 	'Cannot add more data after finish() has been called.',
+)
+
+export const FieldTagKeyConflictError = createSimpleError(
+	'FieldTagKeyConflictError',
 )
 
 export class InvalidSvgError extends Error {

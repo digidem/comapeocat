@@ -1,0 +1,15 @@
+{
+  "name": "Cafe",
+  "appliesTo": [
+    "observation"
+  ],
+  "tags": {
+    "amenity": "cafe"
+  },
+  "addTags": {
+    "outdoor_seating": "unknown"
+  },
+  "fields": [
+    "outdoor_seating_field"
+  ]
+}
