@@ -1,5 +1,6 @@
 import { hasProperty } from 'dot-prop-extra'
 import * as v from 'valibot'
+import { green, yellow } from 'yoctocolors'
 
 import { FieldTagKeyConflictError } from '../../src/lib/errors.js'
 import { addRefToMap, getCategoryIdsForDocType } from '../../src/lib/utils.js'
@@ -277,9 +278,9 @@ ${trackCatIdsNotInSelection.map((id) => `   - ${id}`).join('\n')}`,
 	}
 
 	// Write to stderr, because stdout could be used for piping output
-	console.warn(successes.join('\n'))
+	console.warn(successes.map((s) => green(s)).join('\n'))
 	if (warnings.length > 0) {
-		console.warn('\n' + warnings.join('\n'))
+		console.warn('\n' + warnings.map((w) => yellow(w)).join('\n'))
 	}
 }
 
