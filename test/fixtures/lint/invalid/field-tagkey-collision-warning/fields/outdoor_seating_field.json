@@ -1,0 +1,15 @@
+{
+  "tagKey": "outdoor_seating",
+  "label": "Outdoor Seating",
+  "type": "selectOne",
+  "options": [
+    {
+      "label": "Yes",
+      "value": "yes"
+    },
+    {
+      "label": "No",
+      "value": "no"
+    }
+  ]
+}
