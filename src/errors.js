@@ -1,0 +1,25 @@
+export {
+	AddAfterFinishError,
+	CategoryRefError,
+	CategorySelectionRefError,
+	DuplicateTagsError,
+	FieldTagKeyConflictError,
+	IconSizeError,
+	InvalidCategorySelectionError,
+	InvalidFileError,
+	InvalidFileVersionError,
+	InvalidSvgError,
+	InvalidZipFileError,
+	JsonSizeError,
+	MissingCategoriesError,
+	MissingCategorySelectionError,
+	MissingMetadataError,
+	SchemaError,
+	TooManyEntriesError,
+	UnsupportedFileVersionError,
+	VersionSizeError,
+	isInvalidFileError,
+	isParseError,
+} from './lib/errors.js'
+
+/** @typedef {import('./lib/errors.js').InvalidFileErrors} InvalidFileErrors */

@@ -24,6 +24,7 @@ import {
 	InvalidZipFileError,
 	TooManyEntriesError,
 	VersionSizeError,
+	unsupportedFileVersionMessage,
 } from './lib/errors.js'
 import { parse } from './lib/utils.js'
 import { validateReferences } from './lib/validate-references.js'
@@ -404,9 +405,11 @@ function assertReadableVersion(version) {
 		throw new InvalidFileVersionError({ version })
 	}
 	if (major > SUPPORTED_MAJOR_VERSION) {
-		throw new UnsupportedFileVersionError({
-			version,
-			supportedVersions: [SUPPORTED_MAJOR_VERSION],
-		})
+		throw new UnsupportedFileVersionError(
+			unsupportedFileVersionMessage({
+				version,
+				supportedVersions: [SUPPORTED_MAJOR_VERSION],
+			}),
+		)
 	}
 }

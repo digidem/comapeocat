@@ -191,7 +191,10 @@ export function assertSchema(schema, data, { fileName }) {
 		return v.assert(schema, data)
 	} catch (err) {
 		if (v.isValiError(err)) {
-			throw new SchemaError({ fileName, valiError: err })
+			throw new SchemaError(
+				`Error in file ${fileName}:\n${v.summarize(err.issues)}`,
+				{ cause: err },
+			)
 		} else {
 			throw err
 		}
