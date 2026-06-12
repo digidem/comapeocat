@@ -375,7 +375,7 @@ async function concatStream(stream) {
  */
 function assertValidEntries(entries) {
 	if (!entries.categories) {
-		throw new MissingCategoriesError({})
+		throw new MissingCategoriesError()
 	}
 	if (!entries.categorySelection) {
 		throw new MissingCategorySelectionError()

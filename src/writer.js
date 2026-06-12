@@ -214,7 +214,7 @@ export class Writer extends EventEmitter {
 			throw new MissingMetadataError()
 		}
 		if (this.#categories.size === 0) {
-			throw new MissingCategoriesError({})
+			throw new MissingCategoriesError()
 		}
 		if (!this.#categorySelection) {
 			throw new MissingCategorySelectionError()

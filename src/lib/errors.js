@@ -91,7 +91,7 @@ export const MissingMetadataError = createErrorClass({
 
 export const MissingCategoriesError = createErrorClass({
 	code: 'MISSING_CATEGORIES_ERROR',
-	message: (/** @type {{ docType?: string }} */ { docType }) => {
+	message: (/** @type {{ docType?: string }} */ { docType } = {}) => {
 		let message = 'No categories found'
 		if (docType) message += ` which apply to ${docType} documents`
 		return message
