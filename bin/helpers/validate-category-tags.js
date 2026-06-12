@@ -1,9 +1,6 @@
 import stableStringify from 'safe-stable-stringify'
 
-import {
-	DuplicateTagsError,
-	duplicateTagsMessage,
-} from '../../src/lib/errors.js'
+import { DuplicateTagsError } from '../../src/lib/errors.js'
 
 /**
  * Validate that all category tags are unique
@@ -37,6 +34,6 @@ export function validateCategoryTags(categoriesMap) {
 	}
 
 	if (duplicates.length > 0) {
-		throw new DuplicateTagsError(duplicateTagsMessage({ duplicates }))
+		throw new DuplicateTagsError({ duplicates })
 	}
 }

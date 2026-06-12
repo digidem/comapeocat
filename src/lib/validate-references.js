@@ -3,9 +3,6 @@ import {
 	InvalidCategorySelectionError,
 	CategorySelectionRefError,
 	MissingCategoriesError,
-	categoryRefMessage,
-	invalidCategorySelectionMessage,
-	missingCategoriesMessage,
 } from './errors.js'
 import { addRefToMap, getCategoryIdsForDocType, typedEntries } from './utils.js'
 
@@ -50,22 +47,24 @@ export function validateReferences({
 	}
 
 	if (missingFieldRefs.size > 0) {
-		throw new CategoryRefError(
-			categoryRefMessage({ missingRefs: missingFieldRefs, property: 'field' }),
-		)
+		throw new CategoryRefError({
+			missingRefs: missingFieldRefs,
+			property: 'field',
+		})
 	}
 	if (missingIconRefs.size > 0) {
-		throw new CategoryRefError(
-			categoryRefMessage({ missingRefs: missingIconRefs, property: 'icon' }),
-		)
+		throw new CategoryRefError({
+			missingRefs: missingIconRefs,
+			property: 'icon',
+		})
 	}
 
 	// Check that there are categories for both observation and track documents
 	if (getCategoryIdsForDocType(categories, 'observation').length === 0) {
-		throw new MissingCategoriesError(missingCategoriesMessage('observation'))
+		throw new MissingCategoriesError({ docType: 'observation' })
 	}
 	if (getCategoryIdsForDocType(categories, 'track').length === 0) {
-		throw new MissingCategoriesError(missingCategoriesMessage('track'))
+		throw new MissingCategoriesError({ docType: 'track' })
 	}
 
 	// Check category selection document types if provided
@@ -86,9 +85,9 @@ export function validateReferences({
 		}
 
 		if (invalidDocTypeRefs.size > 0) {
-			throw new InvalidCategorySelectionError(
-				invalidCategorySelectionMessage({ invalidRefs: invalidDocTypeRefs }),
-			)
+			throw new InvalidCategorySelectionError({
+				invalidRefs: invalidDocTypeRefs,
+			})
 		}
 	}
 }
