@@ -4,16 +4,6 @@ import * as v from 'valibot'
 import { open } from 'yauzl-promise'
 
 import {
-	VERSION_FILE,
-	FILE_VERSION,
-	ICONS_DIR,
-	TRANSLATIONS_DIR,
-	MAX_ICON_SIZE,
-	MAX_JSON_SIZE,
-	MAX_ENTRIES,
-	MAX_VERSION_SIZE,
-} from './lib/constants.js'
-import {
 	InvalidFileVersionError,
 	MissingCategorySelectionError,
 	MissingMetadataError,
@@ -24,7 +14,17 @@ import {
 	InvalidZipFileError,
 	TooManyEntriesError,
 	VersionSizeError,
-} from './lib/errors.js'
+} from './errors.js'
+import {
+	VERSION_FILE,
+	FILE_VERSION,
+	ICONS_DIR,
+	TRANSLATIONS_DIR,
+	MAX_ICON_SIZE,
+	MAX_JSON_SIZE,
+	MAX_ENTRIES,
+	MAX_VERSION_SIZE,
+} from './lib/constants.js'
 import { parse } from './lib/utils.js'
 import { validateReferences } from './lib/validate-references.js'
 import { CategorySchema } from './schema/category.js'
@@ -35,7 +35,7 @@ import { TranslationsSchema } from './schema/translations.js'
 
 const SUPPORTED_MAJOR_VERSION = 1
 /** @import { ZipFile, Entry } from 'yauzl-promise' */
-/** @import { SchemaError } from './lib/errors.js' */
+/** @import { SchemaError } from './errors.js' */
 /** @import { JSONError } from 'parse-json' */
 /** @import {SetOptional} from 'type-fest' */
 /** @typedef {import('./schema/field.js').FieldOutput} FieldOutput */

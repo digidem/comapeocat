@@ -1,6 +1,6 @@
 import * as v from 'valibot'
 
-import { SchemaError } from './errors.js'
+import { SchemaError } from '../errors.js'
 
 /** @param {unknown} err */
 export function isNotFoundError(err) {

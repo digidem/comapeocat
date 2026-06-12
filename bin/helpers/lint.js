@@ -2,7 +2,7 @@ import { hasProperty } from 'dot-prop-extra'
 import * as v from 'valibot'
 import { green, yellow } from 'yoctocolors'
 
-import { FieldTagKeyConflictError } from '../../src/lib/errors.js'
+import { FieldTagKeyConflictError } from '../../src/errors.js'
 import { addRefToMap, getCategoryIdsForDocType } from '../../src/lib/utils.js'
 import { validateReferences } from '../../src/lib/validate-references.js'
 import { CategorySchema } from '../../src/schema/category.js'
