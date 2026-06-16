@@ -17,7 +17,7 @@ type Expected<T> = Omit<T, 'schemaName' | `${string}Refs` | `${string}Ref`> & {
 			: never
 }
 
-// Check our Except utility type works as intended
+// Check our Expected utility type works as intended
 Expect<
 	ExtendsStrict<
 		{ user: string; orders: string[] },
@@ -28,7 +28,13 @@ Expect<
 		}>
 	>
 >
-Expect<ExtendsStrict<CategoryOutput, Expected<PresetValue>>>
+
+// CategoryOutput deliberately diverges from PresetValue: PresetValue.geometry
+// (point/line/area/etc) was replaced with appliesTo (observation/track) in #12
+type ExpectedCategory = Omit<Expected<PresetValue>, 'geometry'> & {
+	appliesTo: ('observation' | 'track')[]
+}
+Expect<ExtendsStrict<CategoryOutput, ExpectedCategory>>
 Expect<ExtendsStrict<FieldOutput, Expected<FieldValue>>>
 
 function Expect<T extends true>() {}

@@ -31,6 +31,7 @@
 		"test": "node --test",
 		"prepare": "husky && husky install",
 		"format": "prettier --write .",
+		"lint": "prettier --check . && tsc --noEmit -p tsconfig.json",
 		"build:types": "tsc -p tsconfig.npm.json",
 		"build:schema": "node scripts/build-json-schema.mjs",
 		"build": "npm run build:types && npm run build:schema",
