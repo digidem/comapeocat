@@ -1,17 +1,12 @@
 {
-  "name": "Ross Hansen-Bogisich DVM",
-  "appliesTo": [
-    "observation",
-    "track"
-  ],
-  "tags": {
-    "const": 3.294890624014419
-  },
-  "addTags": {},
-  "removeTags": {},
-  "fields": [
-    "field1"
-  ],
-  "terms": [],
-  "sort": 1
+	"name": "Ross Hansen-Bogisich DVM",
+	"appliesTo": ["observation", "track"],
+	"tags": {
+		"const": 3.294890624014419
+	},
+	"addTags": {},
+	"removeTags": {},
+	"fields": ["field1"],
+	"terms": [],
+	"sort": 1
 }

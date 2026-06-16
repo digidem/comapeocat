@@ -1,17 +1,12 @@
 {
-  "name": "Pat Kerluke I",
-  "appliesTo": [
-    "track"
-  ],
-  "tags": {
-    "tantu": "bibo"
-  },
-  "addTags": {},
-  "removeTags": {},
-  "fields": [
-    "field1",
-    "field2"
-  ],
-  "terms": [],
-  "color": "#d9fa2e"
+	"name": "Pat Kerluke I",
+	"appliesTo": ["track"],
+	"tags": {
+		"tantu": "bibo"
+	},
+	"addTags": {},
+	"removeTags": {},
+	"fields": ["field1", "field2"],
+	"terms": [],
+	"color": "#d9fa2e"
 }

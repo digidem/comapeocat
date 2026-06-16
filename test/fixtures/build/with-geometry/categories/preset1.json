@@ -1,16 +1,12 @@
 {
-  "name": "Kim C",
-  "tags": {
-    "ancilla": 0.8485766269868622
-  },
-  "addTags": {},
-  "removeTags": {},
-  "fields": [
-    "field1"
-  ],
-  "terms": [],
-  "color": "#5cdaf8",
-  "geometry": [
-    "point"
-  ]
+	"name": "Kim C",
+	"tags": {
+		"ancilla": 0.8485766269868622
+	},
+	"addTags": {},
+	"removeTags": {},
+	"fields": ["field1"],
+	"terms": [],
+	"color": "#5cdaf8",
+	"geometry": ["point"]
 }

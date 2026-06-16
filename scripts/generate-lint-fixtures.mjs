@@ -195,7 +195,11 @@ writeJSON(
 	restaurantCategory,
 )
 writeJSON(join(fieldTagKeyErrorDir, 'categories'), 'trail.json', trackCategory2)
-writeJSON(join(fieldTagKeyErrorDir, 'fields'), 'cuisine_field.json', cuisineField)
+writeJSON(
+	join(fieldTagKeyErrorDir, 'fields'),
+	'cuisine_field.json',
+	cuisineField,
+)
 writeJSON(fieldTagKeyErrorDir, 'categorySelection.json', {
 	observation: ['restaurant'],
 	track: ['trail'],
@@ -243,7 +247,11 @@ const trackCategory3 = {
 	fields: [],
 }
 writeJSON(join(fieldTagKeyWarningDir, 'categories'), 'cafe.json', cafeCategory)
-writeJSON(join(fieldTagKeyWarningDir, 'categories'), 'trail.json', trackCategory3)
+writeJSON(
+	join(fieldTagKeyWarningDir, 'categories'),
+	'trail.json',
+	trackCategory3,
+)
 writeJSON(
 	join(fieldTagKeyWarningDir, 'fields'),
 	'outdoor_seating_field.json',

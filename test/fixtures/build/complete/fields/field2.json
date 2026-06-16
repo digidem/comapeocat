@@ -1,7 +1,7 @@
 {
-  "tagKey": "tondeo",
-  "label": "provident",
-  "helperText": "canto",
-  "type": "text",
-  "appearance": "multiline"
+	"tagKey": "tondeo",
+	"label": "provident",
+	"helperText": "canto",
+	"type": "text",
+	"appearance": "multiline"
 }

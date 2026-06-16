@@ -1,11 +1,9 @@
 {
-  "name": "Trail",
-  "appliesTo": [
-    "track"
-  ],
-  "tags": {
-    "highway": "path"
-  },
-  "addTags": {},
-  "fields": []
+	"name": "Trail",
+	"appliesTo": ["track"],
+	"tags": {
+		"highway": "path"
+	},
+	"addTags": {},
+	"fields": []
 }

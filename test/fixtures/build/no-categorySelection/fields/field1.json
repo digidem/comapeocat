@@ -1,7 +1,7 @@
 {
-  "tagKey": "caput",
-  "label": "sophismata",
-  "placeholder": "tabernus",
-  "type": "text",
-  "appearance": "multiline"
+	"tagKey": "caput",
+	"label": "sophismata",
+	"placeholder": "tabernus",
+	"type": "text",
+	"appearance": "multiline"
 }

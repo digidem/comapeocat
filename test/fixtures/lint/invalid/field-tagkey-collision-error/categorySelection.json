@@ -1,8 +1,4 @@
 {
-  "observation": [
-    "restaurant"
-  ],
-  "track": [
-    "trail"
-  ]
+	"observation": ["restaurant"],
+	"track": ["trail"]
 }

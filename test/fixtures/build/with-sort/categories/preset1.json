@@ -1,17 +1,13 @@
 {
-  "name": "Chelsea Cummerata-Hills Jr.",
-  "appliesTo": [
-    "observation"
-  ],
-  "tags": {
-    "decretum": true
-  },
-  "addTags": {},
-  "removeTags": {},
-  "fields": [
-    "field1"
-  ],
-  "terms": [],
-  "color": "#c4b7bf",
-  "sort": 3
+	"name": "Chelsea Cummerata-Hills Jr.",
+	"appliesTo": ["observation"],
+	"tags": {
+		"decretum": true
+	},
+	"addTags": {},
+	"removeTags": {},
+	"fields": ["field1"],
+	"terms": [],
+	"color": "#c4b7bf",
+	"sort": 3
 }

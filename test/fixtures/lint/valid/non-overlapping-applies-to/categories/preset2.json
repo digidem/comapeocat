@@ -1,14 +1,12 @@
 {
-  "name": "Lowel",
-  "appliesTo": [
-    "track"
-  ],
-  "tags": {
-    "category": "water",
-    "type": "natural"
-  },
-  "addTags": {},
-  "removeTags": {},
-  "fields": [],
-  "terms": []
+	"name": "Lowel",
+	"appliesTo": ["track"],
+	"tags": {
+		"category": "water",
+		"type": "natural"
+	},
+	"addTags": {},
+	"removeTags": {},
+	"fields": [],
+	"terms": []
 }
