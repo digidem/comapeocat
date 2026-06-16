@@ -64,7 +64,7 @@
 		"yoctocolors": "^2.1.2"
 	},
 	"devDependencies": {
-		"@comapeo/schema": "^2.1.1",
+		"@comapeo/schema": "^2.3.0",
 		"@eslint/js": "^9.36.0",
 		"@faker-js/faker": "^10.0.0",
 		"@trivago/prettier-plugin-sort-imports": "^5.2.2",

@@ -109,4 +109,8 @@ export const FieldSchema = v.variant('type', [
 		),
 		options: OptionsSchema,
 	}),
+	v.object({
+		...BaseFieldSchema.entries,
+		type: v.pipe(v.literal('date'), v.description('Date picker field')),
+	}),
 ])

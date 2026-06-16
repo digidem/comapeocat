@@ -213,10 +213,13 @@ describe('Reader', () => {
 					'categories.json': {
 						tree: {
 							...fixtures.categories.tree,
-							fields: ['species'],
+							fields: ['species', 'planting_date'],
 						},
 					},
-					'fields.json': { species: fixtures.fields.species },
+					'fields.json': {
+						species: fixtures.fields.species,
+						planting_date: fixtures.fields.planting_date,
+					},
 					'categorySelection.json': fixtures.categorySelection.observation,
 					'metadata.json': fixtures.metadata.minimal,
 				},
@@ -225,9 +228,10 @@ describe('Reader', () => {
 			const reader = new Reader(filepath)
 			const fields = await reader.fields()
 
-			assert.equal(fields.size, 1)
+			assert.equal(fields.size, 2)
 			assert.equal(fields.get('species')?.type, 'text')
 			assert.equal(fields.get('species')?.label, 'Species')
+			assert.equal(fields.get('planting_date')?.type, 'date')
 
 			await reader.close()
 		})
