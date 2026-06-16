@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 import { Command } from '@commander-js/extra-typings'
 
-import { isParseError } from '../src/lib/errors.js'
+import { isParseError } from '../src/errors.js'
 import { lint } from './helpers/lint.js'
 
 const program = new Command()

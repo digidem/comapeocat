@@ -3,7 +3,7 @@ import {
 	InvalidCategorySelectionError,
 	CategorySelectionRefError,
 	MissingCategoriesError,
-} from './errors.js'
+} from '../errors.js'
 import { addRefToMap, getCategoryIdsForDocType, typedEntries } from './utils.js'
 
 /**
@@ -16,7 +16,7 @@ import { addRefToMap, getCategoryIdsForDocType, typedEntries } from './utils.js'
  * @param {Set<string>} params.iconIds - Set of icon IDs
  * @param {Record<string, string[]>} [params.categorySelection] - Optional category selection object mapping document types to category IDs
  * @throws {CategoryRefError} When field or icon references are missing
- * @throws {import('./errors.js').InvalidCategorySelectionError} When categories in category selection don't support the document type
+ * @throws {import('../errors.js').InvalidCategorySelectionError} When categories in category selection don't support the document type
  */
 
 export function validateReferences({

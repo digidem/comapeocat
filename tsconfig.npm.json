@@ -8,5 +8,5 @@
 		"declarationMap": true
 	},
 	"files": [],
-	"include": ["src/index.js"]
+	"include": ["src/index.js", "src/errors.js"]
 }

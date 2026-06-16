@@ -1,6 +1,6 @@
 import * as v from 'valibot'
 
-import { SchemaError } from './errors.js'
+import { SchemaError } from '../errors.js'
 
 /** @param {unknown} err */
 export function isNotFoundError(err) {
@@ -23,7 +23,10 @@ export function parse(schema, data, { fileName }) {
 		return v.parse(schema, data)
 	} catch (err) {
 		if (v.isValiError(err)) {
-			throw new SchemaError({ fileName, valiError: err })
+			throw new SchemaError(
+				`Error in file ${fileName}:\n${v.summarize(err.issues)}`,
+				{ cause: err },
+			)
 		} else {
 			throw err
 		}

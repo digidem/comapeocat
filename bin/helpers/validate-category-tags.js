@@ -1,6 +1,6 @@
 import stableStringify from 'safe-stable-stringify'
 
-import { DuplicateTagsError } from '../../src/lib/errors.js'
+import { DuplicateTagsError } from '../../src/errors.js'
 
 /**
  * Validate that all category tags are unique

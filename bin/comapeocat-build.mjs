@@ -8,7 +8,7 @@ import { fileURLToPath } from 'node:url'
 import { Command } from '@commander-js/extra-typings'
 import * as v from 'valibot'
 
-import { isParseError } from '../src/lib/errors.js'
+import { isParseError } from '../src/errors.js'
 import { validateBcp47 } from '../src/lib/validate-bcp-47.js'
 import {
 	CategorySchema,

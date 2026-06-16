@@ -10,6 +10,10 @@
 			"types": "./dist/index.d.ts",
 			"import": "./src/index.js"
 		},
+		"./errors.js": {
+			"types": "./dist/errors.d.ts",
+			"import": "./src/errors.js"
+		},
 		"./reader.js": {
 			"types": "./dist/reader.d.ts",
 			"import": "./src/reader.js"
@@ -47,6 +51,7 @@
 		"bcp-47": "^2.1.0",
 		"bcp-47-normalize": "^2.3.0",
 		"commander": "^14.0.1",
+		"custom-error-creator": "^1.4.0",
 		"dot-prop-extra": "^10.2.0",
 		"iso-3166": "^4.3.0",
 		"p-event": "^7.0.0",

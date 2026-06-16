@@ -6,6 +6,15 @@ import { pEvent } from 'p-event'
 import * as v from 'valibot'
 
 import {
+	AddAfterFinishError,
+	MissingCategorySelectionError,
+	MissingMetadataError,
+	MissingCategoriesError,
+	IconSizeError,
+	JsonSizeError,
+	TooManyEntriesError,
+} from './errors.js'
+import {
 	ICONS_DIR,
 	TRANSLATIONS_DIR,
 	VERSION_FILE,
@@ -14,15 +23,6 @@ import {
 	MAX_JSON_SIZE,
 	MAX_ENTRIES,
 } from './lib/constants.js'
-import {
-	AddAfterFinishError,
-	MissingCategorySelectionError,
-	MissingMetadataError,
-	MissingCategoriesError,
-	IconSizeError,
-	JsonSizeError,
-	TooManyEntriesError,
-} from './lib/errors.js'
 import { parseSvg } from './lib/parse-svg.js'
 import { validateBcp47 } from './lib/validate-bcp-47.js'
 import { validateReferences } from './lib/validate-references.js'

@@ -16,45 +16,12 @@ A JavaScript library for reading and writing CoMapeo Categories files (`.comapeo
 
 - [Quick Start](#quick-start)
 - [CLI Usage](#cli-usage)
-  - [Installation](#installation)
-  - [Commands](#commands)
-    - [`npx comapeocat build [inputDir]`](#npx-comapeocat-build-inputdir)
-    - [`npx comapeocat lint [inputDir]`](#npx-comapeocat-lint-inputdir)
-    - [`npx comapeocat validate [file]`](#npx-comapeocat-validate-file)
-    - [`npx comapeocat messages [inputDir]`](#npx-comapeocat-messages-inputdir)
 - [VSCode settings for JSON Schema Validation](#vscode-settings-for-json-schema-validation)
 - [API Reference](#api-reference)
-  - [Installation](#installation-1)
-  - [Quick Start](#quick-start-1)
-    - [Reading a Categories File](#reading-a-categories-file)
-    - [Writing a Categories File](#writing-a-categories-file)
   - [Reader](#reader)
-    - [`new Reader(filepath)`](#new-readerfilepath)
-    - [`async reader.opened()`](#async-readeropened)
-    - [`async reader.categories()`](#async-readercategories)
-    - [`async reader.fields()`](#async-readerfields)
-    - [`async reader.categorySelection()`](#async-readercategoryselection)
-    - [`async reader.metadata()`](#async-readermetadata)
-    - [`async reader.iconNames()`](#async-readericonnames)
-    - [`async reader.getIcon(iconId)`](#async-readergeticoniconid)
-    - [`async *reader.icons()`](#async-readericons)
-    - [`async *reader.translations()`](#async-readertranslations)
-    - [`async reader.validate()`](#async-readervalidate)
-    - [`async reader.close()`](#async-readerclose)
   - [Writer](#writer)
-    - [`new Writer(options?)`](#new-writeroptions)
-    - [`writer.addCategory(id, category)` _(synchronous)_](#writeraddcategoryid-category-synchronous)
-    - [`writer.addField(id, field)` _(synchronous)_](#writeraddfieldid-field-synchronous)
-    - [`async writer.addIcon(id, svg)`](#async-writeraddiconid-svg)
-    - [`async writer.addTranslations(lang, translations)`](#async-writeraddtranslationslang-translations)
-    - [`writer.setCategorySelection(categorySelection)` _(synchronous)_](#writersetcategoryselectioncategoryselection-synchronous)
-    - [`writer.setMetadata(metadata)` _(synchronous)_](#writersetmetadatametadata-synchronous)
-    - [`writer.finish()` _(synchronous)_](#writerfinish-synchronous)
-    - [`writer.outputStream` _(property)_](#writeroutputstream-property)
+  - [Errors](#errors)
 - [File Format Specification](#file-format-specification)
-  - [Required Files](#required-files)
-  - [Optional Files](#optional-files)
-- [Validation](#validation)
 - [License](#license)
 - [Contributing](#contributing)
 
@@ -479,6 +446,73 @@ Finalizes the archive. Must be called before reading from `outputStream`. Valida
 
 Readable stream containing the `.comapeocat` file data. Only readable after calling `finish()`.
 
+### Errors
+
+Reader and Writer validate schemas, references, file versions, and SVG content. Validation failures throw errors with a `code` property identifying the error type. Each error class is exported from `comapeocat/errors.js` and has a static `code` property, so you can check errors with `instanceof` or by code:
+
+```javascript
+import { SchemaError, isInvalidFileError } from 'comapeocat/errors.js'
+
+try {
+	await reader.validate()
+} catch (err) {
+	if (err instanceof SchemaError) {
+		// or: err.code === SchemaError.code
+	} else if (isInvalidFileError(err)) {
+		// not a valid .comapeocat file
+	}
+}
+```
+
+| Code                               | Thrown when                                                                                           |
+| ---------------------------------- | ----------------------------------------------------------------------------------------------------- |
+| `INVALID_ZIP_FILE_ERROR`           | The file is not a valid ZIP archive.                                                                  |
+| `INVALID_FILE_ERROR`               | The file is not a valid categories file.                                                              |
+| `INVALID_FILE_VERSION_ERROR`       | The `VERSION` file is not in `MAJOR.MINOR` format.                                                    |
+| `UNSUPPORTED_FILE_VERSION_ERROR`   | The file version is not supported by this library version.                                            |
+| `MISSING_CATEGORIES_ERROR`         | No categories found (for a given document type, if specified).                                        |
+| `MISSING_CATEGORY_SELECTION_ERROR` | Required category selection definitions are missing.                                                  |
+| `MISSING_METADATA_ERROR`           | Required metadata definitions are missing.                                                            |
+| `SCHEMA_ERROR`                     | A JSON file failed validation against its schema.                                                     |
+| `CATEGORY_REF_ERROR`               | A category references a field or icon that does not exist.                                            |
+| `CATEGORY_SELECTION_REF_ERROR`     | The category selection references a category that does not exist.                                     |
+| `INVALID_CATEGORY_SELECTION_ERROR` | The category selection references a category that does not include that document type in `appliesTo`. |
+| `DUPLICATE_TAGS_ERROR`             | Multiple categories have identical tags.                                                              |
+| `FIELD_TAG_KEY_CONFLICT_ERROR`     | A field's `tagKey` collides with a category tag.                                                      |
+| `INVALID_SVG_ERROR`                | Icon content is not valid SVG.                                                                        |
+| `ICON_SIZE_ERROR`                  | An icon exceeds the maximum allowed size.                                                             |
+| `JSON_SIZE_ERROR`                  | A JSON file exceeds the maximum allowed size.                                                         |
+| `VERSION_SIZE_ERROR`               | The `VERSION` file exceeds the maximum allowed size.                                                  |
+| `TOO_MANY_ENTRIES_ERROR`           | The archive contains too many entries.                                                                |
+| `ADD_AFTER_FINISH_ERROR`           | A Writer method was called after `finish()`.                                                          |
+
+Each error class is named after its code (e.g. `SCHEMA_ERROR` is thrown by `SchemaError`). Every code above is an expected validation error caused by bad input or an invalid file, except `ADD_AFTER_FINISH_ERROR`, which signals a bug in the calling code (a Writer method called after `finish()`).
+
+The following typeguards are also exported. Each narrows `err.code` to the matching union of codes, so you can branch on `err.code` with full type safety:
+
+- `isKnownError(err)` — the error was thrown by this module (any code in the table above). Narrows to the `KnownError` type, with `err.code` typed as `KnownErrorCode`.
+- `isValidationError(err)` — the error is an _expected_ validation error: thrown by this module and caused by bad input or an invalid file (every code except the programmer-error `ADD_AFTER_FINISH_ERROR`). Use it to show a friendly message and skip error reporting. Narrows to the `ValidationError` type.
+- `isInvalidFileError(err)` — the `.comapeocat` file itself is invalid (`INVALID_FILE_VERSION_ERROR`, `UNSUPPORTED_FILE_VERSION_ERROR`, `MISSING_CATEGORY_SELECTION_ERROR`, or `MISSING_CATEGORIES_ERROR`).
+- `isParseError(err)` — the error is from parsing input JSON or validating it (`JSONError` from [parse-json](https://github.com/sindresorhus/parse-json), `SCHEMA_ERROR`, `CATEGORY_REF_ERROR`, or `INVALID_CATEGORY_SELECTION_ERROR`).
+
+For example, to report only unexpected errors while showing the rest to the user:
+
+```javascript
+import { isValidationError } from 'comapeocat/errors.js'
+
+try {
+	await reader.validate()
+} catch (err) {
+	if (isValidationError(err)) {
+		showMessageToUser(err.message)
+	} else {
+		reportToSentry(err) // unexpected: a bug or an environment error
+	}
+}
+```
+
+The `KnownError`, `KnownErrorCode`, and `ValidationError` types are exported for use in TypeScript and JSDoc.
+
 ## File Format Specification
 
 The `.comapeocat` file format is a ZIP archive containing JSON configuration files and SVG icons. See the [full specification](./spec/1.0/README.md) for details.
@@ -495,17 +529,6 @@ The `.comapeocat` file format is a ZIP archive containing JSON configuration fil
 - `fields.json` - Field definitions
 - `icons/*.svg` - Icon files
 - `translations/*.json` - Translation files
-
-## Validation
-
-Both Reader and Writer perform comprehensive validation:
-
-- **Schema validation** - All JSON files are validated against their schemas
-- **Reference validation** - Field and icon references are checked
-- **Version validation** - File format version is checked
-- **SVG validation** - Icon files are validated and sanitized
-
-Error messages include file names and specific issues to help debug problems.
 
 ## License
 

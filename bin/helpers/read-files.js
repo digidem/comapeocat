@@ -4,6 +4,7 @@ import path from 'node:path'
 import parseJson from 'parse-json'
 import * as v from 'valibot'
 
+import { SchemaError } from '../../src/errors.js'
 import {
 	CATEGORIES_DIR,
 	FIELDS_DIR,
@@ -12,7 +13,6 @@ import {
 	METATADATA_FILE,
 	PRESETS_DIR,
 } from '../../src/lib/constants.js'
-import { SchemaError } from '../../src/lib/errors.js'
 import { parseSvg } from '../../src/lib/parse-svg.js'
 import { isNotFoundError } from '../../src/lib/utils.js'
 import {
@@ -191,7 +191,10 @@ export function assertSchema(schema, data, { fileName }) {
 		return v.assert(schema, data)
 	} catch (err) {
 		if (v.isValiError(err)) {
-			throw new SchemaError({ fileName, valiError: err })
+			throw new SchemaError(
+				`Error in file ${fileName}:\n${v.summarize(err.issues)}`,
+				{ cause: err },
+			)
 		} else {
 			throw err
 		}

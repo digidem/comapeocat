@@ -3,7 +3,7 @@ import assert from 'node:assert/strict'
 import { describe, test } from 'node:test'
 
 import { validateCategoryTags } from '../bin/helpers/validate-category-tags.js'
-import { DuplicateTagsError } from '../src/lib/errors.js'
+import { DuplicateTagsError } from '../src/errors.js'
 
 describe('validateCategoryTags', () => {
 	test('accepts categories with unique tags', () => {

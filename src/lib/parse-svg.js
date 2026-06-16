@@ -1,6 +1,6 @@
 import { optimize } from 'svgo'
 
-import { InvalidSvgError } from './errors.js'
+import { InvalidSvgError } from '../errors.js'
 
 /**
  * Optimizes an SVG string by removing unnecessary attributes and elements.
