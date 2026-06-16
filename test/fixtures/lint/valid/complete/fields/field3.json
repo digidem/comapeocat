@@ -1,6 +1,6 @@
 {
-  "tagKey": "vilicus",
-  "label": "artificiose",
-  "type": "text",
-  "appearance": "multiline"
+	"tagKey": "vilicus",
+	"label": "artificiose",
+	"type": "text",
+	"appearance": "multiline"
 }

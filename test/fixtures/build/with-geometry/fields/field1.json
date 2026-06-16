@@ -1,6 +1,6 @@
 {
-  "tagKey": "admitto",
-  "label": "totus",
-  "placeholder": "ager",
-  "type": "number"
+	"tagKey": "admitto",
+	"label": "totus",
+	"placeholder": "ager",
+	"type": "number"
 }

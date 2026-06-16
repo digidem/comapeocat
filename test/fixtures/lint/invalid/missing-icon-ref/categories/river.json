@@ -1,12 +1,10 @@
 {
-  "name": "River",
-  "appliesTo": [
-    "track"
-  ],
-  "tags": {
-    "natural": "water",
-    "water": "river"
-  },
-  "fields": [],
-  "icon": "missing_icon"
+	"name": "River",
+	"appliesTo": ["track"],
+	"tags": {
+		"natural": "water",
+		"water": "river"
+	},
+	"fields": [],
+	"icon": "missing_icon"
 }

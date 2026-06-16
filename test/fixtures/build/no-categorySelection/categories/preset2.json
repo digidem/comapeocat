@@ -1,15 +1,11 @@
 {
-  "name": "Elias Jakubowski",
-  "appliesTo": [
-    "track"
-  ],
-  "tags": {
-    "sub": false
-  },
-  "addTags": {},
-  "removeTags": {},
-  "fields": [
-    "field2"
-  ],
-  "terms": []
+	"name": "Elias Jakubowski",
+	"appliesTo": ["track"],
+	"tags": {
+		"sub": false
+	},
+	"addTags": {},
+	"removeTags": {},
+	"fields": ["field2"],
+	"terms": []
 }

@@ -1,16 +1,12 @@
 {
-  "name": "Sammy Harber",
-  "tags": {
-    "ubi": 1.5866122555938744
-  },
-  "addTags": {},
-  "removeTags": {},
-  "fields": [
-    "field1"
-  ],
-  "terms": [],
-  "color": "#5d6efd",
-  "geometry": [
-    "line"
-  ]
+	"name": "Sammy Harber",
+	"tags": {
+		"ubi": 1.5866122555938744
+	},
+	"addTags": {},
+	"removeTags": {},
+	"fields": ["field1"],
+	"terms": [],
+	"color": "#5d6efd",
+	"geometry": ["line"]
 }

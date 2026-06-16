@@ -1,10 +1,8 @@
 {
-  "name": "Tree",
-  "appliesTo": [
-    "observation"
-  ],
-  "tags": {
-    "natural": "tree"
-  },
-  "fields": []
+	"name": "Tree",
+	"appliesTo": ["observation"],
+	"tags": {
+		"natural": "tree"
+	},
+	"fields": []
 }

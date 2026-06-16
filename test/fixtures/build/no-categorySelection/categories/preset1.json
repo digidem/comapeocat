@@ -1,16 +1,12 @@
 {
-  "name": "J",
-  "appliesTo": [
-    "observation"
-  ],
-  "tags": {
-    "vel": true
-  },
-  "addTags": {},
-  "removeTags": {},
-  "fields": [
-    "field1"
-  ],
-  "terms": [],
-  "color": "#8efdb4"
+	"name": "J",
+	"appliesTo": ["observation"],
+	"tags": {
+		"vel": true
+	},
+	"addTags": {},
+	"removeTags": {},
+	"fields": ["field1"],
+	"terms": [],
+	"color": "#8efdb4"
 }

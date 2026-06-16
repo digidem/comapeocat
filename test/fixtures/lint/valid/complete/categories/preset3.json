@@ -1,17 +1,13 @@
 {
-  "name": "John Hane",
-  "appliesTo": [
-    "track"
-  ],
-  "tags": {
-    "tamen": "comedo"
-  },
-  "addTags": {},
-  "removeTags": {},
-  "fields": [
-    "field1"
-  ],
-  "icon": "icon3",
-  "terms": [],
-  "color": "#70df9a"
+	"name": "John Hane",
+	"appliesTo": ["track"],
+	"tags": {
+		"tamen": "comedo"
+	},
+	"addTags": {},
+	"removeTags": {},
+	"fields": ["field1"],
+	"icon": "icon3",
+	"terms": [],
+	"color": "#70df9a"
 }

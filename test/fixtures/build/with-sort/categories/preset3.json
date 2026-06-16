@@ -1,17 +1,13 @@
 {
-  "name": "Dr. Roy Donnelly",
-  "appliesTo": [
-    "observation"
-  ],
-  "tags": {
-    "adimpleo": null
-  },
-  "addTags": {},
-  "removeTags": {},
-  "fields": [
-    "field1"
-  ],
-  "terms": [],
-  "color": "#96ebfd",
-  "sort": 2
+	"name": "Dr. Roy Donnelly",
+	"appliesTo": ["observation"],
+	"tags": {
+		"adimpleo": null
+	},
+	"addTags": {},
+	"removeTags": {},
+	"fields": ["field1"],
+	"terms": [],
+	"color": "#96ebfd",
+	"sort": 2
 }

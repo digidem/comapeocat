@@ -1,16 +1,16 @@
 {
-  "tagKey": "caelestis",
-  "label": "paulatim",
-  "placeholder": "carus",
-  "type": "selectMultiple",
-  "options": [
-    {
-      "label": "alius",
-      "value": null
-    },
-    {
-      "label": "umerus",
-      "value": "vesco"
-    }
-  ]
+	"tagKey": "caelestis",
+	"label": "paulatim",
+	"placeholder": "carus",
+	"type": "selectMultiple",
+	"options": [
+		{
+			"label": "alius",
+			"value": null
+		},
+		{
+			"label": "umerus",
+			"value": "vesco"
+		}
+	]
 }

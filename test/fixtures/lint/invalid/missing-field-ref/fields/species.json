@@ -1,6 +1,6 @@
 {
-  "type": "text",
-  "tagKey": "species",
-  "label": "Species",
-  "appearance": "singleline"
+	"type": "text",
+	"tagKey": "species",
+	"label": "Species",
+	"appearance": "singleline"
 }

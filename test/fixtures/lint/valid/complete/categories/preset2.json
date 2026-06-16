@@ -1,17 +1,12 @@
 {
-  "name": "Shaun Bruen",
-  "appliesTo": [
-    "track"
-  ],
-  "tags": {
-    "colligo": "usus"
-  },
-  "addTags": {},
-  "removeTags": {},
-  "fields": [
-    "field2",
-    "field3"
-  ],
-  "icon": "icon2",
-  "terms": []
+	"name": "Shaun Bruen",
+	"appliesTo": ["track"],
+	"tags": {
+		"colligo": "usus"
+	},
+	"addTags": {},
+	"removeTags": {},
+	"fields": ["field2", "field3"],
+	"icon": "icon2",
+	"terms": []
 }

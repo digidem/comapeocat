@@ -1,18 +1,13 @@
 {
-  "name": "Brandon Rippin",
-  "appliesTo": [
-    "observation"
-  ],
-  "tags": {
-    "vular": true
-  },
-  "addTags": {},
-  "removeTags": {},
-  "fields": [
-    "field1",
-    "field2"
-  ],
-  "icon": "icon1",
-  "terms": [],
-  "color": "#842581"
+	"name": "Brandon Rippin",
+	"appliesTo": ["observation"],
+	"tags": {
+		"vular": true
+	},
+	"addTags": {},
+	"removeTags": {},
+	"fields": ["field1", "field2"],
+	"icon": "icon1",
+	"terms": [],
+	"color": "#842581"
 }

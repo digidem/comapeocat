@@ -1,13 +1,10 @@
 {
-  "name": "Bobbie Torphy",
-  "appliesTo": [
-    "observation",
-    "track"
-  ],
-  "tags": {
-    "quasi": null
-  },
-  "addTags": {},
-  "removeTags": {},
-  "terms": []
+	"name": "Bobbie Torphy",
+	"appliesTo": ["observation", "track"],
+	"tags": {
+		"quasi": null
+	},
+	"addTags": {},
+	"removeTags": {},
+	"terms": []
 }

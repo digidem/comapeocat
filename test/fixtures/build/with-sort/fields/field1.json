@@ -1,20 +1,20 @@
 {
-  "tagKey": "conculco",
-  "label": "cupio",
-  "helperText": "su",
-  "type": "selectOne",
-  "options": [
-    {
-      "label": "cras",
-      "value": "attonbitus"
-    },
-    {
-      "label": "conatus",
-      "value": "conspergo"
-    },
-    {
-      "label": "abbas",
-      "value": null
-    }
-  ]
+	"tagKey": "conculco",
+	"label": "cupio",
+	"helperText": "su",
+	"type": "selectOne",
+	"options": [
+		{
+			"label": "cras",
+			"value": "attonbitus"
+		},
+		{
+			"label": "conatus",
+			"value": "conspergo"
+		},
+		{
+			"label": "abbas",
+			"value": null
+		}
+	]
 }

@@ -1,16 +1,11 @@
 {
-  "name": "Katie Lynch",
-  "tags": {
-    "vis": true
-  },
-  "addTags": {},
-  "removeTags": {},
-  "fields": [
-    "field1"
-  ],
-  "terms": [],
-  "geometry": [
-    "point",
-    "line"
-  ]
+	"name": "Katie Lynch",
+	"tags": {
+		"vis": true
+	},
+	"addTags": {},
+	"removeTags": {},
+	"fields": ["field1"],
+	"terms": [],
+	"geometry": ["point", "line"]
 }
