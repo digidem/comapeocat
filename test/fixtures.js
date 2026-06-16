@@ -130,6 +130,11 @@ export const fixtures = /** @type {const} */ ({
 			tagKey: 'width',
 			label: 'Width (m)',
 		},
+		planting_date: {
+			type: 'date',
+			tagKey: 'planting_date',
+			label: 'Planting Date',
+		},
 	},
 
 	categorySelection: {

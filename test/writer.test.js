@@ -62,6 +62,7 @@ describe('Writer', () => {
 		writer.addField('species', fixtures.fields.species)
 		writer.addField('height', fixtures.fields.height)
 		writer.addField('name', fixtures.fields.name)
+		writer.addField('planting_date', fixtures.fields.planting_date)
 
 		await writer.addIcon('tree', fixtures.icons.tree)
 		await writer.addTranslations('es', fixtures.translations.es)
@@ -89,8 +90,9 @@ describe('Writer', () => {
 		assert.equal(categories.get('tree').color, '#228B22')
 
 		const fields = await reader.fields()
-		assert.equal(fields.size, 3)
+		assert.equal(fields.size, 4)
 		assert.equal(fields.get('species').type, 'text')
+		assert.equal(fields.get('planting_date').type, 'date')
 
 		const iconNames = await reader.iconNames()
 		assert.ok(iconNames.has('tree'))

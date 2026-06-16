@@ -43,6 +43,7 @@ describe('Writer -> Reader roundtrip tests', () => {
 		writer.addField('name', fixtures.fields.name)
 		writer.addField('area_size', fixtures.fields.area_size)
 		writer.addField('width', fixtures.fields.width)
+		writer.addField('planting_date', fixtures.fields.planting_date)
 
 		await writer.addIcon('tree', fixtures.icons.tree)
 		await writer.addIcon('forest', fixtures.icons.forest)
@@ -77,7 +78,7 @@ describe('Writer -> Reader roundtrip tests', () => {
 
 		// Verify fields
 		const fields = await reader.fields()
-		assert.equal(fields.size, 6)
+		assert.equal(fields.size, 7)
 
 		assert.deepEqual(fields.get('species'), fixtures.fields.speciesComplete)
 		assert.deepEqual(fields.get('height'), fixtures.fields.height)
@@ -89,6 +90,7 @@ describe('Writer -> Reader roundtrip tests', () => {
 		assert.deepEqual(fields.get('area_size'), fixtures.fields.area_size)
 		assert.deepEqual(fields.get('width'), fixtures.fields.width)
 		assert.deepEqual(fields.get('condition'), fixtures.fields.condition)
+		assert.deepEqual(fields.get('planting_date'), fixtures.fields.planting_date)
 
 		// Verify icons
 		const iconNames = await reader.iconNames()
@@ -279,6 +281,37 @@ describe('Writer -> Reader roundtrip tests', () => {
 		assert.equal(features.type, 'selectMultiple')
 		assert.equal(features.options.length, 3)
 
+		await reader.close()
+	})
+
+	test('roundtrip with date field', async () => {
+		const filepath = join(TEST_DIR, 'roundtrip-date.comapeocat')
+		const writer = createTestWriter()
+
+		writer.addCategory('planting', {
+			name: 'Planting',
+			appliesTo: ['observation', 'track'],
+			tags: { plant: 'yes' },
+			fields: ['planting_date'],
+		})
+		writer.setCategorySelection({
+			observation: ['planting'],
+			track: ['planting'],
+		})
+
+		writer.addField('planting_date', fixtures.fields.planting_date)
+		writer.setMetadata({ name: 'Test' })
+		writer.finish()
+
+		await pipeline(writer.outputStream, createWriteStream(filepath))
+
+		const reader = new Reader(filepath)
+		const fields = await reader.fields()
+		const plantingDate = fields.get('planting_date')
+
+		assert.equal(plantingDate.type, 'date')
+
+		await assert.doesNotReject(() => reader.validate())
 		await reader.close()
 	})
 })
