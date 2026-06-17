@@ -24,6 +24,7 @@ import {
 	MAX_ENTRIES,
 } from './lib/constants.js'
 import { parseSvg } from './lib/parse-svg.js'
+import { computeMinSchemaVersion } from './lib/schema-features.js'
 import { validateBcp47 } from './lib/validate-bcp-47.js'
 import { validateReferences } from './lib/validate-references.js'
 import { CategorySchema } from './schema/category.js'
@@ -216,7 +217,8 @@ export class Writer extends EventEmitter {
 		if (this.#categories.size === 0) {
 			throw new MissingCategoriesError()
 		}
-		if (!this.#categorySelection) {
+		const categorySelection = this.#categorySelection
+		if (!categorySelection) {
 			throw new MissingCategorySelectionError()
 		}
 		this.#finished = true
@@ -252,11 +254,7 @@ export class Writer extends EventEmitter {
 		this.#entryCount++
 
 		// Validate and add categorySelection.json
-		const categorySelectionJson = JSON.stringify(
-			this.#categorySelection,
-			null,
-			2,
-		)
+		const categorySelectionJson = JSON.stringify(categorySelection, null, 2)
 		const categorySelectionSize = Buffer.byteLength(
 			categorySelectionJson,
 			'utf-8',
@@ -277,6 +275,11 @@ export class Writer extends EventEmitter {
 		const metadata = {
 			...this.#metadata,
 			buildDateValue: Date.now(),
+			minSchemaVersion: computeMinSchemaVersion({
+				categories: this.#categories,
+				fields: this.#fields,
+				categorySelection,
+			}),
 		}
 		const metadataJson = JSON.stringify(metadata, null, 2)
 		const metadataSize = Buffer.byteLength(metadataJson, 'utf-8')

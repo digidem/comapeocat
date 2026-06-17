@@ -22,10 +22,17 @@ const DocTranslationSchema = v.record(
 	),
 )
 
-export const TranslationsSchema = v.record(
-	v.pipe(
-		v.union([v.literal('category'), v.literal('field')]),
-		v.description('The type of document translated (category or field)'),
+export const TranslationsSchema = v.object({
+	category: v.optional(
+		v.pipe(
+			DocTranslationSchema,
+			v.description('Translations for categories, keyed by category ID'),
+		),
 	),
-	DocTranslationSchema,
-)
+	field: v.optional(
+		v.pipe(
+			DocTranslationSchema,
+			v.description('Translations for fields, keyed by field ID'),
+		),
+	),
+})

@@ -5,10 +5,12 @@ import { open } from 'yauzl-promise'
 
 import {
 	InvalidFileVersionError,
+	InvalidSchemaVersionError,
 	MissingCategorySelectionError,
 	MissingMetadataError,
 	MissingCategoriesError,
 	UnsupportedFileVersionError,
+	UnsupportedSchemaVersionError,
 	IconSizeError,
 	JsonSizeError,
 	InvalidZipFileError,
@@ -18,6 +20,7 @@ import {
 import {
 	VERSION_FILE,
 	FILE_VERSION,
+	SCHEMA_VERSION,
 	ICONS_DIR,
 	TRANSLATIONS_DIR,
 	MAX_ICON_SIZE,
@@ -33,7 +36,7 @@ import { FieldSchema } from './schema/field.js'
 import { MetadataSchemaOutput } from './schema/metadata.js'
 import { TranslationsSchema } from './schema/translations.js'
 
-const SUPPORTED_MAJOR_VERSION = 1
+const SUPPORTED_MAJOR_VERSION = 2
 /** @import { ZipFile, Entry } from 'yauzl-promise' */
 /** @import { SchemaError } from './errors.js' */
 /** @import { JSONError } from 'parse-json' */
@@ -52,7 +55,8 @@ const SUPPORTED_MAJOR_VERSION = 1
  *   fields?: Entry,
  *   icons: Map<string, Entry>,
  *   translations: Map<string, Entry>,
- *   fileVersion: string
+ *   fileVersion: string,
+ *   minSchemaVersion: number
  * }} ZipEntries
  */
 const FILENAMES = /** @type {const} */ ({
@@ -114,7 +118,7 @@ export class Reader {
 				: Promise.resolve(filepathOrZip))
 		zipPromise.catch(noop)
 		this.#entriesPromise = (async () => {
-			/** @type {SetOptional<ZipEntries, 'categories' | 'categorySelection' | 'metadata' | 'fileVersion'>} */
+			/** @type {SetOptional<ZipEntries, 'categories' | 'categorySelection' | 'metadata' | 'fileVersion' | 'minSchemaVersion'>} */
 			const entries = {
 				icons: new Map(),
 				translations: new Map(),
@@ -180,7 +184,9 @@ export class Reader {
 				}
 			}
 			assertValidEntries(entries)
-			return entries
+			const minSchemaVersion = await readMinSchemaVersion(entries.metadata)
+			assertSupportedSchemaVersion(minSchemaVersion)
+			return { ...entries, minSchemaVersion }
 		})()
 		this.#entriesPromise.catch(noop)
 	}
@@ -321,7 +327,7 @@ export class Reader {
 	}
 
 	/**
-	 * @returns {Promise<string>} File version string (e.g. "1.0")
+	 * @returns {Promise<string>} Container format version string from the VERSION file (e.g. "1.0")
 	 */
 	async fileVersion() {
 		const { fileVersion } = await this.#entriesPromise
@@ -329,10 +335,28 @@ export class Reader {
 	}
 
 	/**
-	 * @returns {string} Supported file version string (e.g. "1.0")
+	 * @returns {string} Supported container format version string (e.g. "2.0")
 	 */
 	supportedFileVersion() {
 		return FILE_VERSION
+	}
+
+	/**
+	 * The minimum schema (vocabulary) revision required to read this file, as
+	 * declared in metadata.json. Files written before container version 2.0 do
+	 * not declare it, which implies 1.
+	 * @returns {Promise<number>} Schema revision (e.g. 1)
+	 */
+	async minSchemaVersion() {
+		const { minSchemaVersion } = await this.#entriesPromise
+		return minSchemaVersion
+	}
+
+	/**
+	 * @returns {number} Highest supported schema revision (e.g. 1)
+	 */
+	supportedSchemaVersion() {
+		return SCHEMA_VERSION
 	}
 
 	/**
@@ -370,8 +394,8 @@ async function concatStream(stream) {
 }
 
 /**
- * @param {import('type-fest').SetOptional<ZipEntries, 'categories' | 'categorySelection' | 'metadata' | 'fileVersion'>} entries
- * @returns {asserts entries is ZipEntries}
+ * @param {import('type-fest').SetOptional<ZipEntries, 'categories' | 'categorySelection' | 'metadata' | 'fileVersion' | 'minSchemaVersion'>} entries
+ * @returns {asserts entries is import('type-fest').SetOptional<ZipEntries, 'minSchemaVersion'>}
  */
 function assertValidEntries(entries) {
 	if (!entries.categories) {
@@ -407,6 +431,48 @@ function assertReadableVersion(version) {
 		throw new UnsupportedFileVersionError({
 			version,
 			supportedVersions: [SUPPORTED_MAJOR_VERSION],
+		})
+	}
+}
+
+/**
+ * Read the declared minSchemaVersion from the metadata entry. Only the
+ * version gate is extracted here — malformed metadata JSON is tolerated so
+ * that the error surfaces from `metadata()` as before. Files written before
+ * container version 2.0 do not declare a revision, which implies 1.
+ * @param {Entry} entry
+ * @returns {Promise<unknown>}
+ */
+async function readMinSchemaVersion(entry) {
+	let data
+	try {
+		data = parseJson(await concatStream(await entry.openReadStream()))
+	} catch {
+		return 1
+	}
+	if (data && typeof data === 'object' && 'minSchemaVersion' in data) {
+		return data.minSchemaVersion
+	}
+	return 1
+}
+
+/**
+ * Assert that the schema revision required by the file is supported
+ * @param {unknown} version
+ * @returns {asserts version is number}
+ */
+function assertSupportedSchemaVersion(version) {
+	if (
+		typeof version !== 'number' ||
+		!Number.isInteger(version) ||
+		version < 1
+	) {
+		throw new InvalidSchemaVersionError({ version })
+	}
+	if (version > SCHEMA_VERSION) {
+		throw new UnsupportedSchemaVersionError({
+			minSchemaVersion: version,
+			supportedSchemaVersion: SCHEMA_VERSION,
 		})
 	}
 }

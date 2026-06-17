@@ -24,7 +24,7 @@ const AppearanceSchema = v.pipe(
 const OptionValueSchema = v.union([
 	v.string(),
 	v.boolean(),
-	v.pipe(v.number(), v.integer()),
+	v.number(),
 	v.null(),
 ])
 
@@ -108,9 +108,5 @@ export const FieldSchema = v.variant('type', [
 			v.description('Select multiple items from a list of pre-defined options'),
 		),
 		options: OptionsSchema,
-	}),
-	v.object({
-		...BaseFieldSchema.entries,
-		type: v.pipe(v.literal('date'), v.description('Date picker field')),
 	}),
 ])

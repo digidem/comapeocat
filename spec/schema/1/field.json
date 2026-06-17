@@ -1,0 +1,217 @@
+{
+	"$schema": "http://json-schema.org/draft-07/schema#",
+	"anyOf": [
+		{
+			"type": "object",
+			"properties": {
+				"tagKey": {
+					"type": "string",
+					"minLength": 1,
+					"description": "The key in a tags object that this field applies to"
+				},
+				"label": {
+					"type": "string",
+					"minLength": 1,
+					"description": "Default language label for the form field label"
+				},
+				"placeholder": {
+					"type": "string",
+					"description": "Displayed as a placeholder in an empty text or number field before the user begins typing. Use 'helperText' for important information, because the placeholder is not visible after the user has entered data."
+				},
+				"helperText": {
+					"type": "string",
+					"description": "Additional context about the field, e.g. hints about how to answer the question."
+				},
+				"type": {
+					"const": "text",
+					"description": "Freeform text input"
+				},
+				"appearance": {
+					"anyOf": [
+						{
+							"const": "singleline",
+							"description": "Text will be cut-off if it exceeds the width of the field"
+						},
+						{
+							"const": "multiline",
+							"description": "Text will wrap and the field will grow vertically"
+						}
+					],
+					"description": "For text fields, display as a single-line or multi-line field",
+					"default": "multiline"
+				}
+			},
+			"required": [
+				"tagKey",
+				"label",
+				"type"
+			]
+		},
+		{
+			"type": "object",
+			"properties": {
+				"tagKey": {
+					"type": "string",
+					"minLength": 1,
+					"description": "The key in a tags object that this field applies to"
+				},
+				"label": {
+					"type": "string",
+					"minLength": 1,
+					"description": "Default language label for the form field label"
+				},
+				"placeholder": {
+					"type": "string",
+					"description": "Displayed as a placeholder in an empty text or number field before the user begins typing. Use 'helperText' for important information, because the placeholder is not visible after the user has entered data."
+				},
+				"helperText": {
+					"type": "string",
+					"description": "Additional context about the field, e.g. hints about how to answer the question."
+				},
+				"type": {
+					"const": "number",
+					"description": "Allows only numbers"
+				}
+			},
+			"required": [
+				"tagKey",
+				"label",
+				"type"
+			]
+		},
+		{
+			"type": "object",
+			"properties": {
+				"tagKey": {
+					"type": "string",
+					"minLength": 1,
+					"description": "The key in a tags object that this field applies to"
+				},
+				"label": {
+					"type": "string",
+					"minLength": 1,
+					"description": "Default language label for the form field label"
+				},
+				"placeholder": {
+					"type": "string",
+					"description": "Displayed as a placeholder in an empty text or number field before the user begins typing. Use 'helperText' for important information, because the placeholder is not visible after the user has entered data."
+				},
+				"helperText": {
+					"type": "string",
+					"description": "Additional context about the field, e.g. hints about how to answer the question."
+				},
+				"type": {
+					"const": "selectOne",
+					"description": "Select one item from a list of pre-defined options"
+				},
+				"options": {
+					"type": "array",
+					"items": {
+						"type": "object",
+						"properties": {
+							"label": {
+								"type": "string",
+								"minLength": 1
+							},
+							"value": {
+								"anyOf": [
+									{
+										"type": "string"
+									},
+									{
+										"type": "boolean"
+									},
+									{
+										"type": "number"
+									},
+									{
+										"type": "null"
+									}
+								]
+							}
+						},
+						"required": [
+							"label",
+							"value"
+						]
+					},
+					"minItems": 1,
+					"description": "List of options the user can select for single- or multi-select fields"
+				}
+			},
+			"required": [
+				"tagKey",
+				"label",
+				"type",
+				"options"
+			]
+		},
+		{
+			"type": "object",
+			"properties": {
+				"tagKey": {
+					"type": "string",
+					"minLength": 1,
+					"description": "The key in a tags object that this field applies to"
+				},
+				"label": {
+					"type": "string",
+					"minLength": 1,
+					"description": "Default language label for the form field label"
+				},
+				"placeholder": {
+					"type": "string",
+					"description": "Displayed as a placeholder in an empty text or number field before the user begins typing. Use 'helperText' for important information, because the placeholder is not visible after the user has entered data."
+				},
+				"helperText": {
+					"type": "string",
+					"description": "Additional context about the field, e.g. hints about how to answer the question."
+				},
+				"type": {
+					"const": "selectMultiple",
+					"description": "Select multiple items from a list of pre-defined options"
+				},
+				"options": {
+					"type": "array",
+					"items": {
+						"type": "object",
+						"properties": {
+							"label": {
+								"type": "string",
+								"minLength": 1
+							},
+							"value": {
+								"anyOf": [
+									{
+										"type": "string"
+									},
+									{
+										"type": "boolean"
+									},
+									{
+										"type": "number"
+									},
+									{
+										"type": "null"
+									}
+								]
+							}
+						},
+						"required": [
+							"label",
+							"value"
+						]
+					},
+					"minItems": 1,
+					"description": "List of options the user can select for single- or multi-select fields"
+				}
+			},
+			"required": [
+				"tagKey",
+				"label",
+				"type",
+				"options"
+			]
+		}
+	]
+}
