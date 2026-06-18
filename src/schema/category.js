@@ -65,19 +65,17 @@ const CategorySchemaNoMetadata = v.object({
 		v.pipe(
 			TagsSchema,
 			v.description(
-				"Tags that are added when changing to the category (default is the same value as 'tags')",
+				"Tags that are added when changing to the category. When absent, the consuming application defaults this to 'tags'.",
 			),
 		),
-		{},
 	),
 	removeTags: v.optional(
 		v.pipe(
 			TagsSchema,
 			v.description(
-				"Tags that are removed when changing to another category (default is the same value as 'addTags' which in turn defaults to 'tags')",
+				"Tags that are removed when changing to another category. When absent, the consuming application defaults this to 'addTags' (which in turn defaults to 'tags').",
 			),
 		),
-		{},
 	),
 	fields: v.optional(
 		v.pipe(

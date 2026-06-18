@@ -50,4 +50,14 @@ export const MetadataSchemaOutput = v.object({
 		v.number(),
 		v.description('Build date as a unix timestamp in milliseconds'),
 	),
+	minSchemaVersion: v.optional(
+		v.pipe(
+			v.number(),
+			v.integer(),
+			v.minValue(1),
+			v.description(
+				'The minimum schema (vocabulary) revision a reader must support to read this file, computed by the writer from the features used. Absent in files written before container version 2.0, which implies 1.',
+			),
+		),
+	),
 })
