@@ -30,7 +30,7 @@ Expect<
 >
 
 // CategoryOutput deliberately diverges from PresetValue: PresetValue.geometry
-// (point/line/area/etc) was replaced with appliesTo (observation/track) in #12
+// (point/line/area/etc) was replaced with appliesTo (observation/track) in https://github.com/digidem/comapeocat/pull/12
 type ExpectedCategory = Omit<Expected<PresetValue>, 'geometry'> & {
 	appliesTo: ('observation' | 'track')[]
 }
